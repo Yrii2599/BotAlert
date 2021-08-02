@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
-namespace ReminderBot
+namespace BotAlert
 {
     public class Program
     {
