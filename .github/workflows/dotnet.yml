@@ -5,7 +5,7 @@ on:
     branches: [ develop ]
 
 jobs:
-  build:
+  Check-PR:
 
     runs-on: ubuntu-latest
 
