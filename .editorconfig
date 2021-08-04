@@ -1,0 +1,118 @@
+
+[*.{appxmanifest,axml,build,config,csproj,dbml,discomap,dtd,jsproj,lsproj,njsproj,nuspec,proj,props,proto,resw,resx,StyleCop,targets,tasks,vbproj,xml,xsd}]
+indent_style = tab
+indent_size = tab
+tab_width = 4
+
+[*.{asax,ascx,aspx,axaml,cs,cshtml,css,htm,html,js,jsx,master,paml,razor,skin,ts,tsx,vb,xaml,xamlx,xoml}]
+indent_style = space
+indent_size = 4
+tab_width = 4
+
+[*.{json,resjson}]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+[*]
+
+# Microsoft .NET properties
+csharp_new_line_before_members_in_object_initializers = false
+csharp_preferred_modifier_order = public, private, protected, internal, new, abstract, virtual, sealed, override, static, readonly, extern, unsafe, volatile, async:suggestion
+csharp_style_var_elsewhere = true:error
+csharp_style_var_for_built_in_types = true:error
+csharp_style_var_when_type_is_apparent = true:error
+dotnet_style_parentheses_in_arithmetic_binary_operators = never_if_unnecessary:suggestion
+dotnet_style_parentheses_in_other_binary_operators = never_if_unnecessary:suggestion
+dotnet_style_parentheses_in_relational_binary_operators = never_if_unnecessary:suggestion
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_predefined_type_for_member_access = true:suggestion
+dotnet_style_qualification_for_event = false:warning
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
+
+# ReSharper properties
+resharper_align_linq_query = true
+resharper_align_multiline_argument = true
+resharper_align_multiline_extends_list = true
+resharper_align_multiline_for_stmt = true
+resharper_align_multline_type_parameter_constrains = true
+resharper_align_tuple_components = true
+resharper_apply_on_completion = true
+resharper_blank_lines_around_block_case_section = 1
+resharper_blank_lines_around_multiline_case_section = 1
+resharper_blank_lines_around_single_line_local_method = 1
+resharper_blank_lines_around_single_line_property = 1
+resharper_blank_lines_before_block_statements = 1
+resharper_blank_lines_before_control_transfer_statements = 1
+resharper_blank_lines_before_single_line_comment = 1
+resharper_braces_redundant = false
+resharper_csharp_align_multiline_parameter = true
+resharper_csharp_align_multiple_declaration = true
+resharper_csharp_blank_lines_around_single_line_invocable = 1
+resharper_csharp_empty_block_style = together
+resharper_csharp_insert_final_newline = true
+resharper_csharp_keep_blank_lines_in_code = 1
+resharper_csharp_keep_blank_lines_in_declarations = 1
+resharper_csharp_wrap_parameters_style = chop_if_long
+resharper_int_align_comments = true
+resharper_place_accessorholder_attribute_on_same_line = false
+resharper_place_field_attribute_on_same_line = false
+resharper_prefer_explicit_discard_declaration = true
+resharper_trailing_comma_in_multiline_lists = true
+resharper_use_roslyn_logic_for_evident_types = true
+resharper_wrap_before_eq = true
+
+# ReSharper inspection severities
+resharper_arrange_missing_parentheses_highlighting = hint
+resharper_arrange_redundant_parentheses_highlighting = hint
+resharper_arrange_static_member_qualifier_highlighting = suggestion
+resharper_arrange_this_qualifier_highlighting = error
+resharper_arrange_trailing_comma_in_multiline_lists_highlighting = suggestion
+resharper_arrange_type_member_modifiers_highlighting = hint
+resharper_arrange_type_modifiers_highlighting = hint
+resharper_bad_attribute_brackets_spaces_highlighting = warning
+resharper_bad_braces_spaces_highlighting = warning
+resharper_bad_colon_spaces_highlighting = warning
+resharper_bad_comma_spaces_highlighting = warning
+resharper_bad_control_braces_line_breaks_highlighting = warning
+resharper_bad_declaration_braces_line_breaks_highlighting = warning
+resharper_bad_empty_braces_line_breaks_highlighting = warning
+resharper_bad_expression_braces_line_breaks_highlighting = warning
+resharper_bad_generic_brackets_spaces_highlighting = warning
+resharper_bad_linq_line_breaks_highlighting = warning
+resharper_bad_list_line_breaks_highlighting = warning
+resharper_bad_member_access_spaces_highlighting = warning
+resharper_bad_parens_line_breaks_highlighting = warning
+resharper_bad_parens_spaces_highlighting = warning
+resharper_bad_semicolon_spaces_highlighting = warning
+resharper_bad_spaces_after_keyword_highlighting = warning
+resharper_bad_square_brackets_spaces_highlighting = warning
+resharper_bad_symbol_spaces_highlighting = warning
+resharper_built_in_type_reference_style_for_member_access_highlighting = hint
+resharper_built_in_type_reference_style_highlighting = hint
+resharper_class_never_instantiated_global_highlighting = hint
+resharper_enforce_do_while_statement_braces_highlighting = warning
+resharper_enforce_fixed_statement_braces_highlighting = warning
+resharper_enforce_foreach_statement_braces_highlighting = warning
+resharper_enforce_for_statement_braces_highlighting = warning
+resharper_enforce_if_statement_braces_highlighting = warning
+resharper_enforce_lock_statement_braces_highlighting = warning
+resharper_enforce_using_statement_braces_highlighting = warning
+resharper_enforce_while_statement_braces_highlighting = warning
+resharper_inconsistent_naming_highlighting = none
+resharper_incorrect_blank_lines_near_braces_highlighting = error
+resharper_missing_blank_lines_highlighting = error
+resharper_missing_linebreak_highlighting = warning
+resharper_missing_space_highlighting = warning
+resharper_multiple_spaces_highlighting = warning
+resharper_multiple_statements_on_one_line_highlighting = warning
+resharper_multiple_type_members_on_one_line_highlighting = warning
+resharper_redundant_blank_lines_highlighting = error
+resharper_redundant_linebreak_highlighting = warning
+resharper_redundant_space_highlighting = warning
+resharper_suggest_var_or_type_deconstruction_declarations_highlighting = warning
+resharper_tabs_are_disallowed_highlighting = warning
+resharper_tabs_outside_indent_highlighting = warning
