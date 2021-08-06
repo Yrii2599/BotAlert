@@ -1,0 +1,20 @@
+1) Add event
+  + All inputs are valid -> event saved
+  - Missing data
+  - Incorrect input (notification)
+
+2) View events list
+  +
+  -
+
+3) Receive notifications
+  + 
+  -
+
+4) Delete events
+  +
+  -
+
+5) Edit events
+  +
+  -
