@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BotAlert.States;
 using Microsoft.AspNetCore.Mvc;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -15,6 +16,8 @@ namespace BotAlert.Controllers
     public class BaseController
     {
 
+        private static Context context = new Context(new MainState());
+
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             var handler = update.Type switch
@@ -25,7 +28,7 @@ namespace BotAlert.Controllers
                 // UpdateType.ShippingQuery:
                 // UpdateType.PreCheckoutQuery:
                 // UpdateType.Poll:
-                UpdateType.Message => BotOnMessageReceived(botClient, update.Message),
+                UpdateType.Message => context.State.BotOnMessageReceived(botClient, update.Message),
                 // UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage),
                 // UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery),
                 // UpdateType.InlineQuery => BotOnInlineQueryReceived(botClient, update.InlineQuery),
@@ -41,36 +44,6 @@ namespace BotAlert.Controllers
             {
                 await HandleErrorAsync(botClient, exception, cancellationToken);
             }
-        }
-
-        private static async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
-        {
-            if (message.Type != MessageType.Text)
-                return;
-
-            switch (message.Text)
-            {
-                case "/create":
-                    //CreateNotification(botClient, message);
-                    break;
-                case "/get_notifications":
-                    //GetAllNotifications(botClient, message);
-                    break;
-                case "/get_notification":
-                    //GetNotification(botClient, message);
-                    break;
-                case "/edit":
-                    //EditNotification(botClient, message);
-                    break;
-                case "/delete":
-                    //DeleteNotification(botClient, message);
-                    break;
-                default:
-                    //await HandleInputError(botClient, message);
-                    break;
-            }
-
-            botClient.SendTextMessageAsync(message.Chat.Id, message.Text);
         }
 
         private static Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
