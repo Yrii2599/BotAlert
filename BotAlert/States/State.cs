@@ -6,7 +6,7 @@ namespace BotAlert.States
 {
     public abstract class State
     {
-        public Context ContextObj { get; set; }
+        protected Context _contextObj { get; set; }
         public virtual async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message) { }
         public virtual async Task BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) { }
     }

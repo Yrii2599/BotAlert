@@ -23,9 +23,14 @@ namespace BotAlert.Services
         public static void CreateEvent(Event eventObj)
         {
             eventObj.Status = EventStatus.Created;
-            Console.WriteLine("Pre");
-            eventsCollection.InsertOne(eventObj);
-            Console.WriteLine("Post");
+            try
+            {
+                eventsCollection.InsertOne(eventObj);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         public List<Event> GetAllEvents()

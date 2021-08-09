@@ -28,9 +28,9 @@ namespace BotAlert.States
             _eventObj.Title = message.Text;
             if (_eventObj.Status == EventStatus.InProgress) {
                 botClient.SendTextMessageAsync(message.Chat.Id, "Введите дату события: ");
-                ContextObj.ChangeState(new UserInputDateState(_eventObj));
+                _contextObj.ChangeState(new UserInputDateState(_eventObj));
             }
-            else ContextObj.ChangeState(new MainState());
+            else _contextObj.ChangeState(new MainState());
         }
     }
 }

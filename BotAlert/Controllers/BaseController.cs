@@ -30,7 +30,7 @@ namespace BotAlert.Controllers
                 // UpdateType.Poll:
                 UpdateType.Message => context.State.BotOnMessageReceived(botClient, update.Message),
                 // UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage),
-                // UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery),
+                UpdateType.CallbackQuery => context.State.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
                 // UpdateType.InlineQuery => BotOnInlineQueryReceived(botClient, update.InlineQuery),
                 // UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult),
                 _ => UnknownUpdateHandlerAsync(botClient, update)
