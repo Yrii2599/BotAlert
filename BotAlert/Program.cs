@@ -16,7 +16,7 @@ namespace BotAlert
 
         public static async Task Main()
         {
-            Bot = new TelegramBotClient(Settings.Settings.ConnectionString);
+            Bot = new TelegramBotClient(Settings.Settings.TelegramConnectionString);
 
             var me = await Bot.GetMeAsync();
             Console.Title = me.Username;

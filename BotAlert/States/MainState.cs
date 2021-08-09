@@ -18,7 +18,7 @@ namespace BotAlert.States
             switch (message.Text)
             {
                 case "/create":
-                    //CreateNotification(botClient, message);
+                    CreateNotification(botClient, message);
                     break;
                 case "/get_notifications":
                     //GetAllNotifications(botClient, message);
@@ -36,7 +36,10 @@ namespace BotAlert.States
                     //await HandleInputError(botClient, message);
                     break;
             }
+        }
 
+        private async void CreateNotification(ITelegramBotClient botClient, Message message)
+        {
             botClient.SendTextMessageAsync(message.Chat.Id, message.Text);
         }
     }
