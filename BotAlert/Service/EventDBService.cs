@@ -10,19 +10,22 @@ namespace BotAlert.Services
 {
     public class EventDBService : Controller
     {
-        private readonly IMongoCollection<Event> eventsCollection;
+        private static IMongoCollection<Event> eventsCollection;
 
         private readonly FilterDefinitionBuilder<Event> filterBuilder = Builders<Event>.Filter;
 
-        public EventDBService()
+        static EventDBService()
         {
             var database = new MongoClient(Settings.Settings.DBConnectionString).GetDatabase(Settings.Settings.DatabaseName);
             eventsCollection = database.GetCollection<Event>(Settings.Settings.CollectionName);
         }
 
-        public void CreateEvent(Event eventObj)
+        public static void CreateEvent(Event eventObj)
         {
+            eventObj.Status = EventStatus.Created;
+            Console.WriteLine("Pre");
             eventsCollection.InsertOne(eventObj);
+            Console.WriteLine("Post");
         }
 
         public List<Event> GetAllEvents()

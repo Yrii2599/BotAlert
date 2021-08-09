@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -33,14 +34,16 @@ namespace BotAlert.States
                     //DeleteNotification(botClient, message);
                     break;
                 default:
-                    //await HandleInputError(botClient, message);
+                    botClient.SendTextMessageAsync(message.Chat.Id, "Something went wrong");
                     break;
             }
         }
 
         private async void CreateNotification(ITelegramBotClient botClient, Message message)
         {
-            botClient.SendTextMessageAsync(message.Chat.Id, message.Text);
+            var eventObj = new Event(message.Chat.Id);
+            botClient.SendTextMessageAsync(message.Chat.Id, "Введите название события: ");
+            ContextObj.ChangeState(new UserInputTitleState(eventObj));
         }
     }
 }
