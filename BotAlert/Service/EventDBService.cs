@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using BotAlert.Models;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BotAlert.Services
 {
-    public class EventDBService : Controller
+    public class EventDBService
     {
         private static IMongoCollection<Event> eventsCollection;
 
@@ -16,8 +15,8 @@ namespace BotAlert.Services
 
         static EventDBService()
         {
-            var database = new MongoClient(Settings.Settings.DBConnectionString).GetDatabase(Settings.Settings.DatabaseName);
-            eventsCollection = database.GetCollection<Event>(Settings.Settings.CollectionName);
+            var database = new MongoClient(Settings.TelegramSettings.DBConnectionString).GetDatabase(Settings.TelegramSettings.DatabaseName);
+            eventsCollection = database.GetCollection<Event>(Settings.TelegramSettings.CollectionName);
         }
 
         public static void CreateEvent(Event eventObj)

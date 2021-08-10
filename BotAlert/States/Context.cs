@@ -25,7 +25,7 @@ namespace BotAlert.States
         public virtual void ChangeState(State newState)
         {
             State = newState;
-            State._contextObj = this;
+            State.ContextObj = this;
         }
     }
 }
