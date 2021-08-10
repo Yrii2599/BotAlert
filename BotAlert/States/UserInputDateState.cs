@@ -1,23 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using BotAlert.Interfaces;
 using BotAlert.Models;
-using BotAlert.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace BotAlert.States
 {
-    public class UserInputDateState : State
+    public class UserInputDateState : IState
     {
-        private Event _eventObj { get; set; }
+        public Context ContextObj { get; set; }
 
-        public UserInputDateState(Event eventObj)
-        {
-            _eventObj = eventObj;
-        }
-
-        public override async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             return;
 

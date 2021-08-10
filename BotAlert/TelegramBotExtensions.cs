@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using BotAlert.Controllers;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;

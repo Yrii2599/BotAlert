@@ -5,8 +5,8 @@ namespace BotAlert.Interfaces
 {
     public interface IStateProvider
     {
-        Context GetChatContext(long chatId);
+        Context GetOrCreateChatContext(long chatId);
 
-        void CreateChat(ChatState chatState);
+        void CreateOrUpdateChat(ChatState chatState);
     }
 }

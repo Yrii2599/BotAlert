@@ -1,31 +1,21 @@
 ﻿using System;
+using BotAlert.Interfaces;
 
 namespace BotAlert.States
 {
     public class Context
     {
-        State state;
-        // Constructor
-        public Context(State state)
-        {
-            State = state;
-            State.ContextObj = this;
-        }
-        // Gets or sets the state
-        public State State
+        private IState state;
+
+        public IState State
         {
             get { return state; }
             set
             {
                 state = value;
+                State.ContextObj = this;
                 Console.WriteLine("State: " + state.GetType().Name);
             }
-        }
-
-        public virtual void ChangeState(State newState)
-        {
-            State = newState;
-            State.ContextObj = this;
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Threading;
 using BotAlert.Controllers;
+using BotAlert.Factories;
 using BotAlert.Interfaces;
 using BotAlert.Service;
 using BotAlert.Services;
@@ -20,7 +21,7 @@ namespace BotAlert
 
         public Startup(IConfiguration configuration)
         {
-            Configuration=configuration;
+            Configuration = configuration;
         }
 
         private IConfiguration Configuration { get; }
@@ -59,6 +60,9 @@ namespace BotAlert
         private void InitializeContainer()
         {
             var mongoDbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
+
+            //Register factories
+            _container.Register<IStateFactory, StateFactory>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();

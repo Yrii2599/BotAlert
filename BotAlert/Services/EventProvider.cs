@@ -10,6 +10,7 @@ namespace BotAlert.Services
     public class EventProvider : IEventProvider
     {
         private IMongoCollection<Event> eventsCollection;
+
         private readonly FilterDefinitionBuilder<Event> filterBuilder = Builders<Event>.Filter;
 
         public EventProvider(IMongoDatabase database)

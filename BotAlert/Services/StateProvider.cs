@@ -1,53 +1,50 @@
 ﻿using BotAlert.Interfaces;
 using BotAlert.Models;
-using BotAlert.Settings;
 using BotAlert.States;
 using MongoDB.Driver;
-using BotAlert.Services;
 
 namespace BotAlert.Service
 {
     public class StateProvider : IStateProvider
     {
+
+        private readonly IStateFactory _stateFactory;
         private readonly IMongoCollection<ChatState> _chatsCollection;
         private readonly IEventProvider _eventProvider;
         
         private readonly FilterDefinitionBuilder<ChatState> _filterBuilder = Builders<ChatState>.Filter;
 
-        public StateProvider(IMongoDatabase database, IEventProvider eventProvider)
+        public StateProvider(IStateFactory stateFactory, IMongoDatabase database, IEventProvider eventProvider)
         {
+            _stateFactory = stateFactory;
             _eventProvider = eventProvider;
             _chatsCollection = database.GetCollection<ChatState>("chats");
         }
 
-        public void CreateChat(ChatState chatObj)
+        public void CreateOrUpdateChat(ChatState chatObj)
         {
-            _chatsCollection.InsertOne(chatObj);
+            var filter = _filterBuilder.Eq(x => x.ChatId, chatObj.ChatId);
+            var chat = _chatsCollection.Find(filter).SingleOrDefault();
+            if(chat == null) _chatsCollection.InsertOne(chatObj);
+            else _chatsCollection.ReplaceOne(filter, chatObj);
         }
 
-        public Context GetChatContext(long chatId)
+        public Context GetOrCreateChatContext(long chatId)
         {
             var filter = _filterBuilder.Eq(x => x.ChatId, chatId);
             var chat = _chatsCollection.Find(filter).SingleOrDefault();
             var draftEvent = _eventProvider.GetDraftEventByChatId(chatId);
 
-            var context = chat.State switch
+            if(chat == null)
             {
-                ContextState.MainState => new Context(new MainState()),
-                ContextState.UserInputTitleState => new Context(new UserInputTitleState(draftEvent)),
-                ContextState.UserInputDateState => new Context(new UserInputDateState(draftEvent)),
-                ContextState.UserInputWarnDateState => new Context(new UserInputWarnDateState(draftEvent)),
-                ContextState.UserInputDescriptionState => new Context(new UserInputDescriptionState(draftEvent)),
-                _ => null
-            };
+                chat = new ChatState(chatId);
+                CreateOrUpdateChat(chat);
+            }
+
+            var context = new Context();
+            context.State = _stateFactory.GetState(chat.State);
 
             return context;
-        }
-
-        public void UpdateChat(ChatState chatObj)
-        {
-            var filter = _filterBuilder.Eq(x => x.Id, chatObj.Id);
-            _chatsCollection.ReplaceOne(filter, chatObj);
         }
     }
 }

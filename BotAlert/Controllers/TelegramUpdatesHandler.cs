@@ -2,8 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BotAlert.Interfaces;
-using BotAlert.Service;
-using BotAlert.States;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -22,29 +20,15 @@ namespace BotAlert.Controllers
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            var context = _stateProvider.GetChatContext(update.Message.Chat.Id);
-            
-            if(context == null)
-            {
-                _stateProvider.CreateChat(new Models.ChatState(update.Message.Chat.Id));
-                context = new Context(new MainState());
-            }
+            var context = _stateProvider.GetOrCreateChatContext(update.Message.Chat.Id);
 
             var handler = update.Type switch
             {
-                // UpdateType.Unknown:
-                // UpdateType.ChannelPost:
-                // UpdateType.EditedChannelPost:
-                // UpdateType.ShippingQuery:
-                // UpdateType.PreCheckoutQuery:
-                // UpdateType.Poll:
                 UpdateType.Message => context.State.BotOnMessageReceived(botClient, update.Message),
+                UpdateType.EditedMessage => context.State.BotOnMessageReceived(botClient, update.Message),
 
-                // UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage),
                 UpdateType.CallbackQuery => context.State.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
 
-                // UpdateType.InlineQuery => BotOnInlineQueryReceived(botClient, update.InlineQuery),
-                // UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult),
                 _ => UnknownUpdateHandlerAsync(botClient, update)
             };
 

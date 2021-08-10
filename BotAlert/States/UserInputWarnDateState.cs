@@ -1,25 +1,15 @@
-﻿using System;
-using System.Threading.Tasks;
-using BotAlert.Helpers;
-using BotAlert.Models;
-using BotAlert.Services;
+﻿using System.Threading.Tasks;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotAlert.States
 {
-    public class UserInputWarnDateState : State
+    public class UserInputWarnDateState : IState
     {
-        private Event _eventObj { get; set; }
+        public Context ContextObj { get; set; }
 
-        public UserInputWarnDateState(Event eventObj)
-        {
-            _eventObj = eventObj;
-        }
-
-        public override async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             return;
 
@@ -36,7 +26,7 @@ namespace BotAlert.States
             //} else ContextObj.ChangeState(new MainState());
         }
 
-        public override async Task BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) 
+        public async Task BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) 
         {
             return;
 
