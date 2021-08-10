@@ -44,6 +44,7 @@ namespace BotAlert
             var telegramSettings = Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>();
             var dbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
 
+            // Уточнить как передавать dbSettings в каждый новый вызов конструктора DBSettings
             EventDBService.Settings = dbSettings;
             TelegramBotExtensions.StartListeningAsync(telegramSettings.BotApiKey, new CancellationToken());
         }

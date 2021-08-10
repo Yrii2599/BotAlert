@@ -8,7 +8,7 @@ namespace BotAlert.States
         // Constructor
         public Context(State state)
         {
-            this.State = state;
+            State = state;
             State.ContextObj = this;
         }
         // Gets or sets the state

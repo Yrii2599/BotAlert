@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BotAlert.Models;
+using BotAlert.Service;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -11,6 +12,11 @@ namespace BotAlert.States
 {
     public class MainState : State
     {
+        public MainState()
+        {
+            //new StateDBService().CreateOrUpdate(chatId, ContextState.MainState);
+        }
+
         public override async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             if (message.Type != MessageType.Text)

@@ -22,7 +22,8 @@ namespace BotAlert.States
                 return;
 
             _eventObj.Description = message.Text;
-            new EventDBService().CreateEvent(_eventObj);
+            _eventObj.Status = EventStatus.Created;
+            new EventDBService().UpdateEvent(_eventObj);
             ContextObj.ChangeState(new MainState());
         }
     }

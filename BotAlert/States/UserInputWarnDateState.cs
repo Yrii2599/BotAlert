@@ -24,8 +24,10 @@ namespace BotAlert.States
             if (message.Type != MessageType.Text)
                 return;
 
-            _eventObj.Date = DateTime.Parse(message.Text);
+            _eventObj.WarnInAdvance = DateTime.Parse(message.Text);
+
             if (_eventObj.Status == EventStatus.InProgress) {
+                new EventDBService().UpdateEvent(_eventObj);
                 var options = new InlineKeyboardMarkup(new[] { new[] { InlineKeyboardButton.WithCallbackData("Да", "y"),
                                                                        InlineKeyboardButton.WithCallbackData("Нет", "n") } }); ;
                 InteractionHelper.SendInlineKeyboard(botClient, message, "Хотите добавить описание ?" , options);
@@ -42,10 +44,10 @@ namespace BotAlert.States
             }
             else
             {
-                new EventDBService().CreateEvent(_eventObj);
+                _eventObj.Status = EventStatus.Created;
+                new EventDBService().UpdateEvent(_eventObj);
                 ContextObj.ChangeState(new MainState());
             }
         }
-
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BotAlert.Models;
 using BotAlert.Settings;
+using Microsoft.AspNetCore.Mvc.Razor;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -24,7 +25,6 @@ namespace BotAlert.Services
 
         public void CreateEvent(Event eventObj)
         {
-            eventObj.Status = EventStatus.Created;
             try
             {
                 eventsCollection.InsertOne(eventObj);
@@ -70,6 +70,15 @@ namespace BotAlert.Services
         {
             var filter = filterBuilder.Eq(x => x.Id, id);
             eventsCollection.DeleteOne(filter);
+        }
+
+        public Event GetDraftEventByChatId(long chatId)
+        {
+            var filter1 = filterBuilder.Eq(x => x.ChatId, chatId);
+            var filter2 = filterBuilder.Eq(x => x.Status, EventStatus.InProgress);
+            var finalFilter = filterBuilder.And(new List<FilterDefinition<Event>> { filter1, filter2 }); 
+
+            return eventsCollection.Find(finalFilter).SingleOrDefault();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BotAlert.Models;
+using BotAlert.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -26,7 +27,9 @@ namespace BotAlert.States
                 return;
 
             _eventObj.Title = message.Text;
+
             if (_eventObj.Status == EventStatus.InProgress) {
+                new EventDBService().CreateEvent(_eventObj);
                 botClient.SendTextMessageAsync(message.Chat.Id, "Введите дату события: ");
                 ContextObj.ChangeState(new UserInputDateState(_eventObj));
             }

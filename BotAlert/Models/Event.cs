@@ -18,10 +18,8 @@ namespace BotAlert.Models
         [Required]
         public string Title { get; set; }
 
-        [Required]
         public DateTime Date { get; set; }
 
-        [Required]
         public DateTime WarnInAdvance { get; set; }
 
         public string Description { get; set; }
