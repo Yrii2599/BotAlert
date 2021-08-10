@@ -2,6 +2,7 @@
 using BotAlert.Models;
 using BotAlert.Service;
 using BotAlert.Interfaces;
+using BotAlert.States;
 using MongoDB.Driver;
 using FakeItEasy;
 using Xunit;
@@ -31,7 +32,7 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void CreateOrUpdateChat_ShouldSaveStateToDB()
+        public void CreateOrUpdateChat_Create()
         {
             var chatState = new ChatState(123);
 
@@ -39,6 +40,41 @@ namespace BotAlert.Tests
 
             A.CallTo(() => _chatsCollectionMock.InsertOne(A<ChatState>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
                             .MustHaveHappenedOnceExactly();
+        }
+
+        //[Fact]
+        //public void CreateOrUpdateChat_Update()
+        //{
+        //    var chatState = new ChatState(123);
+
+        //    _stateDBService.CreateOrUpdateChat(chatState);
+
+        //    A.CallTo(() => _chatsCollectionMock.ReplaceOne(A<ChatState>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
+        //        .MustHaveHappenedOnceExactly();
+        //}
+
+        //[Fact]
+        //public void GetOrCreateChatContext_Get()
+        //{
+        //    var chatState = new ChatState(123);
+
+        //    _stateDBService.CreateOrUpdateChat(chatState);
+
+        //    A.CallTo(() => _chatsCollectionMock.InsertOne(A<ChatState>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
+        //        .MustHaveHappenedOnceExactly();
+        //}
+
+        [Fact]
+        public void GetOrCreateChatContext_Create()
+        {
+            var chatState = new ChatState(123);
+
+          var actual= _stateDBService.GetOrCreateChatContext(chatState.ChatId).State;
+          var expected = new MainState();
+
+            A.CallTo(() => _chatsCollectionMock.InsertOne(A<ChatState>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
+                .MustHaveHappenedOnceExactly();
+            Assert.IsType(expected.GetType(), actual);
         }
     }
 }
