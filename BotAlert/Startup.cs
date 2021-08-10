@@ -1,4 +1,5 @@
 using System.Threading;
+using BotAlert.Services;
 using BotAlert.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,7 +42,9 @@ namespace BotAlert
             });
 
             var telegramSettings = Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>();
+            var dbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
 
+            EventDBService.Settings = dbSettings;
             TelegramBotExtensions.StartListeningAsync(telegramSettings.BotApiKey, new CancellationToken());
         }
     }

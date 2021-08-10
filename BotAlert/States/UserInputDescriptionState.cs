@@ -22,7 +22,7 @@ namespace BotAlert.States
                 return;
 
             _eventObj.Description = message.Text;
-            EventDBService.CreateEvent(_eventObj);
+            new EventDBService().CreateEvent(_eventObj);
             ContextObj.ChangeState(new MainState());
         }
     }

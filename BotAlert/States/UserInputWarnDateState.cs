@@ -42,7 +42,7 @@ namespace BotAlert.States
             }
             else
             {
-                EventDBService.CreateEvent(_eventObj);
+                new EventDBService().CreateEvent(_eventObj);
                 ContextObj.ChangeState(new MainState());
             }
         }

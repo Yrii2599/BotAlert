@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BotAlert.Models;
+using BotAlert.Settings;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -9,17 +10,19 @@ namespace BotAlert.Services
 {
     public class EventDBService
     {
-        private static IMongoCollection<Event> eventsCollection;
+        private IMongoCollection<Event> eventsCollection;
+
+        public static DBSettings Settings;
 
         private readonly FilterDefinitionBuilder<Event> filterBuilder = Builders<Event>.Filter;
 
-        static EventDBService()
+        public EventDBService()
         {
-            var database = new MongoClient(Settings.TelegramSettings.DBConnectionString).GetDatabase(Settings.TelegramSettings.DatabaseName);
-            eventsCollection = database.GetCollection<Event>(Settings.TelegramSettings.CollectionName);
+            var database = new MongoClient(Settings.ConnectionString).GetDatabase(Settings.DatabaseName);
+            eventsCollection = database.GetCollection<Event>("events");
         }
 
-        public static void CreateEvent(Event eventObj)
+        public void CreateEvent(Event eventObj)
         {
             eventObj.Status = EventStatus.Created;
             try
