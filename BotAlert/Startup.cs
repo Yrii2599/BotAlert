@@ -2,9 +2,11 @@ using System.Threading;
 using BotAlert.Controllers;
 using BotAlert.Factories;
 using BotAlert.Interfaces;
+using BotAlert.Models;
 using BotAlert.Service;
 using BotAlert.Services;
 using BotAlert.Settings;
+using BotAlert.States;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -62,7 +64,20 @@ namespace BotAlert
             var mongoDbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
 
             //Register factories
-            _container.Register<IStateFactory, StateFactory>();
+            _container.RegisterInstance<IStateFactory>(new StateFactory {
+                { ContextState.MainState, () => _container.GetInstance<MainState>() },
+                { ContextState.UserInputTitleState, () => _container.GetInstance<UserInputTitleState>() },
+                { ContextState.UserInputDateState, () => _container.GetInstance<UserInputDateState>() },
+                { ContextState.UserInputWarnDateState, () => _container.GetInstance<UserInputWarnDateState>() },
+                { ContextState.UserInputDescriptionState, () => _container.GetInstance<UserInputDescriptionState>() }
+            });
+
+            //Register states
+            _container.Register<MainState>();
+            _container.Register<UserInputTitleState>();
+            _container.Register<UserInputDateState>();
+            _container.Register<UserInputWarnDateState>();
+            _container.Register<UserInputDescriptionState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();
