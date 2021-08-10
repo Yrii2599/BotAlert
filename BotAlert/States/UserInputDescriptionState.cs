@@ -18,13 +18,15 @@ namespace BotAlert.States
 
         public override async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if (message.Type != MessageType.Text)
-                return;
+            return;
 
-            _eventObj.Description = message.Text;
-            _eventObj.Status = EventStatus.Created;
-            new EventDBService().UpdateEvent(_eventObj);
-            ContextObj.ChangeState(new MainState());
+            //if (message.Type != MessageType.Text)
+            //    return;
+
+            //_eventObj.Description = message.Text;
+            //_eventObj.Status = EventStatus.Created;
+            //new EventProvider().UpdateEvent(_eventObj);
+            //ContextObj.ChangeState(new MainState());
         }
     }
 }

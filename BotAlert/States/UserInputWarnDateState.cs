@@ -21,33 +21,37 @@ namespace BotAlert.States
 
         public override async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if (message.Type != MessageType.Text)
-                return;
+            return;
 
-            _eventObj.WarnInAdvance = DateTime.Parse(message.Text);
+            //if (message.Type != MessageType.Text)
+            //    return;
 
-            if (_eventObj.Status == EventStatus.InProgress) {
-                new EventDBService().UpdateEvent(_eventObj);
-                var options = new InlineKeyboardMarkup(new[] { new[] { InlineKeyboardButton.WithCallbackData("Да", "y"),
-                                                                       InlineKeyboardButton.WithCallbackData("Нет", "n") } }); ;
-                InteractionHelper.SendInlineKeyboard(botClient, message, "Хотите добавить описание ?" , options);
-            } else ContextObj.ChangeState(new MainState());
+            //_eventObj.WarnInAdvance = DateTime.Parse(message.Text);
+
+            //if (_eventObj.Status == EventStatus.InProgress) {
+            //    new EventProvider().UpdateEvent(_eventObj);
+            //    var options = new InlineKeyboardMarkup(new[] { new[] { InlineKeyboardButton.WithCallbackData("Да", "y"),
+            //                                                           InlineKeyboardButton.WithCallbackData("Нет", "n") } }); ;
+            //    InteractionHelper.SendInlineKeyboard(botClient, message, "Хотите добавить описание ?" , options);
+            //} else ContextObj.ChangeState(new MainState());
         }
 
-        public override async Task BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) {
+        public override async Task BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) 
+        {
+            return;
 
-            await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
+            //await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
-            if (callbackQuery.Data == "y") {
-                botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Введите описнаие события:");
-                ContextObj.ChangeState(new UserInputDescriptionState(_eventObj)); 
-            }
-            else
-            {
-                _eventObj.Status = EventStatus.Created;
-                new EventDBService().UpdateEvent(_eventObj);
-                ContextObj.ChangeState(new MainState());
-            }
+            //if (callbackQuery.Data == "y") {
+            //    botClient.SendTextMessageAsync(callbackQuery.Message.Chat.Id, "Введите описнаие события:");
+            //    ContextObj.ChangeState(new UserInputDescriptionState(_eventObj)); 
+            //}
+            //else
+            //{
+            //    _eventObj.Status = EventStatus.Created;
+            //    new EventProvider().UpdateEvent(_eventObj);
+            //    ContextObj.ChangeState(new MainState());
+            //}
         }
     }
 }

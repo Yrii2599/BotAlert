@@ -1,38 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using BotAlert.Interfaces;
 using BotAlert.Models;
-using BotAlert.Settings;
-using Microsoft.AspNetCore.Mvc.Razor;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BotAlert.Services
 {
-    public class EventDBService
+    public class EventProvider : IEventProvider
     {
         private IMongoCollection<Event> eventsCollection;
-
-        public static DBSettings Settings;
-
         private readonly FilterDefinitionBuilder<Event> filterBuilder = Builders<Event>.Filter;
 
-        public EventDBService()
+        public EventProvider(IMongoDatabase database)
         {
-            var database = new MongoClient(Settings.ConnectionString).GetDatabase(Settings.DatabaseName);
             eventsCollection = database.GetCollection<Event>("events");
         }
 
         public void CreateEvent(Event eventObj)
         {
-            try
-            {
-                eventsCollection.InsertOne(eventObj);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            eventsCollection.InsertOne(eventObj);
         }
 
         public List<Event> GetAllEvents()
@@ -45,18 +32,21 @@ namespace BotAlert.Services
             var filter1 = filterBuilder.Gte(x => x.Date, rangeStart);
             var filter2 = filterBuilder.Lte(x => x.Date, rangeEnd);
             var finalFilter = filterBuilder.Or(new List<FilterDefinition<Event>> { filter1, filter2 });
+
             return eventsCollection.Find(finalFilter).ToList();
         }
 
         public Event GetEventById(Guid id)
         {
             var filter = filterBuilder.Eq(x => x.Id, id);
+
             return eventsCollection.Find(filter).SingleOrDefault();
         }
 
         public Event GetEventByTitle(string title)
         {
             var filter = filterBuilder.Eq(x => x.Title, title);
+
             return eventsCollection.Find(filter).SingleOrDefault();
         }
 

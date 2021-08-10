@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BotAlert.Models;
 using BotAlert.States;
 
 namespace BotAlert.Interfaces
 {
-    interface IStateProvider
+    public interface IStateProvider
     {
         Context GetChatContext(long chatId);
+
+        void CreateChat(ChatState chatState);
     }
 }

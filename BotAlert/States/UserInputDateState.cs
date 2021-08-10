@@ -15,22 +15,23 @@ namespace BotAlert.States
         public UserInputDateState(Event eventObj)
         {
             _eventObj = eventObj;
-
         }
 
         public override async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if (message.Type != MessageType.Text)
-                return;
+            return;
 
-            _eventObj.Date = DateTime.Parse(message.Text);
+            //if (message.Type != MessageType.Text)
+            //    return;
 
-            if (_eventObj.Status == EventStatus.InProgress) {
-                new EventDBService().UpdateEvent(_eventObj);
-                botClient.SendTextMessageAsync(message.Chat.Id, "Введите дату оповещения: ");
-                ContextObj.ChangeState(new UserInputWarnDateState(_eventObj));
-            }
-            else ContextObj.ChangeState(new MainState());
+            //_eventObj.Date = DateTime.Parse(message.Text);
+
+            //if (_eventObj.Status == EventStatus.InProgress) {
+            //    new EventProvider().UpdateEvent(_eventObj);
+            //    botClient.SendTextMessageAsync(message.Chat.Id, "Введите дату оповещения: ");
+            //    ContextObj.ChangeState(new UserInputWarnDateState(_eventObj));
+            //}
+            //else ContextObj.ChangeState(new MainState());
         }
     }
 }

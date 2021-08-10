@@ -1,11 +1,6 @@
-using System;
-using System.Threading;
 using System.Threading.Tasks;
-using BotAlert.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Telegram.Bot;
-using Telegram.Bot.Extensions.Polling;
 
 namespace BotAlert
 {
