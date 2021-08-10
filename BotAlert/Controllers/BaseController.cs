@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BotAlert.Service;
+using BotAlert.Settings;
 using BotAlert.States;
-using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -19,7 +17,7 @@ namespace BotAlert.Controllers
     {
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            var stateDBService = new StateProvider(new MongoClient("").GetDatabase(""));
+            var stateDBService = new StateProvider();
             var context = stateDBService.GetChatContext(update.Message.Chat.Id);
             
             if(context == null)

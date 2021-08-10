@@ -19,9 +19,9 @@ namespace BotAlert.Service
         private IMongoDatabase mongoDatabase;
         private readonly FilterDefinitionBuilder<ChatState> filterBuilder = Builders<ChatState>.Filter;
 
-        public StateProvider(IMongoDatabase database)
+        public StateProvider()
         {
-            //var database = new MongoClient(Settings.ConnectionString).GetDatabase(Settings.DatabaseName);
+            var database = new MongoClient(Settings.ConnectionString).GetDatabase(Settings.DatabaseName);
             chatsCollection = database.GetCollection<ChatState>("chats");
         }
 
