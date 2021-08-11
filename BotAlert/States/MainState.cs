@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using BotAlert.Models;
 using BotAlert.Interfaces;
+using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -9,40 +9,45 @@ namespace BotAlert.States
 {
     public class MainState : IState
     {
-        public Context ContextObj { get; set; }
-
-        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             if (message.Type != MessageType.Text)
-                return;
+                return ContextState.MainState;
 
-            switch (message.Text)
+            return message.Text switch
             {
-                case "/create":
-                    CreateNotification(botClient, message);
-                    break;
-                case "/get_notifications":
-                    //GetAllNotifications(botClient, message);
-                    break;
-                case "/get_notification":
-                    //GetNotification(botClient, message);
-                    break;
-                case "/edit":
-                    //EditNotification(botClient, message);
-                    break;
-                case "/delete":
-                    //DeleteNotification(botClient, message);
-                    break;
-                default:
-                    botClient.SendTextMessageAsync(message.Chat.Id, "Something went wrong");
-                    break;
-            }
+                "/start" => GreetUser(botClient, message.Chat.Id),
+                "/create" => CreateNotification(botClient, message),
+                /*"/get_notifications" => GetAllNotifications(botClient, message),
+                "/get_notification" => GetNotification(botClient, message),
+                "/edit" => EditNotification(botClient, message),
+                "/delete" => DeleteNotification(botClient, message),*/
+                _ => HandleInvalidInput(botClient, message)
+            };
         }
 
-        private async void CreateNotification(ITelegramBotClient botClient, Message message)
+        public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            /*var eventObj = new Event(message.Chat.Id);
-            ContextObj.ChangeState();*/
+            botClient.SendTextMessageAsync(chatId, $"Выберите одну из команд:\n" +
+                                                   $"/create - Создать новое событие\n" +
+                                                   $"/get_notifications - Получить список событий");
+        }
+
+        private ContextState GreetUser(ITelegramBotClient botClient, long chatId)
+        {
+            botClient.SendTextMessageAsync(chatId, $"Рады вас приветствовать!");
+            return ContextState.MainState;
+        }
+
+        private ContextState CreateNotification(ITelegramBotClient botClient, Message message)
+        {
+            return ContextState.UserInputTitleState;
+        }
+        
+        private ContextState HandleInvalidInput(ITelegramBotClient botClient, Message message)
+        {
+            botClient.SendTextMessageAsync(message.Chat.Id, "Выберите пожалуйста одну из команд!");
+            return ContextState.MainState;
         }
     }
 }

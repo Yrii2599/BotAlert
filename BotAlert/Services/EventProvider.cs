@@ -54,7 +54,12 @@ namespace BotAlert.Services
         public void UpdateEvent(Event eventObj)
         {
             var filter = filterBuilder.Eq(x => x.Id, eventObj.Id);
-            eventsCollection.ReplaceOne(filter, eventObj);
+            var update = Builders<Event>.Update.Set(x => x.Status, eventObj.Status)
+                                               .Set(x => x.Title, eventObj.Title)
+                                               .Set(x => x.Date, eventObj.Date)
+                                               .Set(x => x.WarnDate, eventObj.WarnDate)
+                                               .Set(x => x.Description, eventObj.Description);
+            eventsCollection.UpdateOne(filter, update);
         }
 
         public void DeleteEvent(Guid id)

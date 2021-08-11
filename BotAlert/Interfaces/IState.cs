@@ -1,14 +1,18 @@
 ﻿using System.Threading.Tasks;
-using BotAlert.States;
+using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace BotAlert.Interfaces
-{
-    public interface IState
-    {
-        Context ContextObj { get; set; }
-        async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message) { }
-        async Task BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) { }
+namespace BotAlert.Interfaces {
+    public interface IState {
+        void BotSendMessage(ITelegramBotClient botClient, long chatId);
+
+        async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message) {
+            return ContextState.MainState;
+        }
+
+        async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) {
+            return ContextState.MainState;
+        }
     }
 }

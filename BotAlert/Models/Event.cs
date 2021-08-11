@@ -20,15 +20,15 @@ namespace BotAlert.Models
 
         public DateTime Date { get; set; }
 
-        public DateTime WarnInAdvance { get; set; }
+        public DateTime WarnDate { get; set; }
 
         public string Description { get; set; }
 
-        public Event(long chatId)
+        public Event(long chatId, string title)
         {
             ChatId = chatId;
+            Title = title;
             Status = EventStatus.InProgress;
-            Description = "No description";
         }
     }
 }

@@ -1,13 +1,10 @@
-﻿using System.Threading;
-using BotAlert.Models;
-using BotAlert.Service;
-using BotAlert.Interfaces;
-using MongoDB.Driver;
-using FakeItEasy;
-using Xunit;
-using BotAlert.Factories;
-using System;
+﻿using System;
 using BotAlert.States;
+using BotAlert.Models;
+using BotAlert.Factories;
+using BotAlert.Interfaces;
+using Xunit;
+using FakeItEasy;
 using SimpleInjector;
 
 namespace BotAlert.Tests
@@ -19,7 +16,6 @@ namespace BotAlert.Tests
 
         public StateFactoryTests()
         {
-
             _containerMock = A.Fake<Container>();
             _containerMock.Register<MainState>();
             _containerMock.Register<UserInputTitleState>();

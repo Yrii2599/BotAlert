@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Globalization;
+using System.Threading.Tasks;
 using BotAlert.Interfaces;
 using BotAlert.Models;
+using BotAlert.Settings;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -8,23 +11,24 @@ namespace BotAlert.States
 {
     public class UserInputDateState : IState
     {
-        public Context ContextObj { get; set; }
+        private readonly IEventProvider _eventProvider;
 
-        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        public UserInputDateState(IEventProvider eventProvider)
         {
-            return;
+            _eventProvider = eventProvider;
+        }
 
-            //if (message.Type != MessageType.Text)
-            //    return;
+        public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        {
+            var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
+            eventObj.Date = DateTime.Parse(message.Text, new CultureInfo(TelegramSettings.DateTimeFormat));
+            _eventProvider.UpdateEvent(eventObj);
+            return ContextState.UserInputWarnDateState;
+        }
 
-            //_eventObj.Date = DateTime.Parse(message.Text);
-
-            //if (_eventObj.Status == EventStatus.InProgress) {
-            //    new EventProvider().UpdateEvent(_eventObj);
-            //    botClient.SendTextMessageAsync(message.Chat.Id, "Введите дату оповещения: ");
-            //    ContextObj.ChangeState(new UserInputWarnDateState(_eventObj));
-            //}
-            //else ContextObj.ChangeState(new MainState());
+        public void BotSendMessage(ITelegramBotClient botClient, long chatId)
+        {
+            botClient.SendTextMessageAsync(chatId, $"Введите дату и время события:");
         }
     }
 }

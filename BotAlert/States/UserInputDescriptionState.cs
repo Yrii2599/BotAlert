@@ -8,19 +8,25 @@ namespace BotAlert.States
 {
     public class UserInputDescriptionState : IState
     {
-        public Context ContextObj { get; set; }
+        private readonly IEventProvider _eventProvider;
 
-        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        public UserInputDescriptionState(IEventProvider eventProvider)
         {
-            return;
+            _eventProvider = eventProvider;
+        }
 
-            //if (message.Type != MessageType.Text)
-            //    return;
+        public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        {
+            var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
+            eventObj.Description = message.Text;
+            eventObj.Status = EventStatus.Created;
+            _eventProvider.UpdateEvent(eventObj);
+            return ContextState.MainState;
+        }
 
-            //_eventObj.Description = message.Text;
-            //_eventObj.Status = EventStatus.Created;
-            //new EventProvider().UpdateEvent(_eventObj);
-            //ContextObj.ChangeState(new MainState());
+        public void BotSendMessage(ITelegramBotClient botClient, long chatId)
+        {
+            botClient.SendTextMessageAsync(chatId, $"Введите описание оповещения:");
         }
     }
 }

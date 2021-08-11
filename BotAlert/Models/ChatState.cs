@@ -15,10 +15,10 @@ namespace BotAlert.Models
         [Required]
         public ContextState State { get; set; }
 
-        public ChatState(long chatId)
+        public ChatState(long chatId, ContextState state = ContextState.MainState)
         {
             ChatId = chatId;
-            State = ContextState.MainState;
+            State = state;
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BotAlert.Interfaces;
+using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -20,21 +21,26 @@ namespace BotAlert.Controllers
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            var context = _stateProvider.GetOrCreateChatContext(update.Message.Chat.Id);
+            if (update.Message == null) return;
+
+            var state = _stateProvider.GetOrCreateChatState(update.Message.Chat.Id);
 
             var handler = update.Type switch
             {
-                UpdateType.Message => context.State.BotOnMessageReceived(botClient, update.Message),
-                UpdateType.EditedMessage => context.State.BotOnMessageReceived(botClient, update.Message),
+                UpdateType.Message => state.BotOnMessageReceived(botClient, update.Message),
+                UpdateType.EditedMessage => state.BotOnMessageReceived(botClient, update.Message),
 
-                UpdateType.CallbackQuery => context.State.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
+                UpdateType.CallbackQuery => state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
 
                 _ => UnknownUpdateHandlerAsync(botClient, update)
             };
 
             try
             {
-                await handler;
+                var nextState = await handler;
+                _stateProvider.CreateOrUpdateChat(new ChatState(update.Message.Chat.Id, nextState));
+                // Изменить
+                _stateProvider.GetOrCreateChatState(update.Message.Chat.Id).BotSendMessage(botClient, update.Message.Chat.Id);
             }
             catch (Exception exception)
             {
@@ -55,11 +61,11 @@ namespace BotAlert.Controllers
             return Task.CompletedTask;
         }
 
-        private Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
+        private Task<ContextState> UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
         {
             botClient.SendTextMessageAsync(update.Message.Chat.Id, "Sorry, something went worng, please try again later!");
 
-            return Task.CompletedTask;
+            return Task.Run(() => ContextState.MainState);
         }
     }
 }

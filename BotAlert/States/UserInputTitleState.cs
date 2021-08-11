@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using BotAlert.Interfaces;
+using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -7,24 +8,22 @@ namespace BotAlert.States
 {
     public class UserInputTitleState : IState
     {
-        public Context ContextObj { get; set; }
+        private readonly IEventProvider _eventProvider;
 
-        public async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        public UserInputTitleState(IEventProvider eventProvider)
         {
-            return;
+            _eventProvider = eventProvider;
+        }
 
-            //if (message.Type != MessageType.Text
-            // || _eventObj.Status == EventStatus.Deleted)
-            //    return;
+        public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        {
+            _eventProvider.CreateEvent(new Event(message.Chat.Id, message.Text));
+            return ContextState.UserInputDateState;
+        }
 
-            //_eventObj.Title = message.Text;
-
-            //if (_eventObj.Status == EventStatus.InProgress) {
-            //    new EventProvider().CreateEvent(_eventObj);
-            //    botClient.SendTextMessageAsync(message.Chat.Id, "Введите дату события: ");
-            //    ContextObj.ChangeState(new UserInputDateState(_eventObj));
-            //}
-            //else ContextObj.ChangeState(new MainState());
+        public void BotSendMessage(ITelegramBotClient botClient, long chatId)
+        {
+            botClient.SendTextMessageAsync(chatId, $"Введите название события:");
         }
     }
 }
