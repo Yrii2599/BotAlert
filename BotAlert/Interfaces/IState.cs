@@ -6,7 +6,9 @@ using Telegram.Bot.Types;
 namespace BotAlert.Interfaces {
     public interface IState {
         void BotSendMessage(ITelegramBotClient botClient, long chatId);
+        ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId);
 
+        //Можно ли убрать async
         async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message) {
             return ContextState.MainState;
         }

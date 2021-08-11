@@ -17,12 +17,12 @@ namespace BotAlert.States
             return message.Text switch
             {
                 "/start" => GreetUser(botClient, message.Chat.Id),
-                "/create" => CreateNotification(botClient, message),
+                "/create" => CreateNotification(),
                 /*"/get_notifications" => GetAllNotifications(botClient, message),
                 "/get_notification" => GetNotification(botClient, message),
                 "/edit" => EditNotification(botClient, message),
                 "/delete" => DeleteNotification(botClient, message),*/
-                _ => HandleInvalidInput(botClient, message)
+                _ => HandleInvalidInput(botClient, message.Chat.Id)
             };
         }
 
@@ -33,21 +33,22 @@ namespace BotAlert.States
                                                    $"/get_notifications - Получить список событий");
         }
 
+        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
+        {
+            botClient.SendTextMessageAsync(chatId, "Выберите пожалуйста одну из команд!");
+            return ContextState.MainState;
+        }
+
         private ContextState GreetUser(ITelegramBotClient botClient, long chatId)
         {
             botClient.SendTextMessageAsync(chatId, $"Рады вас приветствовать!");
             return ContextState.MainState;
         }
 
-        private ContextState CreateNotification(ITelegramBotClient botClient, Message message)
+        private ContextState CreateNotification()
         {
             return ContextState.UserInputTitleState;
         }
         
-        private ContextState HandleInvalidInput(ITelegramBotClient botClient, Message message)
-        {
-            botClient.SendTextMessageAsync(message.Chat.Id, "Выберите пожалуйста одну из команд!");
-            return ContextState.MainState;
-        }
     }
 }

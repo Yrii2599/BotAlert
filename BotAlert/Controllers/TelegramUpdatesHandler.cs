@@ -32,6 +32,7 @@ namespace BotAlert.Controllers
 
                 UpdateType.CallbackQuery => state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
 
+                // Заменить на IState.HandleInvalidInput()
                 _ => UnknownUpdateHandlerAsync(botClient, update)
             };
 
