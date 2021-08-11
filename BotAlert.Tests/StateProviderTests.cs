@@ -29,7 +29,7 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void CreateOrUpdateChat_Create()
+        public void CreateOrUpdateChat_ShouldSaveStateToTheCollection()
         {
             var chatState = new ChatState(123);
 

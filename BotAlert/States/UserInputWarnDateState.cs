@@ -30,8 +30,8 @@ namespace BotAlert.States
 
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
             if(warnDate > eventObj.Date || warnDate < DateTime.Now) return HandleInvalidInput(botClient, message.Chat.Id);
-            // Можно добавить .AddHours(3) тк. оно хранит в UTC+0, а у нас UTC+3
-            eventObj.WarnDate = warnDate.AddHours(3);
+
+            eventObj.WarnDate = warnDate;
 
             _eventProvider.UpdateEvent(eventObj);
             return ContextState.UserInputDescriptionKeyboardState;

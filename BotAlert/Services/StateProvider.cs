@@ -24,7 +24,6 @@ namespace BotAlert.Service
             var filter = _filterBuilder.Eq(x => x.ChatId, chatObj.ChatId);
             var chat = _chatsCollection.Find(filter).SingleOrDefault();
             if (chat == null) _chatsCollection.InsertOne(chatObj);
-            // ReplaceOne не работал, тк вероятнее всего менял _id
             else {
                 var update = Builders<ChatState>.Update.Set(x => x.State, chatObj.State);
                 _chatsCollection.UpdateOne(filter, update);
