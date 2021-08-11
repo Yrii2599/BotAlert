@@ -69,6 +69,7 @@ namespace BotAlert
                 { ContextState.UserInputTitleState, () => _container.GetInstance<UserInputTitleState>() },
                 { ContextState.UserInputDateState, () => _container.GetInstance<UserInputDateState>() },
                 { ContextState.UserInputWarnDateState, () => _container.GetInstance<UserInputWarnDateState>() },
+                { ContextState.UserInputDescriptionKeyboardState, () => _container.GetInstance<UserInputDescriptionKeyboardState>() },
                 { ContextState.UserInputDescriptionState, () => _container.GetInstance<UserInputDescriptionState>() }
             });
 
@@ -77,6 +78,7 @@ namespace BotAlert
             _container.Register<UserInputTitleState>();
             _container.Register<UserInputDateState>();
             _container.Register<UserInputWarnDateState>();
+            _container.Register<UserInputDescriptionKeyboardState>();
             _container.Register<UserInputDescriptionState>();
 
             //Register services

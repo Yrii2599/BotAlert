@@ -8,11 +8,11 @@ namespace BotAlert.Helpers
 {
     public static class InteractionHelper
     {
-        public static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message, string prompt, InlineKeyboardMarkup options)
+        public static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, long chatId, string prompt, InlineKeyboardMarkup options)
         {
-            await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
+            await botClient.SendChatActionAsync(chatId, ChatAction.Typing);
 
-            return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
+            return await botClient.SendTextMessageAsync(chatId: chatId,
                                                         text: prompt,
                                                         replyMarkup: options);
         }
