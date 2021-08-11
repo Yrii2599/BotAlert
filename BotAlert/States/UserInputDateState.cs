@@ -28,12 +28,20 @@ namespace BotAlert.States
                 return HandleInvalidInput(botClient, message.Chat.Id);
             }
 
+            if(DateTime.Now > date) return HandleInvalidInput(botClient, message.Chat.Id);
+
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
             // Добавили .AddHours(3) тк. оно хранит в UTC+0, а у нас UTC+3
             eventObj.Date = date.AddHours(3);
 
             _eventProvider.UpdateEvent(eventObj);
             return ContextState.UserInputWarnDateState;
+        }
+
+        public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
+            return ContextState.UserInputDateState;
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)

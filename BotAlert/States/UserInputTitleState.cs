@@ -23,6 +23,12 @@ namespace BotAlert.States
             return ContextState.UserInputDateState;
         }
 
+        public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
+            return ContextState.UserInputTitleState;
+        }
+
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
             botClient.SendTextMessageAsync(chatId, $"Введите название события:");

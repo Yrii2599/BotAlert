@@ -1,9 +1,6 @@
 ﻿using BotAlert.Helpers;
 using BotAlert.Interfaces;
 using BotAlert.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -33,9 +30,7 @@ namespace BotAlert.States
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
-            await botClient.AnswerCallbackQueryAsync(
-                callbackQueryId: callbackQuery.Id,
-                text: $"Received {callbackQuery.Data}");
+            await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
             if (callbackQuery.Data == "y")
                 return HandleAcceptInput();

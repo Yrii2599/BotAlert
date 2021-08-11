@@ -21,9 +21,9 @@ namespace BotAlert.Controllers
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            if (update.Message == null) return;
-
-            var state = _stateProvider.GetOrCreateChatState(update.Message.Chat.Id);
+            if (update.Message == null && update.CallbackQuery == null) return;
+            var chatId = update.Message != null ? update.Message.Chat.Id : update.CallbackQuery.Message.Chat.Id;
+            var state = _stateProvider.GetOrCreateChatState(chatId);
 
             var handler = update.Type switch
             {
@@ -39,9 +39,9 @@ namespace BotAlert.Controllers
             try
             {
                 var nextState = await handler;
-                _stateProvider.CreateOrUpdateChat(new ChatState(update.Message.Chat.Id, nextState));
+                _stateProvider.CreateOrUpdateChat(new ChatState(chatId, nextState));
                 // Изменить
-                _stateProvider.GetOrCreateChatState(update.Message.Chat.Id).BotSendMessage(botClient, update.Message.Chat.Id);
+                _stateProvider.GetOrCreateChatState(chatId).BotSendMessage(botClient, chatId);
             }
             catch (Exception exception)
             {

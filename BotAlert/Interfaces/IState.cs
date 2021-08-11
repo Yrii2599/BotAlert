@@ -14,6 +14,7 @@ namespace BotAlert.Interfaces {
         }
 
         async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery) {
+            await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
             return ContextState.MainState;
         }
     }
