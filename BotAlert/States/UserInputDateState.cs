@@ -29,8 +29,8 @@ namespace BotAlert.States
             }
 
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
-            // Можно добавить .AddHours(3) тк. оно хранит в UTC+0, а у нас UTC+3
-            eventObj.Date = date;
+            // Добавили .AddHours(3) тк. оно хранит в UTC+0, а у нас UTC+3
+            eventObj.Date = date.AddHours(3);
 
             _eventProvider.UpdateEvent(eventObj);
             return ContextState.UserInputWarnDateState;

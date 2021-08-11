@@ -23,14 +23,15 @@ namespace BotAlert.States
             if (message.Text == null || !DateTime.TryParse(message.Text,
                                                           new CultureInfo(TelegramSettings.DateTimeFormat),
                                                           DateTimeStyles.None,
-                                                          out var date))
+                                                          out var warnDate))
             {
                 return HandleInvalidInput(botClient, message.Chat.Id);
             }
 
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
+            if(warnDate > eventObj.Date) return HandleInvalidInput(botClient, message.Chat.Id);
             // Можно добавить .AddHours(3) тк. оно хранит в UTC+0, а у нас UTC+3
-            eventObj.WarnDate = date;
+            eventObj.WarnDate = warnDate.AddHours(3);
 
             _eventProvider.UpdateEvent(eventObj);
             return ContextState.UserInputDescriptionState;
