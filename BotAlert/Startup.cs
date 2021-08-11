@@ -64,22 +64,25 @@ namespace BotAlert
             var mongoDbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
 
             //Register factories
-            _container.RegisterInstance<IStateFactory>(new StateFactory {
+            _container.RegisterInstance<IStateFactory>(new StateFactory 
+            {
                 { ContextState.MainState, () => _container.GetInstance<MainState>() },
-                { ContextState.UserInputTitleState, () => _container.GetInstance<UserInputTitleState>() },
-                { ContextState.UserInputDateState, () => _container.GetInstance<UserInputDateState>() },
-                { ContextState.UserInputWarnDateState, () => _container.GetInstance<UserInputWarnDateState>() },
-                { ContextState.UserInputDescriptionKeyboardState, () => _container.GetInstance<UserInputDescriptionKeyboardState>() },
-                { ContextState.UserInputDescriptionState, () => _container.GetInstance<UserInputDescriptionState>() }
+                { ContextState.InputTitleState, () => _container.GetInstance<InputTitleState>() },
+                { ContextState.InputDateState, () => _container.GetInstance<InputDateState>() },
+                { ContextState.InputWarnDateState, () => _container.GetInstance<InputWarnDateState>() },
+                { ContextState.InputDescriptionKeyboardState, () => _container.GetInstance<InputDescriptionKeyboardState>() },
+                { ContextState.InputDescriptionState, () => _container.GetInstance<InputDescriptionState>() },
+                { ContextState.SaveState, () => _container.GetInstance<SaveState>() }
             });
 
             //Register states
-            _container.Register<MainState>();
-            _container.Register<UserInputTitleState>();
-            _container.Register<UserInputDateState>();
-            _container.Register<UserInputWarnDateState>();
-            _container.Register<UserInputDescriptionKeyboardState>();
-            _container.Register<UserInputDescriptionState>();
+            _container.Register<MainState>(Lifestyle.Scoped);
+            _container.Register<InputTitleState>(Lifestyle.Scoped);
+            _container.Register<InputDateState>(Lifestyle.Scoped);
+            _container.Register<InputWarnDateState>(Lifestyle.Scoped);
+            _container.Register<InputDescriptionKeyboardState>(Lifestyle.Scoped);
+            _container.Register<InputDescriptionState>(Lifestyle.Scoped);
+            _container.Register<SaveState>(Lifestyle.Scoped);
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();

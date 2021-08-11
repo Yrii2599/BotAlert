@@ -8,11 +8,11 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotAlert.States
 {
-    public class UserInputDescriptionKeyboardState : IState
+    public class InputDescriptionKeyboardState : IState
     {
         private readonly IEventProvider _eventProvider;
 
-        public UserInputDescriptionKeyboardState(IEventProvider eventProvider)
+        public InputDescriptionKeyboardState(IEventProvider eventProvider)
         {
             _eventProvider = eventProvider;
         }
@@ -48,12 +48,12 @@ namespace BotAlert.States
         public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
         {
             botClient.SendTextMessageAsync(chatId, "Выберите один из вариантов");
-            return ContextState.UserInputDescriptionKeyboardState;
+            return ContextState.InputDescriptionKeyboardState;
         }
 
         private ContextState HandleAcceptInput()
         {
-            return ContextState.UserInputDescriptionState;
+            return ContextState.InputDescriptionState;
         }
 
         private ContextState HandleDeclineInput(long chatId)

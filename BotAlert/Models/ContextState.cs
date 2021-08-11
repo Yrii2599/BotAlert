@@ -4,10 +4,11 @@ namespace BotAlert.Models
     public enum ContextState
     {
         MainState,
-        UserInputTitleState,
-        UserInputDateState,
-        UserInputWarnDateState,
-        UserInputDescriptionKeyboardState,
-        UserInputDescriptionState
+        InputTitleState,
+        InputDateState,
+        InputWarnDateState,
+        InputDescriptionKeyboardState,
+        InputDescriptionState,
+        SaveState
     }
 }

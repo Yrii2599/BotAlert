@@ -9,18 +9,18 @@ using Telegram.Bot.Types;
 
 namespace BotAlert.States
 {
-    public class UserInputDateState : IState
+    public class InputDateState : IState
     {
         private readonly IEventProvider _eventProvider;
 
-        public UserInputDateState(IEventProvider eventProvider)
+        public InputDateState(IEventProvider eventProvider)
         {
             _eventProvider = eventProvider;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if(message.Text == null || !DateTime.TryParse(message.Text, 
+            if (message.Text == null || !DateTime.TryParse(message.Text, 
                                                           new CultureInfo(TelegramSettings.DateTimeFormat), 
                                                           DateTimeStyles.None, 
                                                           out var date))
@@ -28,31 +28,30 @@ namespace BotAlert.States
                 return HandleInvalidInput(botClient, message.Chat.Id);
             }
 
-            if(DateTime.Now > date) return HandleInvalidInput(botClient, message.Chat.Id);
+            if (DateTime.Now > date) return HandleInvalidInput(botClient, message.Chat.Id);
 
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
-            // Добавили .AddHours(3) тк. оно хранит в UTC+0, а у нас UTC+3
-            eventObj.Date = date.AddHours(3);
+            eventObj.Date = date;
 
             _eventProvider.UpdateEvent(eventObj);
-            return ContextState.UserInputWarnDateState;
+            return ContextState.InputWarnDateState;
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
-            return ContextState.UserInputDateState;
+            return ContextState.InputDateState;
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Введите дату и время события (DD.MM.YYYY HH:MM:SS):");
+            botClient.SendTextMessageAsync(chatId, $"Введите дату и время события в UTC (DD.MM.YYYY HH:MM:SS):");
         }
 
         public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
         {
             botClient.SendTextMessageAsync(chatId, "Неверный формат даты и времени");
-            return ContextState.UserInputDateState;
+            return ContextState.InputDateState;
         }
     }
 }

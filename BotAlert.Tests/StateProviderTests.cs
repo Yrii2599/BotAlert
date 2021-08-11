@@ -33,7 +33,7 @@ namespace BotAlert.Tests
         {
             var chatState = new ChatState(123);
 
-            _stateDBService.CreateOrUpdateChat(chatState);
+            _stateDBService.SaveChatState(chatState);
 
             A.CallTo(() => _chatsCollectionMock.InsertOne(A<ChatState>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
                             .MustHaveHappenedOnceExactly();
