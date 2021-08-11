@@ -69,6 +69,7 @@ namespace BotAlert
                 { ContextState.MainState, () => _container.GetInstance<MainState>() },
                 { ContextState.InputTitleState, () => _container.GetInstance<InputTitleState>() },
                 { ContextState.InputDateState, () => _container.GetInstance<InputDateState>() },
+                { ContextState.InputWarnDateKeyboard, () => _container.GetInstance<InputWarnDateKeyboard>() },
                 { ContextState.InputWarnDateState, () => _container.GetInstance<InputWarnDateState>() },
                 { ContextState.InputDescriptionKeyboardState, () => _container.GetInstance<InputDescriptionKeyboardState>() },
                 { ContextState.InputDescriptionState, () => _container.GetInstance<InputDescriptionState>() },
@@ -76,13 +77,15 @@ namespace BotAlert
             });
 
             //Register states
-            _container.Register<MainState>(Lifestyle.Scoped);
-            _container.Register<InputTitleState>(Lifestyle.Scoped);
-            _container.Register<InputDateState>(Lifestyle.Scoped);
-            _container.Register<InputWarnDateState>(Lifestyle.Scoped);
-            _container.Register<InputDescriptionKeyboardState>(Lifestyle.Scoped);
-            _container.Register<InputDescriptionState>(Lifestyle.Scoped);
-            _container.Register<SaveState>(Lifestyle.Scoped);
+            // Lifestyle.Scoped выдает ошибку
+            _container.Register<MainState>();
+            _container.Register<InputTitleState>();
+            _container.Register<InputDateState>();
+            _container.Register<InputWarnDateKeyboard>();
+            _container.Register<InputWarnDateState>();
+            _container.Register<InputDescriptionKeyboardState>();
+            _container.Register<InputDescriptionState>();
+            _container.Register<SaveState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();

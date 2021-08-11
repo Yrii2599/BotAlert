@@ -6,6 +6,7 @@ namespace BotAlert.Models
         MainState,
         InputTitleState,
         InputDateState,
+        InputWarnDateKeyboard,
         InputWarnDateState,
         InputDescriptionKeyboardState,
         InputDescriptionState,

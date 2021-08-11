@@ -29,7 +29,11 @@ namespace BotAlert.States
             }
 
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
-            if(warnDate > eventObj.Date || warnDate < DateTime.Now) return HandleInvalidInput(botClient, message.Chat.Id);
+
+            if (warnDate > eventObj.Date.ToLocalTime() || warnDate < DateTime.Now)
+            {
+                return HandleInvalidInput(botClient, message.Chat.Id);
+            }
 
             eventObj.WarnDate = warnDate;
 

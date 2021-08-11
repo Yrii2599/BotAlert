@@ -21,10 +21,9 @@ namespace BotAlert.States
 
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
             eventObj.Description = message.Text;
-            eventObj.Status = EventStatus.Created;
             
             _eventProvider.UpdateEvent(eventObj);
-            return ContextState.MainState;
+            return ContextState.SaveState;
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)

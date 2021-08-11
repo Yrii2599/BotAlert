@@ -19,8 +19,7 @@ namespace BotAlert.Service
         }
 
         //Entry point
-        public IState GetChatState(long chatId)
-        {
+        public IState GetChatState(long chatId) 
         {
             var filter = _filterBuilder.Eq(x => x.ChatId, chatId);
             var chat = _chatsCollection.Find(filter).SingleOrDefault();

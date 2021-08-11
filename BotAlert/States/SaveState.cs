@@ -21,7 +21,7 @@ namespace BotAlert.States
         {
             if (message.Text != null)
             {
-                if (message.Text.ToLower() == "сохранить") return HandleAcceptInput();
+                if (message.Text.ToLower() == "сохранить") return HandleAcceptInput(botClient, message.Chat.Id);
                 else if (message.Text.ToLower() == "отменить") return HandleDeclineInput(botClient, message.Chat.Id);
             }
 
@@ -33,19 +33,25 @@ namespace BotAlert.States
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
             if (callbackQuery.Data == "s")
-                return HandleAcceptInput();
+                return HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id);
 
             return HandleDeclineInput(botClient, callbackQuery.Message.Chat.Id);
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            //Нужно заменить метод на GetEventBuChatId
-            //_eventProvider.GetEventById()
+            var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
+            var description = eventObj.Description != null ? eventObj.Description : "No description";
+            var message = $"Title: {eventObj.Title}\n" +
+                $"Date and time: {eventObj.Date.ToLocalTime()}\n" +
+                $"Date and time of notification: {eventObj.WarnDate.ToLocalTime()}\n" +
+                $"Description: {description}\n" +
+                $"****************************\n" +
+                $"Сохранить событие?";
 
             var options = new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithCallbackData("Сохранить", "s"),
                                                            InlineKeyboardButton.WithCallbackData("Отменить", "c") });
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Сохранить событие?", options);
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, message, options);
         }
 
         public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
@@ -54,17 +60,24 @@ namespace BotAlert.States
             return ContextState.SaveState;
         }
 
-        private ContextState HandleAcceptInput()
+        private ContextState HandleAcceptInput(ITelegramBotClient botClient, long chatId)
         {
+            var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
+            eventObj.Status = EventStatus.Created;
+            _eventProvider.UpdateEvent(eventObj);
+
+            botClient.SendTextMessageAsync(chatId, "Запись успешно сохранена!");
+
             return ContextState.MainState;
         }
 
         private ContextState HandleDeclineInput(ITelegramBotClient botClient, long chatId)
         {
-            //Нужно заменить метод на GetEventBuChatId
-            //_eventProvider.GetEventById()
+            var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
+            _eventProvider.DeleteEvent(eventObj.Id);
 
             botClient.SendTextMessageAsync(chatId, "Запись успешно удалена!");
+
             return ContextState.MainState;
         }
     }

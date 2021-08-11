@@ -3,7 +3,6 @@
     public enum EventStatus
     {
         InProgress,
-        Created,
-        Deleted,
+        Created
     }
 }

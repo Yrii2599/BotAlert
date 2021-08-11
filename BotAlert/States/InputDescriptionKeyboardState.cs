@@ -22,7 +22,7 @@ namespace BotAlert.States
             if(message.Text != null)
             {
                 if (message.Text.ToLower() == "да") return HandleAcceptInput();
-                else if (message.Text.ToLower() == "нет") return HandleDeclineInput(message.Chat.Id);
+                else if (message.Text.ToLower() == "нет") return HandleDeclineInput();
             }
 
             return HandleInvalidInput(botClient, message.Chat.Id);
@@ -35,7 +35,7 @@ namespace BotAlert.States
             if (callbackQuery.Data == "y")
                 return HandleAcceptInput();
 
-            return HandleDeclineInput(callbackQuery.Message.Chat.Id);
+            return HandleDeclineInput();
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
@@ -56,13 +56,9 @@ namespace BotAlert.States
             return ContextState.InputDescriptionState;
         }
 
-        private ContextState HandleDeclineInput(long chatId)
+        private ContextState HandleDeclineInput()
         {
-            var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
-            eventObj.Status = EventStatus.Created;
-
-            _eventProvider.UpdateEvent(eventObj);
-            return ContextState.MainState;
+            return ContextState.SaveState;
         }
     }
 }

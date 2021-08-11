@@ -38,7 +38,7 @@ namespace BotAlert.States
             eventObj.Date = date;
 
             _eventProvider.UpdateEvent(eventObj);
-            return ContextState.InputWarnDateState;
+            return ContextState.InputWarnDateKeyboard;
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
