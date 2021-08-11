@@ -26,6 +26,11 @@ namespace BotAlert.States
             };
         }
 
+        public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
+        {
+            return ContextState.MainState;
+        }
+
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
             botClient.SendTextMessageAsync(chatId, $"Выберите одну из команд:\n" +
@@ -47,8 +52,7 @@ namespace BotAlert.States
 
         private ContextState CreateNotification()
         {
-            return ContextState.UserInputTitleState;
+            return ContextState.InputTitleState;
         }
-        
     }
 }

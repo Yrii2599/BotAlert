@@ -9,11 +9,11 @@ using Telegram.Bot.Types;
 
 namespace BotAlert.States
 {
-    public class UserInputWarnDateState : IState
+    public class InputWarnDateState : IState
     {
         private readonly IEventProvider _eventProvider;
 
-        public UserInputWarnDateState(IEventProvider eventProvider)
+        public InputWarnDateState(IEventProvider eventProvider)
         {
             _eventProvider = eventProvider;
         }
@@ -34,24 +34,24 @@ namespace BotAlert.States
             eventObj.WarnDate = warnDate;
 
             _eventProvider.UpdateEvent(eventObj);
-            return ContextState.UserInputDescriptionKeyboardState;
+            return ContextState.InputDescriptionKeyboardState;
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
-            return ContextState.UserInputWarnDateState;
+            return ContextState.InputWarnDateState;
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Введите дату и время для оповещения (DD.MM.YYYY HH:MM:SS):");
+            botClient.SendTextMessageAsync(chatId, $"Введите дату и время для оповещения в UTC (DD.MM.YYYY HH:MM:SS):");
         }
 
         public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
         {
             botClient.SendTextMessageAsync(chatId, "Неверный формат даты и времени");
-            return ContextState.UserInputWarnDateState;
+            return ContextState.InputWarnDateState;
         }
     }
 }
