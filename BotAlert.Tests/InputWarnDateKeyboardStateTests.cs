@@ -77,24 +77,30 @@ namespace BotAlert.Tests
             Assert.Equal(expected, actual);
         }
 
-        //[Fact]
-        //public void BotOnCallBackQueryReceived_HardcodedData_ReturnsInputDescriptionKeyboardState()
-        //{
-        //    _callbackQueryMock.Data = "30";
-        //    var expected = ContextState.InputDescriptionKeyboardState;
+        [Fact]
+        public void BotOnCallbackQueryReceived_HardcodedData_ReturnsInputDescriptionKeyboardState()
+        {
+            _callbackQueryMock.Data = "30";
 
-        //    var actual = _inputWarnDateKeyBoardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var expected = ContextState.InputDescriptionKeyboardState;
 
-        //    A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
-        //                                                           A<string>.Ignored,
-        //                                                           A<bool>.Ignored,
-        //                                                           A<string>.Ignored,
-        //                                                           A<int>.Ignored,
-        //                                                           A<CancellationToken>.Ignored))
-        //                                                          .MustHaveHappenedOnceExactly();
-        //    A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.Ignored)).MustHaveHappenedOnceExactly();
-        //    Assert.Equal(expected, actual);
-        //}
+            // Захардкодили чтоб не писать вверху с зависимостями 
+            A.CallTo(() => _eventProviderMock.GetDraftEventByChatId(A<long>.Ignored)).Returns(new Event(1234, "Title") { Date = DateTime.Now});
+
+            var actual = _inputWarnDateKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<bool>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<int>.Ignored,
+                                                                   A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.Ignored)).MustHaveHappenedOnceExactly();
+
+            Assert.Equal(expected, actual);
+        }
 
         [Fact]
         public void BotSendMessage_SendsTextMessage()
