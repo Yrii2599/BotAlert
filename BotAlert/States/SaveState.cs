@@ -11,6 +11,9 @@ namespace BotAlert.States
     public class SaveState : IState
     {
         private readonly IEventProvider _eventProvider;
+        private readonly ITelegramBotClient _botClientMock;
+        private readonly Message _messageMock;
+        private readonly CallbackQuery _callbackQueryMock;
 
         public SaveState(IEventProvider eventProvider)
         {
