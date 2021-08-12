@@ -9,6 +9,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using System;
 
 namespace BotAlert.Tests
 {
@@ -155,7 +156,7 @@ namespace BotAlert.Tests
         {
             var expected = _currentState;
 
-            var actual = _inputWarnDateState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, A.Fake<string>());
+            var actual = _inputWarnDateState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, String.Empty);
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
