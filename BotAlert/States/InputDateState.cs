@@ -33,7 +33,7 @@ namespace BotAlert.States
                 return HandleInvalidInput(botClient, message.Chat.Id);
             }
 
-            _eventProvider.UpdateDraftEventByChatId<DateTime>(message.Chat.Id, "Date", date);
+            _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, "Date", date);
 
             return ContextState.InputWarnDateKeyboard;
         }
