@@ -143,7 +143,7 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void HandleInvalidInput_ShouldSendTextMessageAndreturnSameState()
+        public void HandleInvalidInput_ShouldSendTextMessageAndReturnSameState()
         {
             var expected = ContextState.SaveState;
 
