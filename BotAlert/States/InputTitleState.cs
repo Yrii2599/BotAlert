@@ -17,7 +17,7 @@ namespace BotAlert.States
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if (message.Text == null) return HandleInvalidInput(botClient, message.Chat.Id);
+            if (message.Text == null) return HandleInvalidInput(botClient, message.Chat.Id, "Неверный формат сообщения");
 
             _eventProvider.CreateEvent(new Event(message.Chat.Id, message.Text));
 
@@ -35,7 +35,7 @@ namespace BotAlert.States
             botClient.SendTextMessageAsync(chatId, $"Введите название события:");
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
+        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, "Неверный формат сообщения");
             return ContextState.InputTitleState;

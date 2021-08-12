@@ -13,6 +13,6 @@ namespace BotAlert.Interfaces
 
         void BotSendMessage(ITelegramBotClient botClient, long chatId);
 
-        ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId);
+        ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message);
     }
 }

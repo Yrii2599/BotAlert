@@ -38,7 +38,6 @@ namespace BotAlert.Controllers
 
                 UpdateType.CallbackQuery => state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
 
-                // Заменить на IState.HandleInvalidInput()
                 _ => UnknownUpdateHandlerAsync(botClient, update)
             };
 
@@ -69,7 +68,7 @@ namespace BotAlert.Controllers
 
         private Task<ContextState> UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
         {
-            botClient.SendTextMessageAsync(update.Message.Chat.Id, "Sorry, something went worng, please try again later!");
+            botClient.SendTextMessageAsync(update.Message.Chat.Id, "Sorry, something went wrong, please try again later!");
 
             return Task.Run(() => ContextState.MainState);
         }

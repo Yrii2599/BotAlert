@@ -156,7 +156,7 @@ namespace BotAlert.Tests
         {
             var expected = _currentState;
 
-            var actual = _inputDateState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id);
+            var actual = _inputDateState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, A.Fake<string>());
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,

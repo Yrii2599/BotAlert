@@ -44,13 +44,6 @@ namespace BotAlert.Services
             return eventsCollection.Find(filter).SingleOrDefault();
         }
 
-        public Event GetEventByTitle(string title)
-        {
-            var filter = filterBuilder.Eq(x => x.Title, title);
-
-            return eventsCollection.Find(filter).SingleOrDefault();
-        }
-
         public void UpdateEvent(Event eventObj)
         {
             var filter = filterBuilder.Eq(x => x.Id, eventObj.Id);

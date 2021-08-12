@@ -22,7 +22,7 @@ namespace BotAlert.States
                 "/get_notification" => GetNotification(botClient, message),
                 "/edit" => EditNotification(botClient, message),
                 "/delete" => DeleteNotification(botClient, message),*/
-                _ => HandleInvalidInput(botClient, message.Chat.Id)
+                _ => HandleInvalidInput(botClient, message.Chat.Id, "Выберите пожалуйста одну из команд!")
             };
         }
 
@@ -38,9 +38,9 @@ namespace BotAlert.States
                                                    $"/get_notifications - Получить список событий");
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
+        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, "Выберите пожалуйста одну из команд!");
+            botClient.SendTextMessageAsync(chatId, message);
             return ContextState.MainState;
         }
 

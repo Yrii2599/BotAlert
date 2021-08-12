@@ -25,12 +25,12 @@ namespace BotAlert.States
                                                           DateTimeStyles.None, 
                                                           out var date))
             {
-                return HandleInvalidInput(botClient, message.Chat.Id);
+                return HandleInvalidInput(botClient, message.Chat.Id, "Неверный формат даты и времени");
             }
 
-            if (DateTime.Now > date) 
+            if (date < DateTime.Now) 
             { 
-                return HandleInvalidInput(botClient, message.Chat.Id);
+                return HandleInvalidInput(botClient, message.Chat.Id, "Событие уже прошло");
             }
 
             _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, "Date", date);
@@ -49,9 +49,9 @@ namespace BotAlert.States
             botClient.SendTextMessageAsync(chatId, $"Введите дату и время события в UTC (DD.MM.YYYY HH:MM:SS):");
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
+        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, "Неверный формат даты и времени");
+            botClient.SendTextMessageAsync(chatId, message);
             return ContextState.InputDateState;
         }
     }

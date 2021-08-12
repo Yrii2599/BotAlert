@@ -18,7 +18,7 @@ namespace BotAlert.States
                 else if (message.Text.ToLower() == "нет") return HandleDeclineInput();
             }
 
-            return HandleInvalidInput(botClient, message.Chat.Id);
+            return HandleInvalidInput(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -38,9 +38,9 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "Желаете добавить описание?", options);
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId)
+        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, "Выберите один из вариантов");
+            botClient.SendTextMessageAsync(chatId, message);
             return ContextState.InputDescriptionKeyboardState;
         }
 
