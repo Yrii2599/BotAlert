@@ -34,7 +34,6 @@ namespace BotAlert.Controllers
             var handler = update.Type switch
             {
                 UpdateType.Message => state.BotOnMessageReceived(botClient, update.Message),
-                UpdateType.EditedMessage => state.BotOnMessageReceived(botClient, update.Message),
 
                 UpdateType.CallbackQuery => state.BotOnCallBackQueryReceived(botClient, update.CallbackQuery),
 
