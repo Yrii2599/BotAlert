@@ -14,5 +14,6 @@ namespace BotAlert.Interfaces
         public void UpdateEvent(Event eventObj);
         public void DeleteEvent(Guid id);
         Event GetDraftEventByChatId(long chatId);
+        public void UpdateDraftEventByChatId<T>(long chatId, string updatingField, T newValue);
     }
 }

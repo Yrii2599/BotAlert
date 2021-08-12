@@ -62,9 +62,7 @@ namespace BotAlert.States
 
         private ContextState HandleAcceptInput(ITelegramBotClient botClient, long chatId)
         {
-            var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
-            eventObj.Status = EventStatus.Created;
-            _eventProvider.UpdateEvent(eventObj);
+            _eventProvider.UpdateDraftEventByChatId(chatId, "Status", EventStatus.Created);
 
             botClient.SendTextMessageAsync(chatId, "Запись успешно сохранена!");
 

@@ -76,5 +76,16 @@ namespace BotAlert.Services
 
             return eventsCollection.Find(finalFilter).SingleOrDefault();
         }
+
+        public void UpdateDraftEventByChatId<T>(long chatId, string updatingField, T newValue)
+        {
+            var filter1 = filterBuilder.Eq(x => x.ChatId, chatId);
+            var filter2 = filterBuilder.Eq(x => x.Status, EventStatus.InProgress);
+            var finalFilter = filterBuilder.And(new List<FilterDefinition<Event>> { filter1, filter2 });
+
+            var update = Builders<Event>.Update.Set(updatingField, newValue);
+
+            eventsCollection.UpdateOne(finalFilter, update);
+        }
     }
 }

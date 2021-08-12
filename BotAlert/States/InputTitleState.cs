@@ -20,6 +20,7 @@ namespace BotAlert.States
             if (message.Text == null) return HandleInvalidInput(botClient, message.Chat.Id);
 
             _eventProvider.CreateEvent(new Event(message.Chat.Id, message.Text));
+
             return ContextState.InputDateState;
         }
 

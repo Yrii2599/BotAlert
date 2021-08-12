@@ -10,13 +10,6 @@ namespace BotAlert.States
 {
     public class InputDescriptionKeyboardState : IState
     {
-        private readonly IEventProvider _eventProvider;
-
-        public InputDescriptionKeyboardState(IEventProvider eventProvider)
-        {
-            _eventProvider = eventProvider;
-        }
-
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             if(message.Text != null)

@@ -19,10 +19,8 @@ namespace BotAlert.States
         {
             if (message.Text == null) return HandleInvalidInput(botClient, message.Chat.Id);
 
-            var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
-            eventObj.Description = message.Text;
-            
-            _eventProvider.UpdateEvent(eventObj);
+            _eventProvider.UpdateDraftEventByChatId<string>(message.Chat.Id, "Description", message.Text);
+
             return ContextState.SaveState;
         }
 
