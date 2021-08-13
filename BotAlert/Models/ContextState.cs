@@ -1,15 +1,16 @@
-﻿
-namespace BotAlert.Models
+﻿namespace BotAlert.Models
 {
     public enum ContextState
     {
         MainState,
         InputTitleState,
         InputDateState,
-        InputWarnDateKeyboard,
+        InputWarnDateKeyboardState,
         InputWarnDateState,
         InputDescriptionKeyboardState,
         InputDescriptionState,
-        SaveState
+        SaveState,
+        GetAllNotificationsState,
+        GetNotificationDetailsState,
     }
 }

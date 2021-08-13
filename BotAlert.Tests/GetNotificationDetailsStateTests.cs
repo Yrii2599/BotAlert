@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Collections.Generic;
-using BotAlert.Interfaces;
 using BotAlert.States;
 using BotAlert.Models;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -13,29 +13,31 @@ using Xunit;
 
 namespace BotAlert.Tests
 {
-    public class InputWarnDateKeyboardStateTests
+    public class GetNotificationDetailsStateTests
     {
-        private readonly IEventProvider _eventProviderMock;
         private readonly ITelegramBotClient _botClientMock;
+        private readonly IEventProvider _eventProviderMock;
+        private readonly IStateProvider _stateProviderMock;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
 
         private readonly ContextState _currentState;
 
-        private readonly InputWarnDateKeyboardState _inputWarnDateKeyboardState;
+        private readonly GetNotificationDetailsState _getNotificationDetailsState;
 
-        public InputWarnDateKeyboardStateTests()
+        public GetNotificationDetailsStateTests()
         {
-            _eventProviderMock = A.Fake<IEventProvider>();
             _botClientMock = A.Fake<ITelegramBotClient>();
+            _eventProviderMock = A.Fake<IEventProvider>();
+            _stateProviderMock = A.Fake<IStateProvider>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();
             _callbackQueryMock = A.Fake<CallbackQuery>();
             _callbackQueryMock.Message = _messageMock;
 
-            _currentState = ContextState.InputWarnDateKeyboardState;
+            _currentState = ContextState.GetNotificationDetailsState;
 
-            _inputWarnDateKeyboardState = new InputWarnDateKeyboardState(_eventProviderMock);
+            _getNotificationDetailsState = new GetNotificationDetailsState(_eventProviderMock, _stateProviderMock);
         }
 
         [Fact]
@@ -43,7 +45,7 @@ namespace BotAlert.Tests
         {
             var expected = _currentState;
 
-            var actual = _inputWarnDateKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _getNotificationDetailsState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
@@ -55,17 +57,17 @@ namespace BotAlert.Tests
                                                                A<bool>.Ignored,
                                                                A<IReplyMarkup>.Ignored,
                                                                A<CancellationToken>.Ignored))
-                                                              .MustHaveHappenedOnceExactly();
+                                                              .MustNotHaveHappened();
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_OwnData_ReturnsInputWarnDateState()
+        public void BotOnCallBackQueryReceived_DataBack_GetAllNotificationsState()
         {
-            _callbackQueryMock.Data = "own";
-            var expected = ContextState.InputWarnDateState;
+            _callbackQueryMock.Data = "Back";
+            var expected = ContextState.GetAllNotificationsState;
 
-            var actual = _inputWarnDateKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -77,17 +79,49 @@ namespace BotAlert.Tests
             Assert.Equal(expected, actual);
         }
 
+        //[Fact]
+        //public void BotOnCallBackQueryReceived_DataEdit_ReturnsEditState()
+        //{
+        //    _callbackQueryMock.Data = "Edit";
+        //    var expected = ContextState.EditState
+
+        //    var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
+        //    A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+        //                                                           A<string>.Ignored,
+        //                                                           A<bool>.Ignored,
+        //                                                           A<string>.Ignored,
+        //                                                           A<int>.Ignored,
+        //                                                           A<CancellationToken>.Ignored))
+        //                                                          .MustHaveHappenedOnceExactly();
+        //    Assert.Equal(expected, actual);
+        //}
+
+        //[Fact]
+        //public void BotOnCallBackQueryReceived_DataDelete_ReturnsDeleteKeyboardState()
+        //{
+        //    _callbackQueryMock.Data = "Delete";
+        //    var expected = ContextState.DeleteKeyboardState;
+
+        //    var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
+
+        //    A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+        //                                                           A<string>.Ignored,
+        //                                                           A<bool>.Ignored,
+        //                                                           A<string>.Ignored,
+        //                                                           A<int>.Ignored,
+        //                                                           A<CancellationToken>.Ignored))
+        //                                                          .MustNotHaveHappened();
+        //    Assert.Equal(expected, actual);
+        //}
+
         [Fact]
-        public void BotOnCallbackQueryReceived_HardcodedData_ReturnsInputDescriptionKeyboardState()
+        public void BotOnCallBackQueryReceived_DataDefault_ReturnsInputWarnDateState()
         {
-            _callbackQueryMock.Data = "30";
+            var expected = _currentState;
 
-            var expected = ContextState.InputDescriptionKeyboardState;
-
-            // Захардкодили чтоб не писать вверху с зависимостями 
-            A.CallTo(() => _eventProviderMock.GetDraftEventByChatId(A<long>.Ignored)).Returns(new Event(1234, "Title") { Date = DateTime.Now});
-
-            var actual = _inputWarnDateKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -96,17 +130,15 @@ namespace BotAlert.Tests
                                                                    A<int>.Ignored,
                                                                    A<CancellationToken>.Ignored))
                                                                   .MustHaveHappenedOnceExactly();
-
-            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.Ignored)).MustHaveHappenedOnceExactly();
-
             Assert.Equal(expected, actual);
         }
 
         [Fact]
         public void BotSendMessage_SendsTextMessage()
         {
-            _inputWarnDateKeyboardState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
+            _getNotificationDetailsState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
 
+            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).MustHaveHappenedOnceExactly();
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
                                                                A<ParseMode>.Ignored,

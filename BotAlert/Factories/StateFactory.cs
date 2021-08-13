@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using BotAlert.Interfaces;
 using BotAlert.Models;
+using BotAlert.Interfaces;
 
 namespace BotAlert.Factories
 {

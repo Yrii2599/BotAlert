@@ -1,17 +1,16 @@
 using System.Threading;
-using BotAlert.Controllers;
-using BotAlert.Factories;
-using BotAlert.Interfaces;
-using BotAlert.Models;
-using BotAlert.Service;
-using BotAlert.Services;
-using BotAlert.Settings;
-using BotAlert.States;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using BotAlert.Handlers;
+using BotAlert.Models;
+using BotAlert.States;
+using BotAlert.Services;
+using BotAlert.Settings;
+using BotAlert.Factories;
+using BotAlert.Interfaces;
 using MongoDB.Driver;
 using SimpleInjector;
 
@@ -69,11 +68,13 @@ namespace BotAlert
                 { ContextState.MainState, () => _container.GetInstance<MainState>() },
                 { ContextState.InputTitleState, () => _container.GetInstance<InputTitleState>() },
                 { ContextState.InputDateState, () => _container.GetInstance<InputDateState>() },
-                { ContextState.InputWarnDateKeyboard, () => _container.GetInstance<InputWarnDateKeyboard>() },
+                { ContextState.InputWarnDateKeyboardState, () => _container.GetInstance<InputWarnDateKeyboardState>() },
                 { ContextState.InputWarnDateState, () => _container.GetInstance<InputWarnDateState>() },
                 { ContextState.InputDescriptionKeyboardState, () => _container.GetInstance<InputDescriptionKeyboardState>() },
                 { ContextState.InputDescriptionState, () => _container.GetInstance<InputDescriptionState>() },
-                { ContextState.SaveState, () => _container.GetInstance<SaveState>() }
+                { ContextState.SaveState, () => _container.GetInstance<SaveState>() },
+                { ContextState.GetAllNotificationsState, () => _container.GetInstance<GetAllNotificationsState>() },
+                { ContextState.GetNotificationDetailsState, () => _container.GetInstance<GetNotificationDetailsState>() }
             });
 
             //Register states
@@ -81,11 +82,13 @@ namespace BotAlert
             _container.Register<MainState>();
             _container.Register<InputTitleState>();
             _container.Register<InputDateState>();
-            _container.Register<InputWarnDateKeyboard>();
+            _container.Register<InputWarnDateKeyboardState>();
             _container.Register<InputWarnDateState>();
             _container.Register<InputDescriptionKeyboardState>();
             _container.Register<InputDescriptionState>();
             _container.Register<SaveState>();
+            _container.Register<GetAllNotificationsState>();
+            _container.Register<GetNotificationDetailsState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();

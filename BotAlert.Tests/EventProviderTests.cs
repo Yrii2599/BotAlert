@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading;
+using BotAlert.Interfaces;
 using BotAlert.Models;
 using BotAlert.Services;
-using FakeItEasy;
 using MongoDB.Driver;
+using FakeItEasy;
 using Xunit;
 
 namespace BotAlert.Tests
@@ -11,6 +12,7 @@ namespace BotAlert.Tests
     public class EventProviderTests
     {
         private readonly IMongoDatabase _mongoDatabaseMock;
+        private readonly IStateProvider _stateProviderMock;
         private readonly IMongoCollection<Event> _eventsCollectionMock;
 
         private readonly EventProvider _eventProvider;
@@ -18,14 +20,14 @@ namespace BotAlert.Tests
         public EventProviderTests()
         {
             _mongoDatabaseMock = A.Fake<IMongoDatabase>();
+            _stateProviderMock = A.Fake<IStateProvider>();
             _eventsCollectionMock = A.Fake<IMongoCollection<Event>>();
 
             A.CallTo(() => _mongoDatabaseMock.GetCollection<Event>(A<string>.Ignored, A<MongoCollectionSettings>.Ignored))
                             .Returns(_eventsCollectionMock);
 
-            _eventProvider = new EventProvider(_mongoDatabaseMock);
+            _eventProvider = new EventProvider(_mongoDatabaseMock, _stateProviderMock);
         }
-
 
         [Fact]
         public void CreateEvent_WorksCorrectly()
@@ -56,11 +58,11 @@ namespace BotAlert.Tests
 
         [Fact]
         public void UpdateDraftEventByChatId_WorksCorrectly()
-        {
+        { 
             var eventObj = new Event(123, "Title");
             _eventsCollectionMock.InsertOne(eventObj);
 
-            _eventProvider.UpdateDraftEventByChatId(eventObj.ChatId, "Date", DateTime.Now);
+            _eventProvider.UpdateDraftEventByChatId(eventObj.ChatId, x => x.Date, DateTime.Now);
 
             A.CallTo(() => _eventsCollectionMock.UpdateOne(A<FilterDefinition<Event>>.Ignored,
                              A<UpdateDefinition<Event>>.Ignored,
@@ -88,18 +90,6 @@ namespace BotAlert.Tests
         //    _eventsCollectionMock.InsertOne(eventObj);
 
         //    _eventProvider.GetEventById(eventObj.Id);
-
-        //    A.CallTo(() => _eventsCollectionMock.Find(A<FilterDefinition<Event>>.Ignored, A<FindOptions>.Ignored))
-        //                    .Returns(eventObj);
-        //}
-
-        //[Fact]
-        //public void GetEventByTitle_WorksCorrectly()
-        //{
-        //    var eventObj = new Event(123, "Title");
-        //    _eventsCollectionMock.InsertOne(eventObj);
-
-        //    _eventProvider.GetEventByTitle(eventObj.Title);
 
         //    A.CallTo(() => _eventsCollectionMock.Find(A<FilterDefinition<Event>>.Ignored, A<FindOptions>.Ignored))
         //                    .Returns(eventObj);

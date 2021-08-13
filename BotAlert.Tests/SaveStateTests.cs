@@ -1,15 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Threading;
+using System.Linq.Expressions;
+using System.Collections.Generic;
 using BotAlert.Interfaces;
 using BotAlert.Models;
 using BotAlert.States;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using FakeItEasy;
 using Xunit;
-using Telegram.Bot.Types.ReplyMarkups;
-using System.Threading;
-using System;
 
 namespace BotAlert.Tests
 {
@@ -43,7 +44,7 @@ namespace BotAlert.Tests
 
             var actual = _saveState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<string>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<Expression<Func<Event, EventStatus>>>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
                                                            A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
@@ -95,11 +96,11 @@ namespace BotAlert.Tests
         {
             var expected = ContextState.MainState;
 
-            _callbackQueryMock.Data = "s";
+            _callbackQueryMock.Data = "Save";
 
             var actual = _saveState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<string>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<Expression<Func<Event, EventStatus>>>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
                                                            A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
@@ -140,22 +141,6 @@ namespace BotAlert.Tests
                                                            A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                            A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
                                                            .MustHaveHappenedOnceExactly();
-        }
-
-        [Fact]
-        public void HandleInvalidInput_ShouldSendTextMessageAndReturnSameState()
-        {
-            var expected = ContextState.SaveState;
-
-            var actual = _saveState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, string.Empty);
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
-                                                           A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
-                                                           A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
-                                                           A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
-                                                           .MustHaveHappenedOnceExactly();
-
-            Assert.Equal(expected, actual);
         }
     }
 }

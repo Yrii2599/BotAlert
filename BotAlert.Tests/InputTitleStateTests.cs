@@ -1,21 +1,19 @@
-﻿using BotAlert.States;
+﻿using System.Threading;
+using System.Collections.Generic;
+using BotAlert.States;
+using BotAlert.Models;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using FakeItEasy;
 using Xunit;
-using Telegram.Bot.Types.Enums;
-using System.Collections.Generic;
-using Telegram.Bot.Types.ReplyMarkups;
-using System.Threading;
-using BotAlert.Models;
-using System;
 
 namespace BotAlert.Tests
 {
     public class InputTitleStateTests
     {
-
         private readonly IEventProvider _eventProviderMock;
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageMock;
@@ -37,9 +35,9 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_ShouldCreateEvent()
         {
-            _messageMock.Text = "";
-
             var expected = ContextState.InputDateState;
+
+            _messageMock.Text = "";
 
             var actual = _inputTitleState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
@@ -88,22 +86,6 @@ namespace BotAlert.Tests
                                                            A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                            A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
                                                            .MustHaveHappenedOnceExactly();
-        }
-
-        [Fact]
-        public void HandleInvalidInput_ShouldSendTextMessageAndReturnSameState()
-        {
-            var expected = ContextState.InputTitleState;
-
-            var actual = _inputTitleState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, String.Empty);
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
-                                                           A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
-                                                           A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
-                                                           A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
-                                                           .MustHaveHappenedOnceExactly();
-
-            Assert.Equal(expected, actual);
         }
     }
 }

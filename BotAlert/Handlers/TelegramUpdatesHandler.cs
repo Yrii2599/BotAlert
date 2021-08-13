@@ -8,7 +8,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
-namespace BotAlert.Controllers
+namespace BotAlert.Handlers
 {
     public class TelegramUpdatesHandler : ITelegramUpdatesHandler
     {
@@ -29,7 +29,7 @@ namespace BotAlert.Controllers
             }
 
             var chatId = update.Message != null ? update.Message.Chat.Id : update.CallbackQuery.Message.Chat.Id;
-            var state = _stateProvider.GetChatState(chatId);
+            var state = _stateFactory.GetState(_stateProvider.GetChatState(chatId).State);
 
             var handler = update.Type switch
             {
@@ -43,12 +43,14 @@ namespace BotAlert.Controllers
             try
             {
                 var nextState = await handler;
-                _stateProvider.SaveChatState(new ChatState(chatId, nextState));
+                var chat = _stateProvider.GetChatState(chatId);
+                chat.State = nextState;
+                _stateProvider.SaveChatState(chat);
                 _stateFactory.GetState(nextState).BotSendMessage(botClient, chatId);
             }
             catch (Exception exception)
             {
-                await HandleErrorAsync(botClient, exception, cancellationToken);
+                await HandleErrorAsync(botClient, exception, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -67,7 +69,7 @@ namespace BotAlert.Controllers
 
         private Task<ContextState> UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
         {
-            botClient.SendTextMessageAsync(update.Message.Chat.Id, "Sorry, something went wrong, please try again later!");
+            botClient.SendTextMessageAsync(update.Message.Chat.Id, "Что-то пошло не так!");
 
             return Task.Run(() => ContextState.MainState);
         }

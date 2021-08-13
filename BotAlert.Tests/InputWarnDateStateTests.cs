@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using FakeItEasy;
-using Xunit;
-using BotAlert.Interfaces;
+﻿using System.Threading;
+using System.Collections.Generic;
 using BotAlert.States;
 using BotAlert.Models;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using System;
+using FakeItEasy;
+using Xunit;
 
 namespace BotAlert.Tests
 {
@@ -149,27 +148,6 @@ namespace BotAlert.Tests
                                                                A<IReplyMarkup>.Ignored,
                                                                A<CancellationToken>.Ignored))
                                                               .MustHaveHappenedOnceExactly();
-        }
-
-        [Fact]
-        public void HandleInvalidInput_ReturnsCurrentState()
-        {
-            var expected = _currentState;
-
-            var actual = _inputWarnDateState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, String.Empty);
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
-                                                               A<string>.Ignored,
-                                                               A<ParseMode>.Ignored,
-                                                               A<IEnumerable<MessageEntity>>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<int>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<IReplyMarkup>.Ignored,
-                                                               A<CancellationToken>.Ignored))
-                                                              .MustHaveHappenedOnceExactly();
-            Assert.Equal(expected, actual);
         }
     }
 }

@@ -4,7 +4,7 @@ namespace BotAlert.Interfaces
 {
     public interface IStateProvider
     {
-        IState GetChatState(long chatId);
+        ChatState GetChatState(long chatId);
 
         void SaveChatState(ChatState chatState);
     }
