@@ -31,7 +31,6 @@ namespace BotAlert.States
                 case "Back":
                     return ContextState.GetAllNotificationsState;
 
-
                 default:
                     return ContextState.GetNotificationDetailsState;
             };
@@ -50,12 +49,6 @@ namespace BotAlert.States
             });
 
             InteractionHelper.SendInlineKeyboard(botClient, chatId, eventObj.ToString(), options);
-        }
-
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
-        {
-            botClient.SendTextMessageAsync(chatId, message);
-            return ContextState.GetAllNotificationsState;
         }
     }
 }
