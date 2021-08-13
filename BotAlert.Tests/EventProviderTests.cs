@@ -63,7 +63,7 @@ namespace BotAlert.Tests
             var eventObj = new Event(123, "Title");
             _eventsCollectionMock.InsertOne(eventObj);
 
-            _eventProvider.UpdateDraftEventByChatId(eventObj.ChatId, "Date", DateTime.Now);
+            _eventProvider.UpdateDraftEventByChatId(eventObj.ChatId, e => e.Date, DateTime.Now);
 
             A.CallTo(() => _eventsCollectionMock.UpdateOne(A<FilterDefinition<Event>>.Ignored,
                              A<UpdateDefinition<Event>>.Ignored,
@@ -97,18 +97,6 @@ namespace BotAlert.Tests
         //}
 
         //[Fact]
-        //public void GetEventByTitle_WorksCorrectly()
-        //{
-        //    var eventObj = new Event(123, "Title");
-        //    _eventsCollectionMock.InsertOne(eventObj);
-
-        //    _eventProvider.GetEventByTitle(eventObj.Title);
-
-        //    A.CallTo(() => _eventsCollectionMock.Find(A<FilterDefinition<Event>>.Ignored, A<FindOptions>.Ignored))
-        //                    .Returns(eventObj);
-        //}
-
-        //[Fact]
         //public void GetDraftEventByChatId_WorksCorrectly()
         //{
         //    var eventObj = new Event(123, "Title");
@@ -121,14 +109,7 @@ namespace BotAlert.Tests
         //}
 
         //[Fact]
-        //public void GetAllEvents_WorksCorrectly()
-        //{
-
-        //}
-
-
-        //[Fact]
-        //public void GetAllEventsInDateRange_WorksCorrectly()
+        //public void GetAllEventsOnPage_WorksCorrectly()
         //{
 
         //}
