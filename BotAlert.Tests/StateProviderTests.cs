@@ -5,7 +5,6 @@ using BotAlert.Interfaces;
 using MongoDB.Driver;
 using FakeItEasy;
 using Xunit;
-using MongoDB.Bson;
 
 namespace BotAlert.Tests
 {

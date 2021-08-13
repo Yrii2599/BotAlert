@@ -96,18 +96,6 @@ namespace BotAlert.Tests
         //}
 
         //[Fact]
-        //public void GetEventByTitle_WorksCorrectly()
-        //{
-        //    var eventObj = new Event(123, "Title");
-        //    _eventsCollectionMock.InsertOne(eventObj);
-
-        //    _eventProvider.GetEventByTitle(eventObj.Title);
-
-        //    A.CallTo(() => _eventsCollectionMock.Find(A<FilterDefinition<Event>>.Ignored, A<FindOptions>.Ignored))
-        //                    .Returns(eventObj);
-        //}
-
-        //[Fact]
         //public void GetDraftEventByChatId_WorksCorrectly()
         //{
         //    var eventObj = new Event(123, "Title");
@@ -124,6 +112,7 @@ namespace BotAlert.Tests
         //{
 
         //}
+
 
         //[Fact]
         //public void GetAllEventsInDateRange_WorksCorrectly()

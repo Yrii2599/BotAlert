@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Linq.Expressions;
 using FakeItEasy;
 using Xunit;
 using BotAlert.Interfaces;
@@ -78,7 +79,7 @@ namespace BotAlert.Tests
             Assert.Equal(expected, actual);
         }
 
-        /*[Fact]
+        [Fact]
         public void BotOnMessageReceived_MessageTextIsADate_ReturnsInputWarnDateKeyboardState()
         {
             var expected = ContextState.InputWarnDateKeyboard;
@@ -86,11 +87,13 @@ namespace BotAlert.Tests
 
             var actual = _inputDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<string>.Ignored, A<DateTime>.Ignored))
+            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, 
+                                                                       A<Expression<Func<Event, DateTime>>>.Ignored, 
+                                                                       A<DateTime>.Ignored))
                                              .MustHaveHappenedOnceExactly();
-           
+
             Assert.Equal(expected, actual);
-        }*/
+        }
 
         [Fact]
         public void BotOnMessageReceived_MessageTextIsAnExpiredDate_ReturnsCurrentState()
@@ -150,26 +153,5 @@ namespace BotAlert.Tests
                                                                A<CancellationToken>.Ignored))
                                                               .MustHaveHappenedOnceExactly();
         }
-
-        /*[Fact]
-        public void HandleInvalidInput_ReturnsCurrentState()
-        {
-            var expected = _currentState;
-
-            var actual = _inputDateState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, String.Empty);
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
-                                                               A<string>.Ignored,
-                                                               A<ParseMode>.Ignored,
-                                                               A<IEnumerable<MessageEntity>>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<int>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<IReplyMarkup>.Ignored,
-                                                               A<CancellationToken>.Ignored))
-                                                              .MustHaveHappenedOnceExactly();
-            Assert.Equal(expected, actual);
-        }*/
     }
 }
