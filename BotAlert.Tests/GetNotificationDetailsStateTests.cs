@@ -97,24 +97,24 @@ namespace BotAlert.Tests
         //    Assert.Equal(expected, actual);
         //}
 
-        //[Fact]
-        //public void BotOnCallBackQueryReceived_DataDelete_ReturnsDeleteKeyboardState()
-        //{
-        //    _callbackQueryMock.Data = "Delete";
-        //    var expected = ContextState.DeleteKeyboardState;
+        [Fact]
+        public void BotOnCallBackQueryReceived_DataDelete_ReturnsDeleteKeyboardState()
+        {
+            _callbackQueryMock.Data = "Delete";
+            var expected = ContextState.InputDeleteKeyboardState;
 
-        //    var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
 
-        //    A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
-        //                                                           A<string>.Ignored,
-        //                                                           A<bool>.Ignored,
-        //                                                           A<string>.Ignored,
-        //                                                           A<int>.Ignored,
-        //                                                           A<CancellationToken>.Ignored))
-        //                                                          .MustNotHaveHappened();
-        //    Assert.Equal(expected, actual);
-        //}
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<bool>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<int>.Ignored,
+                                                                   A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+            Assert.Equal(expected, actual);
+        }
 
         [Fact]
         public void BotOnCallBackQueryReceived_DataDefault_ReturnsInputWarnDateState()

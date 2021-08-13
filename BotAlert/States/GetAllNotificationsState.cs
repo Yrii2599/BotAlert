@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using BotAlert.Models;
@@ -68,7 +69,29 @@ namespace BotAlert.States
         {
             var options = new List<InlineKeyboardButton[]>();
 
-            foreach(var eventObj in _eventProvider.GetUserEventsOnPage(chatId))
+            var chat = _stateProvider.GetChatState(chatId);
+
+            var events = _eventProvider.GetUserEventsOnPage(chatId);
+
+            // Изменяем State
+            if(!events.Any())
+            {
+                if (chat.NotificationsPage == 0)
+                {
+                    botClient.SendTextMessageAsync(chatId, "У вас нет предстоящих событий!");
+                    chat.State = ContextState.MainState;
+                    _stateProvider.SaveChatState(chat);
+                    return;
+                }
+                else
+                {
+                    chat.NotificationsPage--;
+                    _stateProvider.SaveChatState(chat);
+                    events = _eventProvider.GetUserEventsOnPage(chatId);
+                }
+            }
+
+            foreach (var eventObj in events)
             {
                 options.Add(new[] { InlineKeyboardButton.WithCallbackData(eventObj.Title, eventObj.Id.ToString()) });
             }
