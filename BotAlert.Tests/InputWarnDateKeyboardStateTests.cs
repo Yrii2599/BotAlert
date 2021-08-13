@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using FakeItEasy;
-using Xunit;
+using System.Collections.Generic;
 using BotAlert.Interfaces;
 using BotAlert.States;
 using BotAlert.Models;
@@ -10,6 +8,8 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using FakeItEasy;
+using Xunit;
 
 namespace BotAlert.Tests
 {

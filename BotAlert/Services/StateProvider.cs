@@ -1,8 +1,8 @@
-﻿using BotAlert.Interfaces;
-using BotAlert.Models;
+﻿using BotAlert.Models;
+using BotAlert.Interfaces;
 using MongoDB.Driver;
 
-namespace BotAlert.Service
+namespace BotAlert.Services
 {
     public class StateProvider : IStateProvider
     {

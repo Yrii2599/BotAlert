@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
+using BotAlert.Models;
 using BotAlert.Helpers;
 using BotAlert.Interfaces;
-using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;

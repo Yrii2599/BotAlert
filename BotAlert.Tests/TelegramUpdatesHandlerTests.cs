@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using BotAlert.Models;
 using BotAlert.Handlers;
 using BotAlert.Interfaces;
-using FakeItEasy;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Exceptions;
+using FakeItEasy;
 using Xunit;
 
 namespace BotAlert.Tests

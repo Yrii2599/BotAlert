@@ -1,15 +1,14 @@
-﻿using BotAlert.States;
+﻿using System.Threading;
+using System.Collections.Generic;
+using BotAlert.States;
+using BotAlert.Models;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using FakeItEasy;
 using Xunit;
-using Telegram.Bot.Types.Enums;
-using System.Collections.Generic;
-using Telegram.Bot.Types.ReplyMarkups;
-using System.Threading;
-using BotAlert.Models;
-using System;
 
 namespace BotAlert.Tests
 {

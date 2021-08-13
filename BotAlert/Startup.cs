@@ -1,17 +1,16 @@
 using System.Threading;
-using BotAlert.Handlers;
-using BotAlert.Factories;
-using BotAlert.Interfaces;
-using BotAlert.Models;
-using BotAlert.Service;
-using BotAlert.Services;
-using BotAlert.Settings;
-using BotAlert.States;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using BotAlert.Handlers;
+using BotAlert.Models;
+using BotAlert.States;
+using BotAlert.Services;
+using BotAlert.Settings;
+using BotAlert.Factories;
+using BotAlert.Interfaces;
 using MongoDB.Driver;
 using SimpleInjector;
 

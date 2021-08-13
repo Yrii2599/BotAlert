@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using BotAlert.Interfaces;
 using BotAlert.Models;
 using BotAlert.Settings;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 

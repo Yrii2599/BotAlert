@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using BotAlert.Interfaces;
+using System.Linq.Expressions;
+using System.Collections.Generic;
 using BotAlert.Models;
 using BotAlert.States;
-using FakeItEasy;
-using MongoDB.Driver;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using FakeItEasy;
 using Xunit;
 
 namespace BotAlert.Tests

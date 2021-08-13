@@ -3,8 +3,8 @@ using System.Threading;
 using BotAlert.Interfaces;
 using BotAlert.Models;
 using BotAlert.Services;
-using FakeItEasy;
 using MongoDB.Driver;
+using FakeItEasy;
 using Xunit;
 
 namespace BotAlert.Tests

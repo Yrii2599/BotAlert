@@ -3,9 +3,9 @@ using BotAlert.States;
 using BotAlert.Models;
 using BotAlert.Factories;
 using BotAlert.Interfaces;
-using Xunit;
-using FakeItEasy;
 using SimpleInjector;
+using FakeItEasy;
+using Xunit;
 
 namespace BotAlert.Tests
 {

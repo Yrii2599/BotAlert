@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using BotAlert.Models;
-using BotAlert.Service;
+using BotAlert.Services;
 using BotAlert.Interfaces;
 using MongoDB.Driver;
 using FakeItEasy;
