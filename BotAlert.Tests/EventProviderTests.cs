@@ -29,7 +29,6 @@ namespace BotAlert.Tests
             _eventProvider = new EventProvider(_mongoDatabaseMock, _stateProviderMock);
         }
 
-
         [Fact]
         public void CreateEvent_WorksCorrectly()
         {
@@ -59,7 +58,7 @@ namespace BotAlert.Tests
 
         [Fact]
         public void UpdateDraftEventByChatId_WorksCorrectly()
-        {
+        { 
             var eventObj = new Event(123, "Title");
             _eventsCollectionMock.InsertOne(eventObj);
 
@@ -109,7 +108,14 @@ namespace BotAlert.Tests
         //}
 
         //[Fact]
-        //public void GetAllEventsOnPage_WorksCorrectly()
+        //public void GetAllEvents_WorksCorrectly()
+        //{
+
+        //}
+
+
+        //[Fact]
+        //public void GetAllEventsInDateRange_WorksCorrectly()
         //{
 
         //}

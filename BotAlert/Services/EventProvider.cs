@@ -25,9 +25,8 @@ namespace BotAlert.Services
         public void CreateEvent(Event eventObj)
         {
             _eventsCollection.InsertOne(eventObj);
-        }
-
-
+        } 
+        
         public List<Event> GetUserEventsOnPage(long chatId)
         {
             var page = _stateProvider.GetChatState(chatId).NotificationsPage;

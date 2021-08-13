@@ -69,13 +69,13 @@ namespace BotAlert
                 { ContextState.MainState, () => _container.GetInstance<MainState>() },
                 { ContextState.InputTitleState, () => _container.GetInstance<InputTitleState>() },
                 { ContextState.InputDateState, () => _container.GetInstance<InputDateState>() },
-                { ContextState.InputWarnDateKeyboard, () => _container.GetInstance<InputWarnDateKeyboard>() },
+                { ContextState.InputWarnDateKeyboardState, () => _container.GetInstance<InputWarnDateKeyboardState>() },
                 { ContextState.InputWarnDateState, () => _container.GetInstance<InputWarnDateState>() },
                 { ContextState.InputDescriptionKeyboardState, () => _container.GetInstance<InputDescriptionKeyboardState>() },
                 { ContextState.InputDescriptionState, () => _container.GetInstance<InputDescriptionState>() },
                 { ContextState.SaveState, () => _container.GetInstance<SaveState>() },
                 { ContextState.GetAllNotificationsState, () => _container.GetInstance<GetAllNotificationsState>() },
-                { ContextState.GetNotificationDetails, () => _container.GetInstance<GetNotificationDetails>() }
+                { ContextState.GetNotificationDetailsState, () => _container.GetInstance<GetNotificationDetailsState>() }
             });
 
             //Register states
@@ -83,13 +83,13 @@ namespace BotAlert
             _container.Register<MainState>();
             _container.Register<InputTitleState>();
             _container.Register<InputDateState>();
-            _container.Register<InputWarnDateKeyboard>();
+            _container.Register<InputWarnDateKeyboardState>();
             _container.Register<InputWarnDateState>();
             _container.Register<InputDescriptionKeyboardState>();
             _container.Register<InputDescriptionState>();
             _container.Register<SaveState>();
             _container.Register<GetAllNotificationsState>();
-            _container.Register<GetNotificationDetails>();
+            _container.Register<GetNotificationDetailsState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();

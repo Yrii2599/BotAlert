@@ -7,7 +7,10 @@ using BotAlert.Interfaces;
 using FakeItEasy;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+<<<<<<< HEAD
 using Telegram.Bot.Exceptions;
+=======
+>>>>>>> 68cb7c5bf0461bf2c37cf1e16edbb6e1859d75b2
 using Xunit;
 using System.Collections.Generic;
 using Telegram.Bot.Types.ReplyMarkups;

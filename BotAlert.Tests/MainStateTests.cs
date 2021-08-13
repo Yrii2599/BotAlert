@@ -31,7 +31,6 @@ namespace BotAlert.Tests
             _mainState = new MainState();
         }
 
-
         [Fact]
         public void BotOnMessageReceived_GreetsUserCorrectly()
         {
@@ -93,7 +92,6 @@ namespace BotAlert.Tests
 
             Assert.Equal(expected, actual);
         }
-
 
         [Fact]
         public void BotSendMessage_ShouldSendTextMessage()

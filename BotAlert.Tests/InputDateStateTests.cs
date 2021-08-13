@@ -82,7 +82,7 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_MessageTextIsADate_ReturnsInputWarnDateKeyboardState()
         {
-            var expected = ContextState.InputWarnDateKeyboard;
+            var expected = ContextState.InputWarnDateKeyboardState;
             _messageMock.Text = "31.12.9999";
 
             var actual = _inputDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;

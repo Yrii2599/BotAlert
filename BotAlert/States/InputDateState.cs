@@ -35,7 +35,7 @@ namespace BotAlert.States
 
             _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.Date, date);
 
-            return ContextState.InputWarnDateKeyboard;
+            return ContextState.InputWarnDateKeyboardState;
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -53,6 +53,7 @@ namespace BotAlert.States
         private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
+
             return ContextState.InputDateState;
         }
     }
