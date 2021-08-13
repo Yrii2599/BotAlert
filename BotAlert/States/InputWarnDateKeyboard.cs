@@ -55,7 +55,7 @@ namespace BotAlert.States
                                                             InlineKeyboardButton.WithCallbackData("1 ч.", "60") },
                                                     new[] { InlineKeyboardButton.WithCallbackData("Ввести свое значение", "own") } 
                                                    });
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Желаете добавить описание?", options);
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Когда вас уведомить ?", options);
         }
 
         public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
