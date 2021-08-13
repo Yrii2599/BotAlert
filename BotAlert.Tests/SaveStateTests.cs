@@ -10,6 +10,7 @@ using Xunit;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Threading;
 using System;
+using System.Linq.Expressions;
 
 namespace BotAlert.Tests
 {
@@ -34,7 +35,7 @@ namespace BotAlert.Tests
             _saveState = new SaveState(_eventProviderMock);
         }
 
-        /*[Fact]
+        [Fact]
         public void BotOnMessageReceived_ShouldSaveEventSendMessageAndReturnNextState()
         {
             var expected = ContextState.MainState;
@@ -43,7 +44,7 @@ namespace BotAlert.Tests
 
             var actual = _saveState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<string>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<Expression<Func<Event, EventStatus>>>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
                                                            A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
@@ -52,7 +53,7 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
-        }*/
+        }
 
         [Fact]
         public void BotOnMessageReceived_ShouldDeleteEventSendMessageAndReturnNextState()
@@ -90,16 +91,16 @@ namespace BotAlert.Tests
             Assert.Equal(expected, actual);
         }
 
-        /*[Fact]
+        [Fact]
         public void BotOnCallBackQueryReceived_ShouldSaveEventSendMessageAndReturnNextState()
         {
             var expected = ContextState.MainState;
 
-            _callbackQueryMock.Data = "s";
+            _callbackQueryMock.Data = "Save";
 
             var actual = _saveState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<string>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, A<Expression<Func<Event, EventStatus>>>.Ignored, A<EventStatus>.Ignored)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
                                                            A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
@@ -108,7 +109,7 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
-        }*/
+        }
 
         [Fact]
         public void BotOnCallBackQueryReceived_ShouldDeleteEventSendMessageAndReturnNextState()
@@ -141,21 +142,5 @@ namespace BotAlert.Tests
                                                            A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
                                                            .MustHaveHappenedOnceExactly();
         }
-
-        /*[Fact]
-        public void HandleInvalidInput_ShouldSendTextMessageAndReturnSameState()
-        {
-            var expected = ContextState.SaveState;
-
-            var actual = _saveState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, string.Empty);
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
-                                                           A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
-                                                           A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
-                                                           A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
-                                                           .MustHaveHappenedOnceExactly();
-
-            Assert.Equal(expected, actual);
-        }*/
     }
 }

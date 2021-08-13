@@ -63,7 +63,7 @@ namespace BotAlert.Tests
             var eventObj = new Event(123, "Title");
             _eventsCollectionMock.InsertOne(eventObj);
 
-            _eventProvider.UpdateDraftEventByChatId(eventObj.ChatId, "Date", DateTime.Now);
+            _eventProvider.UpdateDraftEventByChatId(eventObj.ChatId, x => x.Date, DateTime.Now);
 
             A.CallTo(() => _eventsCollectionMock.UpdateOne(A<FilterDefinition<Event>>.Ignored,
                              A<UpdateDefinition<Event>>.Ignored,
