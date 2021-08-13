@@ -6,6 +6,14 @@ namespace BotAlert.Interfaces
     {
         IState GetChatState(long chatId);
 
+        int GetChatPage(long chatId);
+
         void SaveChatState(ChatState chatState);
+
+        public void ResetChatPage(long chatId);
+
+        public void IncrementChatPage(long chatId, int incrementValue);
+
+        public void UpdateCurrentlyViewingNotification(long chatId, string eventId);
     }
 }

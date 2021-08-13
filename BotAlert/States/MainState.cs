@@ -18,13 +18,11 @@ namespace BotAlert.States
             {
                 "/start" => GreetUser(botClient, message.Chat.Id),
                 "/create" => CreateNotification(),
-                /*"/get_notifications" => GetAllNotifications(botClient, message),
-                "/get_notification" => GetNotification(botClient, message),
-                "/edit" => EditNotification(botClient, message),
-                "/delete" => DeleteNotification(botClient, message),*/
+                "/get_notifications" => GetAllNotifications(),
                 _ => HandleInvalidInput(botClient, message.Chat.Id, "Выберите пожалуйста одну из команд!")
             };
         }
+
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
@@ -53,6 +51,11 @@ namespace BotAlert.States
         private ContextState CreateNotification()
         {
             return ContextState.InputTitleState;
+        }
+        
+        private ContextState GetAllNotifications()
+        {
+            return ContextState.GetAllNotificationsState;
         }
     }
 }

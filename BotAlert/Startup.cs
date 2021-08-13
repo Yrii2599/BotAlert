@@ -73,7 +73,8 @@ namespace BotAlert
                 { ContextState.InputWarnDateState, () => _container.GetInstance<InputWarnDateState>() },
                 { ContextState.InputDescriptionKeyboardState, () => _container.GetInstance<InputDescriptionKeyboardState>() },
                 { ContextState.InputDescriptionState, () => _container.GetInstance<InputDescriptionState>() },
-                { ContextState.SaveState, () => _container.GetInstance<SaveState>() }
+                { ContextState.SaveState, () => _container.GetInstance<SaveState>() },
+                { ContextState.GetAllNotificationsState, () => _container.GetInstance<GetAllNotificationsState>() }
             });
 
             //Register states
@@ -86,6 +87,7 @@ namespace BotAlert
             _container.Register<InputDescriptionKeyboardState>();
             _container.Register<InputDescriptionState>();
             _container.Register<SaveState>();
+            _container.Register<GetAllNotificationsState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();

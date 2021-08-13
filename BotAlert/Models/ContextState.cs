@@ -10,6 +10,7 @@ namespace BotAlert.Models
         InputWarnDateState,
         InputDescriptionKeyboardState,
         InputDescriptionState,
-        SaveState
+        SaveState,
+        GetAllNotificationsState
     }
 }

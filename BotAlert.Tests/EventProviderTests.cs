@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using BotAlert.Interfaces;
 using BotAlert.Models;
 using BotAlert.Services;
 using FakeItEasy;
@@ -11,6 +12,7 @@ namespace BotAlert.Tests
     public class EventProviderTests
     {
         private readonly IMongoDatabase _mongoDatabaseMock;
+        private readonly IStateProvider _stateProviderMock;
         private readonly IMongoCollection<Event> _eventsCollectionMock;
 
         private readonly EventProvider _eventProvider;
@@ -18,12 +20,13 @@ namespace BotAlert.Tests
         public EventProviderTests()
         {
             _mongoDatabaseMock = A.Fake<IMongoDatabase>();
+            _stateProviderMock = A.Fake<IStateProvider>();
             _eventsCollectionMock = A.Fake<IMongoCollection<Event>>();
 
             A.CallTo(() => _mongoDatabaseMock.GetCollection<Event>(A<string>.Ignored, A<MongoCollectionSettings>.Ignored))
                             .Returns(_eventsCollectionMock);
 
-            _eventProvider = new EventProvider(_mongoDatabaseMock);
+            _eventProvider = new EventProvider(_mongoDatabaseMock, _stateProviderMock);
         }
 
 

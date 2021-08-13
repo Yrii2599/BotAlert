@@ -15,10 +15,18 @@ namespace BotAlert.Models
         [Required]
         public ContextState State { get; set; }
 
+        [Required]
+        public int NotificationsPage { get; set; }
+
+        [Required]
+        public Guid CurentlyViewingNotificationId { get; set; }
+
         public ChatState(long chatId, ContextState state = ContextState.MainState)
         {
             ChatId = chatId;
             State = state;
+            NotificationsPage = 0;
+            CurentlyViewingNotificationId = Guid.Empty;
         }
     }
 }
