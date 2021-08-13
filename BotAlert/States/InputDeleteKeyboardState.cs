@@ -9,12 +9,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotAlert.States
 {
-    public class DeleteKeyboardState : IState
+    public class InputDeleteKeyboardState : IState
     {
         private readonly IEventProvider _eventProvider;
         private readonly IStateProvider _stateProvider;
 
-        public DeleteKeyboardState(IEventProvider eventProvider, IStateProvider stateProvider)
+        public InputDeleteKeyboardState(IEventProvider eventProvider, IStateProvider stateProvider)
         {
             _eventProvider = eventProvider;
             _stateProvider = stateProvider;
@@ -44,8 +44,7 @@ namespace BotAlert.States
             return callbackQuery.Data switch
             {
                 "да" => HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id),
-                "нет" => HandleDeclineInput(),
-                _ => ContextState.DeleteKeyboardState
+                _ => HandleDeclineInput()
             };
         }
 
@@ -64,7 +63,7 @@ namespace BotAlert.States
         {
             botClient.SendTextMessageAsync(chatId, message);
 
-            return ContextState.GetAllNotificationsState;
+            return ContextState.InputDeleteKeyboardState;
         }
 
         private ContextState HandleAcceptInput(ITelegramBotClient botClient, long chatId)
@@ -74,6 +73,7 @@ namespace BotAlert.States
             _eventProvider.DeleteEvent(chatState.ActiveNotificationId);
 
             chatState.ActiveNotificationId = Guid.Empty;
+
             _stateProvider.SaveChatState(chatState);
 
             botClient.SendTextMessageAsync(chatId, "Событие успешно удалено!");
