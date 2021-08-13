@@ -53,6 +53,7 @@ namespace BotAlert.States
         private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
+
             return ContextState.InputDateState;
         }
     }

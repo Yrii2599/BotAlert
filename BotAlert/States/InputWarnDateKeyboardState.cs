@@ -10,7 +10,6 @@ namespace BotAlert.States
 {
     public class InputWarnDateKeyboardState : IState
     {
-
         private readonly IEventProvider _eventProvider;
 
         public InputWarnDateKeyboardState(IEventProvider eventProvider)

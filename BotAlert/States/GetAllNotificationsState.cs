@@ -33,17 +33,24 @@ namespace BotAlert.States
                 case "ToMain":
                     chat.NotificationsPage = 0;
                     res = ContextState.MainState;
+
                     break;
+
                 case "Prev":
                     chat.NotificationsPage--;
                     res = ContextState.GetAllNotificationsState;
+
                     break;
+
                 case "Next":
                     chat.NotificationsPage++;
                     res = ContextState.GetAllNotificationsState;
+
                     break;
+
                 default:
                     chat.ActiveNotificationId = Guid.Parse(callbackQuery.Data);
+
                     break;
             }
 
@@ -71,6 +78,7 @@ namespace BotAlert.States
             if (_eventProvider.UserEventsPreviousPageExists(chatId)) {
                 prevNextBtns.Add(InlineKeyboardButton.WithCallbackData("◀", "Prev"));
             }
+
             if (_eventProvider.UserEventsNextPageExists(chatId))
             {
                 prevNextBtns.Add(InlineKeyboardButton.WithCallbackData("▶", "Next"));
@@ -85,6 +93,7 @@ namespace BotAlert.States
         private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
+
             return ContextState.GetAllNotificationsState;
         }
     }

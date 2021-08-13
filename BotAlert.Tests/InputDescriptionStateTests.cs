@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,18 +54,18 @@ namespace BotAlert.Tests
                 .MustHaveHappenedOnceExactly();
         }
 
-        /*[Fact]
+        [Fact]
         public void BotOnMessageReceived_ReturnsUpdateDraftEventByChatId()
         {
             _messageMock.Text = "Something";
             inputDescription.BotOnMessageReceived(_botClientMock, _messageMock);
 
             A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId<string>(A<long>
-                                                                                   .Ignored, A<string>
+                                                                                   .Ignored, A<Expression<Func<Event, string>>>
                                                                                    .Ignored, A<string>
                                                                                    .Ignored))
                 .MustHaveHappenedOnceExactly();
-        }*/
+        }
 
         [Fact]
         public void BotOnMessageReceived_ReturnsContextStateSaveState()

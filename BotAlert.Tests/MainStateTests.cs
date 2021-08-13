@@ -1,12 +1,8 @@
-﻿using System;
+﻿using System.Threading;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using BotAlert.Interfaces;
 using BotAlert.Models;
 using BotAlert.States;
+using BotAlert.Interfaces;
 using FakeItEasy;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -34,7 +30,6 @@ namespace BotAlert.Tests
 
             _mainState = new MainState();
         }
-
 
         [Fact]
         public void BotOnMessageReceived_GreetsUserCorrectly()
@@ -98,7 +93,6 @@ namespace BotAlert.Tests
             Assert.Equal(expected, actual);
         }
 
-
         [Fact]
         public void BotSendMessage_ShouldSendTextMessage()
         {
@@ -110,22 +104,5 @@ namespace BotAlert.Tests
                                                            A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
                                                            .MustHaveHappenedOnceExactly();
         }
-
-        /*[Fact]
-        public void HandleInvalidInput_ShouldSendTextMessageAndReturnSameState()
-        {
-            var expected = ContextState.MainState;
-
-            var actual = _mainState.HandleInvalidInput(_botClientMock, _messageMock.Chat.Id, string.Empty);
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
-                                                           A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
-                                                           A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
-                                                           A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
-                                                           .MustHaveHappenedOnceExactly();
-
-            Assert.Equal(expected, actual);
-        }*/
-
     }
 }
