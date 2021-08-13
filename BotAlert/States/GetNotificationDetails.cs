@@ -27,9 +27,12 @@ namespace BotAlert.States
             {
                 case "Back":
                     return ContextState.GetAllNotificationsState;
+
                     break;
+
                 default:
                     return ContextState.GetNotificationDetails;
+
                     break;
             }
         }

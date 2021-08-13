@@ -40,7 +40,6 @@ namespace BotAlert.Tests
                             .MustHaveHappenedOnceExactly();
         }
 
-
         /*[Fact]
         public void GetChatState_ShouldGetStateFromCollection()
         {

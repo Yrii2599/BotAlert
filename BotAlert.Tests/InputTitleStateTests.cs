@@ -15,7 +15,6 @@ namespace BotAlert.Tests
 {
     public class InputTitleStateTests
     {
-
         private readonly IEventProvider _eventProviderMock;
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageMock;

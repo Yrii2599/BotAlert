@@ -19,7 +19,6 @@ namespace BotAlert.Tests
         private readonly IStateFactory _stateFactoryMock;
         private readonly ITelegramBotClient _botClientMock;
         private readonly IState _stateMock1;
-        // private readonly IState _stateMock2;
         private readonly Update _updateMock;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
@@ -33,7 +32,6 @@ namespace BotAlert.Tests
             _stateProviderMock = A.Fake<IStateProvider>();
             _botClientMock = A.Fake<ITelegramBotClient>();
             _stateMock1 = A.Fake<IState>();
-            // _stateMock2 = A.Fake<IState>();
             _updateMock = A.Fake<Update>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();

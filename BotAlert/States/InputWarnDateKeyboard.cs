@@ -10,7 +10,6 @@ namespace BotAlert.States
 {
     public class InputWarnDateKeyboard : IState
     {
-
         private readonly IEventProvider _eventProvider;
 
         public InputWarnDateKeyboard(IEventProvider eventProvider)
@@ -61,6 +60,7 @@ namespace BotAlert.States
         private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
+
             return ContextState.InputWarnDateKeyboard;
         }
     }
