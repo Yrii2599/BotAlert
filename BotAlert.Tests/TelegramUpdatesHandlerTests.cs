@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BotAlert.Models;
 using BotAlert.Handlers;
 using BotAlert.Interfaces;
-using BotAlert.Models;
 using FakeItEasy;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Exceptions;
 using Xunit;
+using System.Collections.Generic;
+using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Types.Enums;
 
 namespace BotAlert.Tests
 {
@@ -18,8 +20,8 @@ namespace BotAlert.Tests
         private readonly IStateProvider _stateProviderMock;
         private readonly IStateFactory _stateFactoryMock;
         private readonly ITelegramBotClient _botClientMock;
+        private readonly ChatState _chatStateMock;
         private readonly IState _stateMock1;
-        // private readonly IState _stateMock2;
         private readonly Update _updateMock;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
@@ -32,8 +34,8 @@ namespace BotAlert.Tests
             _stateFactoryMock = A.Fake<IStateFactory>();
             _stateProviderMock = A.Fake<IStateProvider>();
             _botClientMock = A.Fake<ITelegramBotClient>();
+            _chatStateMock = A.Fake<ChatState>();
             _stateMock1 = A.Fake<IState>();
-            // _stateMock2 = A.Fake<IState>();
             _updateMock = A.Fake<Update>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();
@@ -53,49 +55,46 @@ namespace BotAlert.Tests
             A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustNotHaveHappened();
         }
 
-        /*[Fact]
+        [Fact]
         public void HandleUpdateAsync_WorksCorrectlyWithUpdateTypeMessage()
         {
             _updateMock.Message = _messageMock;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_stateMock1);
+            A.CallTo(() => _stateFactoryMock.GetState(A<ContextState>.Ignored)).Returns(_stateMock1);
+
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
 
             _updatesHandler.HandleUpdateAsync(_botClientMock, _updateMock, _cts);
-            
-            A.CallTo(() => _stateMock1.BotOnMessageReceived(A<ITelegramBotClient>.Ignored, A<Message>.Ignored)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _stateProviderMock.SaveChatState(A<ChatState>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedTwiceExactly();
 
-            // A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
-            //                                               A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
-            //                                               A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
-            //                                               A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
-            //                                               .MustHaveHappened();
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedTwiceExactly();
 
-            // A.CallTo(() => _stateFactoryMock.GetState(A<ContextState>.Ignored).BotSendMessage(A<ITelegramBotClient>.Ignored, A<long>.Ignored)).MustHaveHappenedOnceExactly();
-        }*/
+            A.CallTo(() => _stateMock1.BotOnMessageReceived(_botClientMock, _updateMock.Message)).MustHaveHappenedOnceExactly();
 
-        /*[Fact]
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
+
+        }
+
+        [Fact]
         public void HandleUpdateAsync_WorksCorrectlyWithUpdateTypeCallbackQuery()
         {
             _updateMock.CallbackQuery = _callbackQueryMock;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_stateMock1);
+            A.CallTo(() => _stateFactoryMock.GetState(A<ContextState>.Ignored)).Returns(_stateMock1);
+            
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
 
             _updatesHandler.HandleUpdateAsync(_botClientMock, _updateMock, _cts);
+            
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedTwiceExactly();
 
-            A.CallTo(() => _stateMock1.BotOnCallBackQueryReceived(A<ITelegramBotClient>.Ignored, A<CallbackQuery>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedTwiceExactly();
+            
+            A.CallTo(() => _stateMock1.BotOnCallBackQueryReceived(_botClientMock, _updateMock.CallbackQuery)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _stateProviderMock.SaveChatState(A<ChatState>.Ignored)).MustHaveHappenedOnceExactly();
-
-            // A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
-            //                                               A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
-            //                                               A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
-            //                                               A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
-            //                                               .MustHaveHappened();
-
-            // A.CallTo(() => _stateFactoryMock.GetState(A<ContextState>.Ignored).BotSendMessage(A<ITelegramBotClient>.Ignored, A<long>.Ignored)).MustHaveHappenedOnceExactly();
-        }*/
+            A.CallTo(()=> _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
+        }
 
         [Fact]
         public void HandleErrorAsync_HandlesApiRequestException()
