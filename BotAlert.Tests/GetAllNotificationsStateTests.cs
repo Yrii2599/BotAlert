@@ -146,6 +146,8 @@ namespace BotAlert.Tests
         [Fact]
         public void BotSendMessage_WorksCorrectly()
         {
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            
             _getAllNotificationsState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
 
             A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(A<long>.Ignored)).MustHaveHappenedOnceExactly();

@@ -28,6 +28,7 @@ namespace BotAlert.States
 
             return callbackQuery.Data switch 
             {
+                "Delete" => ContextState.InputDeleteKeyboardState,
                 "Back" => ContextState.GetAllNotificationsState,
 
                 _ => ContextState.GetNotificationDetailsState
