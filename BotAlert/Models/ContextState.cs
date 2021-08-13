@@ -11,6 +11,7 @@ namespace BotAlert.Models
         InputDescriptionKeyboardState,
         InputDescriptionState,
         SaveState,
-        GetAllNotificationsState
+        GetAllNotificationsState,
+        GetNotificationDetails
     }
 }

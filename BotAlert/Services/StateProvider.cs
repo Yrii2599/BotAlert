@@ -44,6 +44,11 @@ namespace BotAlert.Service
             return getChat(chatId).NotificationsPage;
         }
 
+        public Guid GetCurrentlyViewingNotificationId(long chatId)
+        {
+            return getChat(chatId).CurentlyViewingNotificationId;
+        }
+
         public void SaveChatState(ChatState chatObj)
         {
             var filter = _filterBuilder.Eq(x => x.ChatId, chatObj.ChatId);

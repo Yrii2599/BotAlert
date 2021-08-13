@@ -41,16 +41,13 @@ namespace BotAlert.States
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
             var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
-            var description = eventObj.Description != null ? eventObj.Description : "No description";
-            var message = $"Title: {eventObj.Title}\n" +
-                $"Date and time: {eventObj.Date.ToLocalTime()}\n" +
-                $"Date and time of notification: {eventObj.WarnDate.ToLocalTime()}\n" +
-                $"Description: {description}\n" +
-                $"****************************\n" +
-                $"Сохранить событие?";
+            var message = eventObj.ToString() +
+                          $"****************************\n" +
+                          $"Сохранить событие?";
 
             var options = new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithCallbackData("Сохранить", "s"),
                                                            InlineKeyboardButton.WithCallbackData("Отменить", "c") });
+
             InteractionHelper.SendInlineKeyboard(botClient, chatId, message, options);
         }
 

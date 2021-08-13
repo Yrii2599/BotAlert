@@ -40,16 +40,15 @@ namespace BotAlert.States
                     return ContextState.GetAllNotificationsState;
                     break;
                 default:
-                    _stateProvider.ResetChatPage(callbackQuery.Message.Chat.Id);
                     _stateProvider.UpdateCurrentlyViewingNotification(callbackQuery.Message.Chat.Id, callbackQuery.Data);
-                    return ContextState.GetAllNotificationsState;
+                    return ContextState.GetNotificationDetails;
                     break;
             }
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            return HandleInvalidInput(botClient, message.Chat.Id, "Выберите один из вариантов выше");
+            return HandleInvalidInput(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
@@ -69,7 +68,7 @@ namespace BotAlert.States
             }
             options.Add(prevNextBtns.ToArray());
             options.Add(new[] { InlineKeyboardButton.WithCallbackData("Back to menu", "ToMain") });
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Выберите событие:", options.ToArray());
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, "\nВыберите событие:", options.ToArray());
         }
 
         public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)

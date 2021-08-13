@@ -30,5 +30,13 @@ namespace BotAlert.Models
             Title = title;
             Status = EventStatus.InProgress;
         }
+
+        public override string ToString()
+        {
+            return $"\tTitle: {Title}\n" +
+                $"Date and time: {Date.ToLocalTime()}\n" +
+                $"Date and time of notification: {WarnDate.ToLocalTime()}\n" +
+                $"{Description}";
+        }
     }
 }

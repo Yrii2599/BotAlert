@@ -1,4 +1,5 @@
-﻿using BotAlert.Models;
+﻿using System;
+using BotAlert.Models;
 
 namespace BotAlert.Interfaces
 {
@@ -7,6 +8,8 @@ namespace BotAlert.Interfaces
         IState GetChatState(long chatId);
 
         int GetChatPage(long chatId);
+
+        public Guid GetCurrentlyViewingNotificationId(long chatId);
 
         void SaveChatState(ChatState chatState);
 
