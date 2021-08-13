@@ -53,7 +53,7 @@ namespace BotAlert.Tests
                 .MustHaveHappenedOnceExactly();
         }
 
-        [Fact]
+        /*[Fact]
         public void BotOnMessageReceived_ReturnsUpdateDraftEventByChatId()
         {
             _messageMock.Text = "Something";
@@ -64,7 +64,7 @@ namespace BotAlert.Tests
                                                                                    .Ignored, A<string>
                                                                                    .Ignored))
                 .MustHaveHappenedOnceExactly();
-        }
+        }*/
 
         [Fact]
         public void BotOnMessageReceived_ReturnsContextStateSaveState()

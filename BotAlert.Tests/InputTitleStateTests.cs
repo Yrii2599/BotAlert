@@ -90,7 +90,7 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
         }
 
-        [Fact]
+        /*[Fact]
         public void HandleInvalidInput_ShouldSendTextMessageAndReturnSameState()
         {
             var expected = ContextState.InputTitleState;
@@ -104,6 +104,6 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
-        }
+        }*/
     }
 }

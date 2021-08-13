@@ -78,7 +78,7 @@ namespace BotAlert.Tests
             Assert.Equal(expected, actual);
         }
 
-        [Fact]
+        /*[Fact]
         public void BotOnMessageReceived_MessageTextIsADate_ReturnsInputWarnDateKeyboardState()
         {
             var expected = ContextState.InputWarnDateKeyboard;
@@ -90,7 +90,7 @@ namespace BotAlert.Tests
                                              .MustHaveHappenedOnceExactly();
            
             Assert.Equal(expected, actual);
-        }
+        }*/
 
         [Fact]
         public void BotOnMessageReceived_MessageTextIsAnExpiredDate_ReturnsCurrentState()
@@ -151,7 +151,7 @@ namespace BotAlert.Tests
                                                               .MustHaveHappenedOnceExactly();
         }
 
-        [Fact]
+        /*[Fact]
         public void HandleInvalidInput_ReturnsCurrentState()
         {
             var expected = _currentState;
@@ -170,6 +170,6 @@ namespace BotAlert.Tests
                                                                A<CancellationToken>.Ignored))
                                                               .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
-        }
+        }*/
     }
 }

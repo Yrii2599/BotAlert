@@ -34,7 +34,7 @@ namespace BotAlert.Tests
             _saveState = new SaveState(_eventProviderMock);
         }
 
-        [Fact]
+        /*[Fact]
         public void BotOnMessageReceived_ShouldSaveEventSendMessageAndReturnNextState()
         {
             var expected = ContextState.MainState;
@@ -52,7 +52,7 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
-        }
+        }*/
 
         [Fact]
         public void BotOnMessageReceived_ShouldDeleteEventSendMessageAndReturnNextState()
@@ -90,7 +90,7 @@ namespace BotAlert.Tests
             Assert.Equal(expected, actual);
         }
 
-        [Fact]
+        /*[Fact]
         public void BotOnCallBackQueryReceived_ShouldSaveEventSendMessageAndReturnNextState()
         {
             var expected = ContextState.MainState;
@@ -108,7 +108,7 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
-        }
+        }*/
 
         [Fact]
         public void BotOnCallBackQueryReceived_ShouldDeleteEventSendMessageAndReturnNextState()
@@ -142,7 +142,7 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
         }
 
-        [Fact]
+        /*[Fact]
         public void HandleInvalidInput_ShouldSendTextMessageAndReturnSameState()
         {
             var expected = ContextState.SaveState;
@@ -156,6 +156,6 @@ namespace BotAlert.Tests
                                                            .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
-        }
+        }*/
     }
 }
