@@ -12,6 +12,6 @@
         SaveState,
         GetAllNotificationsState,
         GetNotificationDetailsState,
-        DeleteKeyboardState
+        InputDeleteKeyboardState
     }
 }

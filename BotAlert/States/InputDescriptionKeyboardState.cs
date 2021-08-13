@@ -31,7 +31,7 @@ namespace BotAlert.States
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
-            if (callbackQuery.Data == "y")
+            if (callbackQuery.Data == "да")
             {
                 return HandleAcceptInput();
             }
@@ -41,8 +41,8 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            var options = new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithCallbackData("Да", "y") , 
-                                                           InlineKeyboardButton.WithCallbackData("Нет", "n") });
+            var options = new InlineKeyboardMarkup(new[] { InlineKeyboardButton.WithCallbackData("Да", "да") , 
+                                                           InlineKeyboardButton.WithCallbackData("Нет", "нет") });
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "Желаете добавить описание?", options);
         }
 

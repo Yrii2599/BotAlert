@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using BotAlert.States;
 using BotAlert.Models;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -11,27 +13,31 @@ using Xunit;
 
 namespace BotAlert.Tests
 {
-    public class InputDescriptionKeyboardStateTests
+    public class InputDeleteKeyboardStateTests
     {
         private readonly ITelegramBotClient _botClientMock;
+        private readonly IEventProvider _eventProviderMock;
+        private readonly IStateProvider _stateProviderMock;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
 
         private readonly ContextState _currentState;
 
-        private readonly InputDescriptionKeyboardState _inputDescriptionKeyboardState;
+        private readonly InputDeleteKeyboardState _inputDeleteKeyboardState;
 
-        public InputDescriptionKeyboardStateTests()
+        public InputDeleteKeyboardStateTests()
         {
             _botClientMock = A.Fake<ITelegramBotClient>();
+            _eventProviderMock = A.Fake<IEventProvider>();
+            _stateProviderMock = A.Fake<IStateProvider>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();
             _callbackQueryMock = A.Fake<CallbackQuery>();
             _callbackQueryMock.Message = _messageMock;
 
-            _currentState = ContextState.InputDescriptionKeyboardState;
+            _currentState = ContextState.InputDeleteKeyboardState;
 
-            _inputDescriptionKeyboardState = new InputDescriptionKeyboardState();
+            _inputDeleteKeyboardState = new InputDeleteKeyboardState(_eventProviderMock, _stateProviderMock);
         }
 
         [Fact]
@@ -39,7 +45,7 @@ namespace BotAlert.Tests
         {
             var expected = _currentState;
 
-            var actual = _inputDescriptionKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputDeleteKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
@@ -56,12 +62,12 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnMessageReceived_TextAccept_ReturnsInputDescriptionState()
+        public void BotOnMessageReceived_TextAccept_ReturnsGetAllNotificationsState()
         {
-            var expected = ContextState.InputDescriptionState;
+            var expected = ContextState.GetAllNotificationsState;
             _messageMock.Text = "да";
 
-            var actual = _inputDescriptionKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputDeleteKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
@@ -73,17 +79,17 @@ namespace BotAlert.Tests
                                                                A<bool>.Ignored,
                                                                A<IReplyMarkup>.Ignored,
                                                                A<CancellationToken>.Ignored))
-                                                              .MustNotHaveHappened();
+                                                              .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnMessageReceived_TextDecline_ReturnsSaveState()
+        public void BotOnMessageReceived_TextDecline_ReturnsGetNotificationDetailsState()
         {
-            var expected = ContextState.SaveState;
+            var expected = ContextState.GetNotificationDetailsState;
             _messageMock.Text = "нет";
 
-            var actual = _inputDescriptionKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputDeleteKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
@@ -100,12 +106,12 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_DataAccept_ReturnsInputWarnDateState()
+        public void BotOnCallBackQueryReceived_DataAccept_ReturnsGetAllNotificationsState()
         {
             _callbackQueryMock.Data = "да";
-            var expected = ContextState.InputDescriptionState;
+            var expected = ContextState.GetAllNotificationsState;
 
-            var actual = _inputDescriptionKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _inputDeleteKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -114,15 +120,17 @@ namespace BotAlert.Tests
                                                                    A<int>.Ignored,
                                                                    A<CancellationToken>.Ignored))
                                                                   .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.DeleteEvent(A<Guid>.Ignored)).MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_DataNullOrDecline_ReturnsSaveState()
+        public void BotOnCallBackQueryReceived_DataDecline_ReturnsGetNotificationDetailsState()
         {
-            var expected = ContextState.SaveState;
+            _callbackQueryMock.Data = "нет";
+            var expected = ContextState.GetNotificationDetailsState;
 
-            var actual = _inputDescriptionKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _inputDeleteKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -137,7 +145,7 @@ namespace BotAlert.Tests
         [Fact]
         public void BotSendMessage_SendsTextMessage()
         {
-            _inputDescriptionKeyboardState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
+            _inputDeleteKeyboardState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
