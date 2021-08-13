@@ -16,18 +16,16 @@ namespace BotAlert.States
 
             return message.Text switch
             {
-                "/start" => GreetUser(botClient, message.Chat.Id),
+                "/start" => PrintMessage(botClient, message.Chat.Id, $"Рады вас приветствовать, {message.Chat.FirstName}!"),
                 "/create" => CreateNotification(),
                 "/get_notifications" => GetAllNotifications(),
-                _ => HandleInvalidInput(botClient, message.Chat.Id, "Выберите пожалуйста одну из команд!")
+
+                _ => PrintMessage(botClient, message.Chat.Id, "Выберите пожалуйста одну из команд!")
             };
         }
 
-
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        {
-            return ContextState.MainState;
-        }
+            => ContextState.MainState;
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
@@ -36,26 +34,14 @@ namespace BotAlert.States
                                                    $"/get_notifications - Получить список событий");
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
+        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
             return ContextState.MainState;
         }
 
-        private ContextState GreetUser(ITelegramBotClient botClient, long chatId)
-        {
-            botClient.SendTextMessageAsync(chatId, $"Рады вас приветствовать!");
-            return ContextState.MainState;
-        }
-
-        private ContextState CreateNotification()
-        {
-            return ContextState.InputTitleState;
-        }
+        private ContextState CreateNotification() => ContextState.InputTitleState;
         
-        private ContextState GetAllNotifications()
-        {
-            return ContextState.GetAllNotificationsState;
-        }
+        private ContextState GetAllNotifications() => ContextState.GetAllNotificationsState;
     }
 }

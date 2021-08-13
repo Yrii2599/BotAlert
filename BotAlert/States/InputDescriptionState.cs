@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using BotAlert.Interfaces;
 using BotAlert.Models;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -17,9 +17,12 @@ namespace BotAlert.States
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if (message.Text == null) return HandleInvalidInput(botClient, message.Chat.Id, "Неверный формат сообщения");
+            if (message.Text == null) 
+            { 
+                return PrintMessage(botClient, message.Chat.Id, "Неверный формат сообщения");
+            }
 
-            _eventProvider.UpdateDraftEventByChatId<string>(message.Chat.Id, "Description", message.Text);
+            _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.Description, message.Text);
 
             return ContextState.SaveState;
         }
@@ -27,6 +30,7 @@ namespace BotAlert.States
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
+
             return ContextState.InputDescriptionState;
         }
 
@@ -35,7 +39,7 @@ namespace BotAlert.States
             botClient.SendTextMessageAsync(chatId, $"Введите описание оповещения:");
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
+        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
             return ContextState.InputDescriptionState;

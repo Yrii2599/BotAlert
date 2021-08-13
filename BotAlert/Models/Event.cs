@@ -36,7 +36,7 @@ namespace BotAlert.Models
             return $"\tTitle: {Title}\n" +
                 $"Date and time: {Date.ToLocalTime()}\n" +
                 $"Date and time of notification: {WarnDate.ToLocalTime()}\n" +
-                $"{Description}";
+                $"{Description}\n";
         }
     }
 }

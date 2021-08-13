@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using BotAlert.Models;
 using BotAlert.Helpers;
 using BotAlert.Interfaces;
-using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -44,7 +41,7 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            var eventId = _stateProvider.GetCurrentlyViewingNotificationId(chatId);
+            var eventId = _stateProvider.GetChatState(chatId).ActiveNotificationId;
             var eventObj = _eventProvider.GetEventById(eventId);
             var options = new InlineKeyboardMarkup(new[] { new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Изменить событие", "Edit") },
                                                            new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Удалить событие", "Delete") },
@@ -52,12 +49,6 @@ namespace BotAlert.States
                                                    });
 
             InteractionHelper.SendInlineKeyboard(botClient,chatId, eventObj.ToString(), options);
-        }
-
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
-        {
-            botClient.SendTextMessageAsync(chatId, message);
-            return ContextState.InputWarnDateState;
         }
     }
 }

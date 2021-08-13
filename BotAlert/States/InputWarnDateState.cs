@@ -25,17 +25,17 @@ namespace BotAlert.States
                                                           DateTimeStyles.None,
                                                           out var warnDate))
             {
-                return HandleInvalidInput(botClient, message.Chat.Id, "Неверный формат даты и времени");
+                return PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
             }
 
             var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
 
             if (warnDate > eventObj.Date.ToLocalTime() || warnDate < DateTime.Now)
             {
-                return HandleInvalidInput(botClient, message.Chat.Id, "Событие уже прошло");
+                return PrintMessage(botClient, message.Chat.Id, "Событие уже прошло");
             }
 
-            _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, "WarnDate", warnDate);
+            _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.WarnDate, warnDate);
 
             return ContextState.InputDescriptionKeyboardState;
         }
@@ -43,17 +43,19 @@ namespace BotAlert.States
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
+
             return ContextState.InputWarnDateState;
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Введите дату и время для оповещения в UTC (DD.MM.YYYY HH:MM:SS):");
+            botClient.SendTextMessageAsync(chatId, $"Введите дату и время для оповещения (DD.MM.YYYY HH:MM:SS):");
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
+        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
+
             return ContextState.InputWarnDateState;
         }
     }

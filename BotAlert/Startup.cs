@@ -1,5 +1,5 @@
 using System.Threading;
-using BotAlert.Controllers;
+using BotAlert.Handlers;
 using BotAlert.Factories;
 using BotAlert.Interfaces;
 using BotAlert.Models;

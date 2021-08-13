@@ -1,6 +1,6 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace BotAlert.Models
 {
@@ -19,14 +19,14 @@ namespace BotAlert.Models
         public int NotificationsPage { get; set; }
 
         [Required]
-        public Guid CurentlyViewingNotificationId { get; set; }
+        public Guid ActiveNotificationId { get; set; }
 
         public ChatState(long chatId, ContextState state = ContextState.MainState)
         {
             ChatId = chatId;
             State = state;
             NotificationsPage = 0;
-            CurentlyViewingNotificationId = Guid.Empty;
+            ActiveNotificationId = Guid.Empty;
         }
     }
 }

@@ -12,7 +12,5 @@ namespace BotAlert.Interfaces
         Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery);
 
         void BotSendMessage(ITelegramBotClient botClient, long chatId);
-
-        ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message);
     }
 }

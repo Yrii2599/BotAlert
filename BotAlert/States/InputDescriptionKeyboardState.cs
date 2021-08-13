@@ -1,7 +1,7 @@
-﻿using BotAlert.Helpers;
-using BotAlert.Interfaces;
+﻿using System.Threading.Tasks;
 using BotAlert.Models;
-using System.Threading.Tasks;
+using BotAlert.Helpers;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -12,13 +12,19 @@ namespace BotAlert.States
     {
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if(message.Text != null)
+            if (message.Text != null)
             {
-                if (message.Text.ToLower() == "да") return HandleAcceptInput();
-                else if (message.Text.ToLower() == "нет") return HandleDeclineInput();
+                if (message.Text.ToLower() == "да")
+                {
+                    return HandleAcceptInput();
+                }
+                else if (message.Text.ToLower() == "нет")
+                {
+                    return HandleDeclineInput();
+                }
             }
 
-            return HandleInvalidInput(botClient, message.Chat.Id, "Выберите один из вариантов");
+            return PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -38,9 +44,10 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "Желаете добавить описание?", options);
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
+        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
+
             return ContextState.InputDescriptionKeyboardState;
         }
 

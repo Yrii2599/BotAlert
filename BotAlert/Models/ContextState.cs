@@ -1,5 +1,4 @@
-﻿
-namespace BotAlert.Models
+﻿namespace BotAlert.Models
 {
     public enum ContextState
     {

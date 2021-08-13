@@ -4,6 +4,6 @@ namespace BotAlert.Interfaces
 {
     public interface IStateFactory
     {
-        public IState GetState(ContextState state);
+        IState GetState(ContextState state);
     }
 }

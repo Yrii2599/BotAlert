@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using BotAlert.Models;
 using BotAlert.Helpers;
 using BotAlert.Interfaces;
-using BotAlert.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -25,40 +25,49 @@ namespace BotAlert.States
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
+            var chat = _stateProvider.GetChatState(callbackQuery.Message.Chat.Id);
+            var res = ContextState.GetNotificationDetails;
+
             switch (callbackQuery.Data)
             {
                 case "ToMain":
-                    _stateProvider.ResetChatPage(callbackQuery.Message.Chat.Id);
-                    return ContextState.MainState;
+                    chat.NotificationsPage = 0;
+                    res = ContextState.MainState;
                     break;
                 case "Prev":
-                    _stateProvider.IncrementChatPage(callbackQuery.Message.Chat.Id, -1);
-                    return ContextState.GetAllNotificationsState;
+                    chat.NotificationsPage--;
+                    res = ContextState.GetAllNotificationsState;
                     break;
                 case "Next":
-                    _stateProvider.IncrementChatPage(callbackQuery.Message.Chat.Id, 1);
-                    return ContextState.GetAllNotificationsState;
+                    chat.NotificationsPage++;
+                    res = ContextState.GetAllNotificationsState;
                     break;
                 default:
-                    _stateProvider.UpdateCurrentlyViewingNotification(callbackQuery.Message.Chat.Id, callbackQuery.Data);
-                    return ContextState.GetNotificationDetails;
+                    chat.ActiveNotificationId = Guid.Parse(callbackQuery.Data);
                     break;
             }
+
+            _stateProvider.SaveChatState(chat);
+
+            return res;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            return HandleInvalidInput(botClient, message.Chat.Id, "Выберите один из вариантов");
+            return PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
             var options = new List<InlineKeyboardButton[]>();
+
             foreach(var eventObj in _eventProvider.GetUserEventsOnPage(chatId))
             {
                 options.Add(new[] { InlineKeyboardButton.WithCallbackData(eventObj.Title, eventObj.Id.ToString()) });
             }
+
             var prevNextBtns = new List<InlineKeyboardButton>();
+
             if (_eventProvider.UserEventsPreviousPageExists(chatId)) {
                 prevNextBtns.Add(InlineKeyboardButton.WithCallbackData("◀", "Prev"));
             }
@@ -66,12 +75,14 @@ namespace BotAlert.States
             {
                 prevNextBtns.Add(InlineKeyboardButton.WithCallbackData("▶", "Next"));
             }
+
             options.Add(prevNextBtns.ToArray());
             options.Add(new[] { InlineKeyboardButton.WithCallbackData("Back to menu", "ToMain") });
+
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "\nВыберите событие:", options.ToArray());
         }
 
-        public ContextState HandleInvalidInput(ITelegramBotClient botClient, long chatId, string message)
+        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
             return ContextState.GetAllNotificationsState;
