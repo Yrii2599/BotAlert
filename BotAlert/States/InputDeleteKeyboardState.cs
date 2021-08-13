@@ -44,7 +44,7 @@ namespace BotAlert.States
             return callbackQuery.Data switch
             {
                 "да" => HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id),
-                "нет" => HandleDeclineInput(),
+                _ => HandleDeclineInput()
             };
         }
 
@@ -73,6 +73,7 @@ namespace BotAlert.States
             _eventProvider.DeleteEvent(chatState.ActiveNotificationId);
 
             chatState.ActiveNotificationId = Guid.Empty;
+
             _stateProvider.SaveChatState(chatState);
 
             botClient.SendTextMessageAsync(chatId, "Событие успешно удалено!");
