@@ -8,12 +8,12 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotAlert.States
 {
-    public class InputWarnDateKeyboard : IState
+    public class InputWarnDateKeyboardState : IState
     {
 
         private readonly IEventProvider _eventProvider;
 
-        public InputWarnDateKeyboard(IEventProvider eventProvider)
+        public InputWarnDateKeyboardState(IEventProvider eventProvider)
         {
             _eventProvider = eventProvider;
         }
@@ -61,7 +61,7 @@ namespace BotAlert.States
         private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
             botClient.SendTextMessageAsync(chatId, message);
-            return ContextState.InputWarnDateKeyboard;
+            return ContextState.InputWarnDateKeyboardState;
         }
     }
 }

@@ -5,12 +5,12 @@
         MainState,
         InputTitleState,
         InputDateState,
-        InputWarnDateKeyboard,
+        InputWarnDateKeyboardState,
         InputWarnDateState,
         InputDescriptionKeyboardState,
         InputDescriptionState,
         SaveState,
         GetAllNotificationsState,
-        GetNotificationDetails
+        GetNotificationDetailsState,
     }
 }

@@ -26,7 +26,7 @@ namespace BotAlert.States
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
             var chat = _stateProvider.GetChatState(callbackQuery.Message.Chat.Id);
-            var res = ContextState.GetNotificationDetails;
+            var res = ContextState.GetNotificationDetailsState;
 
             switch (callbackQuery.Data)
             {
