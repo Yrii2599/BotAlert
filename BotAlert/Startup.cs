@@ -74,7 +74,8 @@ namespace BotAlert
                 { ContextState.InputDescriptionState, () => _container.GetInstance<InputDescriptionState>() },
                 { ContextState.SaveState, () => _container.GetInstance<SaveState>() },
                 { ContextState.GetAllNotificationsState, () => _container.GetInstance<GetAllNotificationsState>() },
-                { ContextState.GetNotificationDetailsState, () => _container.GetInstance<GetNotificationDetailsState>() }
+                { ContextState.GetNotificationDetailsState, () => _container.GetInstance<GetNotificationDetailsState>() },
+                { ContextState.DeleteKeyboardState, () => _container.GetInstance<DeleteKeyboardState>() }
             });
 
             //Register states
@@ -89,6 +90,7 @@ namespace BotAlert
             _container.Register<SaveState>();
             _container.Register<GetAllNotificationsState>();
             _container.Register<GetNotificationDetailsState>();
+            _container.Register<DeleteKeyboardState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>();
