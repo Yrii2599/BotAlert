@@ -39,7 +39,9 @@ namespace BotAlert.States
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
             if (callbackQuery.Data == "Save")
+            {
                 return HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id);
+            }
 
             return HandleDeclineInput(botClient, callbackQuery.Message.Chat.Id);
         }

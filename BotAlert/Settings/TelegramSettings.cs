@@ -2,11 +2,11 @@
 {
     public class TelegramSettings
     {
-        public const string DateTimeFormat = "de-DE";
+        public static int EventsPerPage { get; } = 5;
 
-        public const int EventsPerPage = 5;
+        public static string DateTimeFormat { get; } = "de-DE";
 
-        public const string ConfigKey = "TelegramSettings";
+        public static string ConfigKey { get; } = "TelegramSettings";
 
         public string BotApiKey { get; set; }
     }

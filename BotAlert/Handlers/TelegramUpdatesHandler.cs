@@ -50,7 +50,7 @@ namespace BotAlert.Handlers
             }
             catch (Exception exception)
             {
-                await HandleErrorAsync(botClient, exception, cancellationToken);
+                await HandleErrorAsync(botClient, exception, cancellationToken).ConfigureAwait(false);
             }
         }
 

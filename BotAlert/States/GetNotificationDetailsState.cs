@@ -26,13 +26,11 @@ namespace BotAlert.States
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
-            switch (callbackQuery.Data)
+            return callbackQuery.Data switch 
             {
-                case "Back":
-                    return ContextState.GetAllNotificationsState;
+                "Back" => ContextState.GetAllNotificationsState,
 
-                default:
-                    return ContextState.GetNotificationDetailsState;
+                _ => ContextState.GetNotificationDetailsState
             };
         }
 

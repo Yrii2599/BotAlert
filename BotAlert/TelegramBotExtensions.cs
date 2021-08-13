@@ -6,7 +6,7 @@ using Telegram.Bot.Extensions.Polling;
 
 namespace BotAlert
 {
-    public class TelegramBotExtensions
+    public static class TelegramBotExtensions
     {
         public static async Task StartListeningAsync(string apiKey, CancellationToken cancellationToken, ITelegramUpdatesHandler handler)
         {

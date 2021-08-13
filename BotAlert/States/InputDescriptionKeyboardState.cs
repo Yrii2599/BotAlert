@@ -32,7 +32,9 @@ namespace BotAlert.States
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
             if (callbackQuery.Data == "y")
+            {
                 return HandleAcceptInput();
+            }
 
             return HandleDeclineInput();
         }
