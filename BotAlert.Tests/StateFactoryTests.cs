@@ -6,6 +6,8 @@ using BotAlert.Interfaces;
 using SimpleInjector;
 using FakeItEasy;
 using Xunit;
+using MongoDB.Driver;
+using BotAlert.Services;
 
 namespace BotAlert.Tests
 {
@@ -16,6 +18,17 @@ namespace BotAlert.Tests
 
         public StateFactoryTests()
         {
+            //_containerMock = A.Fake<Container>();
+            //_containerMock.RegisterInstance(A.Fake<IMongoDatabase>());
+            //_containerMock.RegisterInstance(A.Fake<EventProvider>());
+            //_containerMock.RegisterInstance(A.Fake<StateProvider>());
+
+            //_containerMock.RegisterInstance(A.Fake<MainState>());
+            //_containerMock.RegisterInstance(A.Fake<InputTitleState>());
+            //_containerMock.RegisterInstance(A.Fake<InputDateState>());
+            //_containerMock.RegisterInstance(A.Fake<InputWarnDateState>());
+            //_containerMock.RegisterInstance(A.Fake<InputDescriptionState>());
+
             _containerMock = A.Fake<Container>();
             _containerMock.Register<MainState>();
             _containerMock.Register<InputTitleState>();

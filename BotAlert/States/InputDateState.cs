@@ -12,10 +12,12 @@ namespace BotAlert.States
     public class InputDateState : IState
     {
         private readonly IEventProvider _eventProvider;
+        private readonly IStateProvider _stateProvider;
 
-        public InputDateState(IEventProvider eventProvider)
+        public InputDateState(IEventProvider eventProvider, IStateProvider stateProvider)
         {
             _eventProvider = eventProvider;
+            _stateProvider = stateProvider;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
@@ -33,8 +35,19 @@ namespace BotAlert.States
                 return PrintMessage(botClient, message.Chat.Id, "Событие уже прошло");
             }
 
-            _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.Date, date);
+            var chat = _stateProvider.GetChatState(message.Chat.Id);
 
+            if (chat.ActiveNotificationId != Guid.Empty)
+            {
+                var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
+                eventObj.Date = date;
+                _eventProvider.UpdateEvent(eventObj);
+            }
+            else
+            {
+                _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.Date, date);
+
+            }
             return ContextState.InputWarnDateKeyboardState;
         }
 
@@ -47,7 +60,7 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Введите дату и время события в UTC (DD.MM.YYYY HH:MM:SS):");
+            botClient.SendTextMessageAsync(chatId, $"Введите дату и время события в\n(DD.MM.YYYY HH:MM):");
         }
 
         private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)

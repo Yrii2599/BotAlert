@@ -5,16 +5,19 @@ using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using System;
 
 namespace BotAlert.States
 {
     public class InputWarnDateKeyboardState : IState
     {
         private readonly IEventProvider _eventProvider;
+        private readonly IStateProvider _stateProvider;
 
-        public InputWarnDateKeyboardState(IEventProvider eventProvider)
+        public InputWarnDateKeyboardState(IEventProvider eventProvider, IStateProvider stateProvider)
         {
             _eventProvider = eventProvider;
+            _stateProvider = stateProvider;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
@@ -43,18 +46,32 @@ namespace BotAlert.States
                                                             InlineKeyboardButton.WithCallbackData("1 ч.", "60") },
                                                     new[] { InlineKeyboardButton.WithCallbackData("Ввести свое значение", "own") } 
                                                    });
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Когда вас уведомить ?", options);
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Когда вас уведомить?", options);
         }
 
         private ContextState HandleWarnDateOptions(long chatId, string warnInMinutes)
         {
             var minutes = int.Parse(warnInMinutes);
 
-            var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
-            eventObj.WarnDate = eventObj.Date.AddMinutes(-minutes);
-            _eventProvider.UpdateEvent(eventObj);
+            Event eventObj;
+            var chat = _stateProvider.GetChatState(chatId);
 
-            return ContextState.InputDescriptionKeyboardState;
+            if (chat.ActiveNotificationId != Guid.Empty)
+            {
+                eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
+                eventObj.WarnDate = eventObj.Date.AddMinutes(-minutes);
+                _eventProvider.UpdateEvent(eventObj);
+
+                return ContextState.EditState;
+            }
+            else
+            {
+                eventObj = _eventProvider.GetDraftEventByChatId(chatId);
+                eventObj.WarnDate = eventObj.Date.AddMinutes(-minutes);
+                _eventProvider.UpdateEvent(eventObj);
+
+                return ContextState.InputDescriptionKeyboardState;
+            }
         }
 
         private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)

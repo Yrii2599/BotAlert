@@ -27,11 +27,11 @@ namespace BotAlert.States
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
             var chat = _stateProvider.GetChatState(callbackQuery.Message.Chat.Id);
-            var res = ContextState.GetNotificationDetailsState;
+            var res = ContextState.GetAllNotificationsState;
 
             switch (callbackQuery.Data)
             {
-                case "ToMain":
+                case "Back":
                     chat.NotificationsPage = 0;
                     res = ContextState.MainState;
 
@@ -39,18 +39,22 @@ namespace BotAlert.States
 
                 case "Prev":
                     chat.NotificationsPage--;
-                    res = ContextState.GetAllNotificationsState;
 
                     break;
 
                 case "Next":
                     chat.NotificationsPage++;
-                    res = ContextState.GetAllNotificationsState;
 
                     break;
 
                 default:
-                    chat.ActiveNotificationId = Guid.Parse(callbackQuery.Data);
+                    var eventId = Guid.Parse(callbackQuery.Data);
+
+                    if (_eventProvider.GetEventById(eventId) != null)
+                    {
+                        chat.ActiveNotificationId = eventId;
+                        res = ContextState.GetNotificationDetailsState;
+                    }
 
                     break;
             }
@@ -108,7 +112,7 @@ namespace BotAlert.States
             }
 
             options.Add(prevNextBtns.ToArray());
-            options.Add(new[] { InlineKeyboardButton.WithCallbackData("Back to menu", "ToMain") });
+            options.Add(new[] { InlineKeyboardButton.WithCallbackData("Назад", "Back") });
 
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "\nВыберите событие:", options.ToArray());
         }

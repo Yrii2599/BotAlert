@@ -3,16 +3,19 @@ using BotAlert.Models;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using System;
 
 namespace BotAlert.States
 {
     public class InputTitleState : IState
     {
         private readonly IEventProvider _eventProvider;
+        private readonly IStateProvider _stateProvider;
 
-        public InputTitleState(IEventProvider eventProvider)
+        public InputTitleState(IEventProvider eventProvider, IStateProvider stateProvider)
         {
             _eventProvider = eventProvider;
+            _stateProvider = stateProvider;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
@@ -22,9 +25,22 @@ namespace BotAlert.States
                 return PrintMessage(botClient, message.Chat.Id, "Неверный формат сообщения");
             }
 
-            _eventProvider.CreateEvent(new Event(message.Chat.Id, message.Text));
+            var chat = _stateProvider.GetChatState(message.Chat.Id);
 
-            return ContextState.InputDateState;
+            if (chat.ActiveNotificationId != Guid.Empty)
+            {
+                var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
+                eventObj.Title = message.Text;
+                _eventProvider.UpdateEvent(eventObj);
+
+                return ContextState.EditState;
+            }
+            else
+            {
+                _eventProvider.CreateEvent(new Event(message.Chat.Id, message.Text));
+
+                return ContextState.InputDateState;
+            }
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)

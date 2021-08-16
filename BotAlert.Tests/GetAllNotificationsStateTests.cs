@@ -60,7 +60,7 @@ namespace BotAlert.Tests
         {
             var expected = ContextState.MainState;
 
-            _callbackQueryMock.Data = "ToMain";
+            _callbackQueryMock.Data = "Back";
 
             A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
 
@@ -110,7 +110,7 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_WorksCorrectly_WhenCallBackDataUnknown()
+        public void BotOnCallBackQueryReceived_WorksCorrectly_WhenCallBackDataUnknow()
         {
             var expected = ContextState.GetNotificationDetailsState;
 
@@ -124,6 +124,21 @@ namespace BotAlert.Tests
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void BotOnCallBackQueryReceived_WorksCorrectly_WhenNoSuchEventExists()
+        {
+            _callbackQueryMock.Data = Guid.Empty.ToString();
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(null);
+            var expected = ContextState.GetAllNotificationsState;
+
+            var actual = _getAllNotificationsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
+            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 

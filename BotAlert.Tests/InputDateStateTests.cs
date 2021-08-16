@@ -17,6 +17,7 @@ namespace BotAlert.Tests
     public class InputDateStateTests
     {
         private readonly IEventProvider _eventProviderMock;
+        private readonly IStateProvider _stateProviderMock;
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageMock;
 
@@ -27,13 +28,14 @@ namespace BotAlert.Tests
         public InputDateStateTests()
         {
             _eventProviderMock = A.Fake<IEventProvider>();
+            _stateProviderMock = A.Fake<IStateProvider>();
             _botClientMock = A.Fake<ITelegramBotClient>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();
 
             _currentState = ContextState.InputDateState;
 
-            _inputDateState = new InputDateState(_eventProviderMock);
+            _inputDateState = new InputDateState(_eventProviderMock, _stateProviderMock);
         }
 
         [Fact] 
@@ -80,7 +82,7 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnMessageReceived_MessageTextIsADate_ReturnsInputWarnDateKeyboardState()
+        public void BotOnMessageReceived_MessageTextIsADateAndNoActiveNotification_ShouldUpdateDraftEvent()
         {
             var expected = ContextState.InputWarnDateKeyboardState;
             _messageMock.Text = "31.12.9999";
@@ -90,6 +92,26 @@ namespace BotAlert.Tests
             A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, 
                                                                        A<Expression<Func<Event, DateTime>>>.Ignored, 
                                                                        A<DateTime>.Ignored))
+                                             .MustHaveHappenedOnceExactly();
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void BotOnMessageReceived_MessageTextIsADateAndActiveNotification_ShouldUpdateEvent()
+        {
+            var chatStateMock = A.Fake<ChatState>();
+            chatStateMock.ActiveNotificationId = Guid.NewGuid();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
+
+            _messageMock.Text = "31.12.9999";
+            var expected = ContextState.InputWarnDateKeyboardState;
+
+
+            var actual = _inputDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+
+
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.That.Matches(e => e.ChatId == _messageMock.Chat.Id)))
                                              .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);

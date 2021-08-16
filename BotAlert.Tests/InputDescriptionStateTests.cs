@@ -17,6 +17,7 @@ namespace BotAlert.Tests
     public class InputDescriptionStateTests
     {
         private readonly IEventProvider _eventProviderMock;
+        private readonly IStateProvider _stateProviderMock;
         private readonly ITelegramBotClient _botClientMock;
         private readonly CallbackQuery _callbackQueryMock;
         private readonly InputDescriptionState inputDescription;
@@ -28,8 +29,9 @@ namespace BotAlert.Tests
             _callbackQueryMock = A.Fake<CallbackQuery>();
             _messageMock = A.Fake<Message>();
             _eventProviderMock = A.Fake<IEventProvider>();
+            _stateProviderMock = A.Fake<IStateProvider>();
             _messageMock.Chat = A.Fake<Chat>();
-            inputDescription = new InputDescriptionState(_eventProviderMock);
+            inputDescription = new InputDescriptionState(_eventProviderMock, _stateProviderMock);
         }
 
         [Fact]
@@ -51,24 +53,48 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnMessageReceived_ReturnsUpdateDraftEventByChatId()
+        public void BotOnMessageReceived_WithTextAndNoActiveNotification__ShouldUpdateDraftEventByChatId()
         {
             _messageMock.Text = "Something";
-            inputDescription.BotOnMessageReceived(_botClientMock, _messageMock);
+            
+            var actual = inputDescription.BotOnMessageReceived(_botClientMock, _messageMock);
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId<string>(A<long>
-                                                                                   .Ignored, A<Expression<Func<Event, string>>>
-                                                                                   .Ignored, A<string>
-                                                                                   .Ignored))
-                .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, 
+                                                                       A<Expression<Func<Event, string>>>.Ignored, 
+                                                                       A<string>.Ignored))
+                                              .MustHaveHappenedOnceExactly();
+            Assert.Equal(ContextState.SaveState, actual.Result);
         }
 
         [Fact]
-        public void BotOnMessageReceived_ReturnsContextStateSaveState()
+        public void BotOnMessageReceived_WithTextAndActiveNotification__ShouldUpdateEvent()
+        {
+            var chatStateMock = A.Fake<ChatState>();
+            chatStateMock.ActiveNotificationId = Guid.NewGuid();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
+            _messageMock.Text = "Something";
+            
+            var actual = inputDescription.BotOnMessageReceived(_botClientMock, _messageMock);
+
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.That.Matches(e => e.ChatId == _messageMock.Chat.Id)))
+                                              .MustHaveHappenedOnceExactly();
+            Assert.Equal(ContextState.EditState, actual.Result);
+        }
+
+        [Fact]
+        public void BotOnMessageReceived_WithNoText_ReturnsContextStateSaveState()
         {
             var actual= inputDescription.BotOnMessageReceived(_botClientMock, _messageMock);
 
             Assert.Equal(ContextState.InputDescriptionState,actual.Result);
+        }
+
+        [Fact]
+        public void BotOnCallBackQueryReceived_Return()
+        {
+            var actual = inputDescription.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock);
+
+            Assert.Equal(ContextState.InputDescriptionState, actual.Result);
         }
 
         [Fact]
@@ -85,14 +111,6 @@ namespace BotAlert.Tests
                                                                        .Ignored, A<CancellationToken>
                                                                        .Ignored))
                 .MustHaveHappenedOnceExactly();
-        }
-
-        [Fact]
-        public void BotOnMessageReceived_Return()
-        {
-            var actual = inputDescription.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock);
-
-            Assert.Equal(ContextState.InputDescriptionState, actual.Result);
         }
 
         [Fact]

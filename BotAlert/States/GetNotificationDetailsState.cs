@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BotAlert.Models;
 using BotAlert.Helpers;
 using BotAlert.Interfaces;
@@ -28,8 +29,9 @@ namespace BotAlert.States
 
             return callbackQuery.Data switch 
             {
+                "Edit" => ContextState.EditState,
                 "Delete" => ContextState.InputDeleteKeyboardState,
-                "Back" => ContextState.GetAllNotificationsState,
+                "Back" => moveBack(callbackQuery.Message.Chat.Id),
 
                 _ => ContextState.GetNotificationDetailsState
             };
@@ -48,6 +50,15 @@ namespace BotAlert.States
             });
 
             InteractionHelper.SendInlineKeyboard(botClient, chatId, eventObj.ToString(), options);
+        }
+
+        private ContextState moveBack(long chatId)
+        {
+            var chat = _stateProvider.GetChatState(chatId);
+            chat.ActiveNotificationId = Guid.Empty;
+            _stateProvider.SaveChatState(chat);
+
+            return ContextState.GetAllNotificationsState;
         }
     }
 }

@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Threading;
 using System.Collections.Generic;
-using BotAlert.States;
-using BotAlert.Models;
-using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using BotAlert.Interfaces;
+using BotAlert.Models;
+using BotAlert.States;
 using FakeItEasy;
 using Xunit;
 
 namespace BotAlert.Tests
 {
-    public class GetNotificationDetailsStateTests
+    public class EditStateTests
     {
         private readonly ITelegramBotClient _botClientMock;
         private readonly IEventProvider _eventProviderMock;
@@ -23,9 +23,9 @@ namespace BotAlert.Tests
 
         private readonly ContextState _currentState;
 
-        private readonly GetNotificationDetailsState _getNotificationDetailsState;
+        private readonly EditState _editState;
 
-        public GetNotificationDetailsStateTests()
+        public EditStateTests()
         {
             _botClientMock = A.Fake<ITelegramBotClient>();
             _eventProviderMock = A.Fake<IEventProvider>();
@@ -35,9 +35,9 @@ namespace BotAlert.Tests
             _callbackQueryMock = A.Fake<CallbackQuery>();
             _callbackQueryMock.Message = _messageMock;
 
-            _currentState = ContextState.GetNotificationDetailsState;
+            _currentState = ContextState.EditState;
 
-            _getNotificationDetailsState = new GetNotificationDetailsState(_eventProviderMock, _stateProviderMock);
+            _editState = new EditState(_eventProviderMock, _stateProviderMock);
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace BotAlert.Tests
         {
             var expected = _currentState;
 
-            var actual = _getNotificationDetailsState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _editState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id,
                                                                A<string>.Ignored,
@@ -57,17 +57,17 @@ namespace BotAlert.Tests
                                                                A<bool>.Ignored,
                                                                A<IReplyMarkup>.Ignored,
                                                                A<CancellationToken>.Ignored))
-                                                              .MustNotHaveHappened();
+                                                              .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_DataBack_GetAllNotificationsState()
+        public void BotOnCallBackQueryReceived_DataBack_ReturnsGetNotificationDetailsState()
         {
             _callbackQueryMock.Data = "Back";
-            var expected = ContextState.GetAllNotificationsState;
+            var expected = ContextState.GetNotificationDetailsState;
 
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _editState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -76,18 +76,16 @@ namespace BotAlert.Tests
                                                                    A<int>.Ignored,
                                                                    A<CancellationToken>.Ignored))
                                                                   .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _stateProviderMock.SaveChatState(A<ChatState>.That.Matches(x => x.ChatId == _messageMock.Chat.Id)))
-                                             .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_DataEdit_ReturnsEditState()
+        public void BotOnCallBackQueryReceived_DataTitle_ReturnsInputTitleState()
         {
-            _callbackQueryMock.Data = "Edit";
-            var expected = ContextState.EditState;
+            _callbackQueryMock.Data = "Title";
+            var expected = ContextState.InputTitleState;
 
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _editState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -98,15 +96,14 @@ namespace BotAlert.Tests
                                                                   .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
-
+        
         [Fact]
-        public void BotOnCallBackQueryReceived_DataDelete_ReturnsDeleteKeyboardState()
+        public void BotOnCallBackQueryReceived_DataDate_ReturnsInputDateState()
         {
-            _callbackQueryMock.Data = "Delete";
-            var expected = ContextState.InputDeleteKeyboardState;
+            _callbackQueryMock.Data = "Date";
+            var expected = ContextState.InputDateState;
 
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
-
+            var actual = _editState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -117,13 +114,49 @@ namespace BotAlert.Tests
                                                                   .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
-
+        
         [Fact]
-        public void BotOnCallBackQueryReceived_DataDefault_ReturnsInputWarnDateState()
+        public void BotOnCallBackQueryReceived_DataWarnDate_ReturnsInputWarnDateState()
+        {
+            _callbackQueryMock.Data = "WarnDate";
+            var expected = ContextState.InputWarnDateState;
+
+            var actual = _editState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<bool>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<int>.Ignored,
+                                                                   A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+            Assert.Equal(expected, actual);
+        }
+        
+        [Fact]
+        public void BotOnCallBackQueryReceived_DataDescription_ReturnsInputDescriptionState()
+        {
+            _callbackQueryMock.Data = "Description";
+            var expected = ContextState.InputDescriptionState;
+
+            var actual = _editState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<bool>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<int>.Ignored,
+                                                                   A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+            Assert.Equal(expected, actual);
+        }
+        
+        [Fact]
+        public void BotOnCallBackQueryReceived_DataDefault_ReturnsCurrentState()
         {
             var expected = _currentState;
 
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _editState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -138,7 +171,7 @@ namespace BotAlert.Tests
         [Fact]
         public void BotSendMessage_SendsTextMessage()
         {
-            _getNotificationDetailsState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
+            _editState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
 
             A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).MustHaveHappenedOnceExactly();
             A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id,

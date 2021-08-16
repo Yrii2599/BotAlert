@@ -16,6 +16,7 @@ namespace BotAlert.Tests
     public class InputWarnDateKeyboardStateTests
     {
         private readonly IEventProvider _eventProviderMock;
+        private readonly IStateProvider _stateProviderMock;
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
@@ -27,6 +28,7 @@ namespace BotAlert.Tests
         public InputWarnDateKeyboardStateTests()
         {
             _eventProviderMock = A.Fake<IEventProvider>();
+            _stateProviderMock = A.Fake<IStateProvider>();
             _botClientMock = A.Fake<ITelegramBotClient>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();
@@ -35,7 +37,7 @@ namespace BotAlert.Tests
 
             _currentState = ContextState.InputWarnDateKeyboardState;
 
-            _inputWarnDateKeyboardState = new InputWarnDateKeyboardState(_eventProviderMock);
+            _inputWarnDateKeyboardState = new InputWarnDateKeyboardState(_eventProviderMock, _stateProviderMock);
         }
 
         [Fact]
@@ -78,16 +80,16 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnCallbackQueryReceived_HardcodedData_ReturnsInputDescriptionKeyboardState()
+        public void BotOnCallbackQueryReceived_HardcodedDataAndNoActiveNotification_ReturnsInputDescriptionKeyboardState()
         {
+            A.CallTo(() => _eventProviderMock.GetDraftEventByChatId(A<long>.Ignored)).Returns(new Event(_messageMock.Chat.Id, "Title") 
+                                                                                     { Date = DateTime.Now});
             _callbackQueryMock.Data = "30";
-
             var expected = ContextState.InputDescriptionKeyboardState;
 
-            // Захардкодили чтоб не писать вверху с зависимостями 
-            A.CallTo(() => _eventProviderMock.GetDraftEventByChatId(A<long>.Ignored)).Returns(new Event(1234, "Title") { Date = DateTime.Now});
 
             var actual = _inputWarnDateKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
 
             A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
                                                                    A<string>.Ignored,
@@ -97,7 +99,37 @@ namespace BotAlert.Tests
                                                                    A<CancellationToken>.Ignored))
                                                                   .MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.That.Matches(e => e.ChatId == _messageMock.Chat.Id)))
+                                             .MustHaveHappenedOnceExactly();
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void BotOnCallbackQueryReceived_HardcodedDataAndActiveNotification_ReturnsEditState()
+        {
+            var chatStateMock = A.Fake<ChatState>();
+            chatStateMock.ActiveNotificationId = Guid.NewGuid();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
+            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(new Event(_messageMock.Chat.Id, "Title") 
+                                                                                    { Date = DateTime.Now});
+            _callbackQueryMock.Data = "30";
+            var expected = ContextState.EditState;
+
+
+            var actual = _inputWarnDateKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+
+
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<bool>.Ignored,
+                                                                   A<string>.Ignored,
+                                                                   A<int>.Ignored,
+                                                                   A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.That.Matches(e => e.ChatId == _messageMock.Chat.Id)))
+                                             .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
         }
