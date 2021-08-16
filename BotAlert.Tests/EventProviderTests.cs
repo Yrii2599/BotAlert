@@ -14,6 +14,7 @@ namespace BotAlert.Tests
         private readonly IMongoDatabase _mongoDatabaseMock;
         private readonly IStateProvider _stateProviderMock;
         private readonly IMongoCollection<Event> _eventsCollectionMock;
+        private readonly ChatState _chatState;
 
         private readonly EventProvider _eventProvider;
 
@@ -21,6 +22,7 @@ namespace BotAlert.Tests
         {
             _mongoDatabaseMock = A.Fake<IMongoDatabase>();
             _stateProviderMock = A.Fake<IStateProvider>();
+            _chatState = A.Fake<ChatState>();
             _eventsCollectionMock = A.Fake<IMongoCollection<Event>>();
 
             A.CallTo(() => _mongoDatabaseMock.GetCollection<Event>(A<string>.Ignored, A<MongoCollectionSettings>.Ignored))
@@ -36,7 +38,7 @@ namespace BotAlert.Tests
 
             _eventProvider.CreateEvent(eventObj);
 
-            A.CallTo(() => _eventsCollectionMock.InsertOne(A<Event>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
+            A.CallTo(() => _eventsCollectionMock.InsertOne(A<Event>.That.Matches(x=>x.Id == eventObj.Id), A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
                             .MustHaveHappenedOnceExactly();
         }
 
@@ -81,6 +83,25 @@ namespace BotAlert.Tests
 
             A.CallTo(() => _eventsCollectionMock.DeleteOne(A<FilterDefinition<Event>>.Ignored, A<CancellationToken>.Ignored))
                             .MustHaveHappenedOnceExactly();
+        }
+
+        [Fact]
+        public void UserEventsNextPageExists_CallGetChatState()
+        {
+            long chatid = 5;
+            _eventProvider.UserEventsNextPageExists(chatid);
+
+            A.CallTo(() => _stateProviderMock.GetChatState(chatid));
+        }
+
+        [Fact]
+        public void UserEventsPreviousPageExists_PageDoesntExist()
+        {
+            long chatid = 5;
+
+          var actual= _eventProvider.UserEventsPreviousPageExists(chatid);
+
+           Assert.False(actual);
         }
 
         //[Fact]

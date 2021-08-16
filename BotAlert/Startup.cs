@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,8 @@ using BotAlert.Factories;
 using BotAlert.Interfaces;
 using MongoDB.Driver;
 using SimpleInjector;
+using Telegram.Bot;
+using Telegram.Bot.Extensions.Polling;
 
 namespace BotAlert
 {
@@ -31,7 +34,11 @@ namespace BotAlert
         {
             services.AddControllers();
 
-            services.AddSimpleInjector(_container);
+            services.AddSimpleInjector(_container, options =>
+            {
+                options.AddHostedService<NotificationSenderService>();
+            });
+
             InitializeContainer();
         }
 
@@ -61,6 +68,7 @@ namespace BotAlert
         private void InitializeContainer()
         {
             var mongoDbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
+            var telegramSettings = Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>();
 
             //Register factories
             _container.RegisterInstance<IStateFactory>(new StateFactory 
@@ -93,8 +101,8 @@ namespace BotAlert
             _container.Register<InputDeleteKeyboardState>();
 
             //Register services
-            _container.Register<IStateProvider, StateProvider>();
-            _container.Register<IEventProvider, EventProvider>();
+            _container.Register<IStateProvider, StateProvider>(Lifestyle.Singleton);
+            _container.Register<IEventProvider, EventProvider>(Lifestyle.Singleton);
 
             _container.Register(typeof(TelegramUpdatesHandler));
             _container.Register<ITelegramUpdatesHandler, TelegramUpdatesHandler>();
@@ -106,6 +114,8 @@ namespace BotAlert
             //Register config settings
             _container.RegisterInstance(Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>());
             _container.RegisterInstance(mongoDbSettings);
+
+            _container.RegisterInstance(CreateClient(telegramSettings.BotApiKey));
         }
 
         private IMongoDatabase InitializeMongoDatabase(DBSettings mongoDbSettings)
@@ -116,11 +126,15 @@ namespace BotAlert
             return database;
         }
 
+        private ITelegramBotClient CreateClient(string apiKey) => new TelegramBotClient(apiKey);
+
         private void InitializeTelegramListener()
         {
-            var telegramSettings = _container.GetInstance<TelegramSettings>();
             var handler = _container.GetInstance<ITelegramUpdatesHandler>();
-            TelegramBotExtensions.StartListeningAsync(telegramSettings.BotApiKey, new CancellationToken(), handler);
+
+            // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
+            var source = new CancellationTokenSource();
+            _container.GetInstance<ITelegramBotClient>().StartReceiving(new DefaultUpdateHandler(handler.HandleUpdateAsync, handler.HandleErrorAsync), source.Token);
         }
     }
 }

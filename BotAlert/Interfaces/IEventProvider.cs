@@ -11,6 +11,8 @@ namespace BotAlert.Interfaces
 
         List<Event> GetUserEventsOnPage(long chatId);
 
+        List<Event> GetAllNotificationsToBeSentNow();
+
         bool UserEventsPreviousPageExists(long chatId);
 
         bool UserEventsNextPageExists(long chatId);

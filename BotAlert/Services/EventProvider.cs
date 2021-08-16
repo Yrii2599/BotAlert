@@ -24,6 +24,14 @@ namespace BotAlert.Services
 
         public void CreateEvent(Event eventObj)
         {
+            eventObj.WarnDate = new DateTime(eventObj.WarnDate.Year,
+                                        eventObj.WarnDate.Month,
+                                        eventObj.WarnDate.Day,
+                                        eventObj.WarnDate.Hour,
+                                        eventObj.WarnDate.Minute,
+                                        0,
+                                        0);
+
             _eventsCollection.InsertOne(eventObj);
         } 
         
@@ -34,6 +42,21 @@ namespace BotAlert.Services
             return getAllUserEvents(chatId).Skip(page * TelegramSettings.EventsPerPage)
                                            .Take(TelegramSettings.EventsPerPage)
                                            .ToList();
+        }
+
+        public List<Event> GetAllNotificationsToBeSentNow()
+        {
+            var date = DateTime.Now;
+
+            date = new DateTime(date.Year,
+                                       date.Month,
+                                       date.Day,
+                                       date.Hour,
+                                       date.Minute,
+                                       0,
+                                       0);
+
+            return _eventsCollection.Find<Event>(x => x.WarnDate == date).ToList();
         }
 
         public bool UserEventsPreviousPageExists(long chatId) {
