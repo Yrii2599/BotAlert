@@ -66,7 +66,7 @@ namespace BotAlert.States
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            return PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
@@ -74,10 +74,8 @@ namespace BotAlert.States
             var options = new List<InlineKeyboardButton[]>();
 
             var chat = _stateProvider.GetChatState(chatId);
-
             var events = _eventProvider.GetUserEventsOnPage(chatId);
 
-            // Изменяем State
             if(!events.Any())
             {
                 if (chat.NotificationsPage == 0)
@@ -85,6 +83,7 @@ namespace BotAlert.States
                     botClient.SendTextMessageAsync(chatId, "У вас нет предстоящих событий!");
                     chat.State = ContextState.MainState;
                     _stateProvider.SaveChatState(chat);
+
                     return;
                 }
                 else
@@ -102,7 +101,8 @@ namespace BotAlert.States
 
             var prevNextBtns = new List<InlineKeyboardButton>();
 
-            if (_eventProvider.UserEventsPreviousPageExists(chatId)) {
+            if (_eventProvider.UserEventsPreviousPageExists(chatId)) 
+            {
                 prevNextBtns.Add(InlineKeyboardButton.WithCallbackData("◀", "Prev"));
             }
 
@@ -117,9 +117,9 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "\nВыберите событие:", options.ToArray());
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.GetAllNotificationsState;
         }

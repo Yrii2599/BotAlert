@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Threading.Tasks;
 using BotAlert.Models;
+using BotAlert.Helpers;
 using BotAlert.Settings;
 using BotAlert.Interfaces;
 using Telegram.Bot;
@@ -27,27 +28,21 @@ namespace BotAlert.States
                                                           DateTimeStyles.None, 
                                                           out var date))
             {
-                return PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
+                return await PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
             }
 
             if (date < DateTime.Now) 
             { 
-                return PrintMessage(botClient, message.Chat.Id, "Событие уже прошло");
+                return await PrintMessage(botClient, message.Chat.Id, "Событие уже прошло");
             }
 
             var chat = _stateProvider.GetChatState(message.Chat.Id);
+            var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
-            if (chat.ActiveNotificationId != Guid.Empty)
-            {
-                var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
-                eventObj.Date = date;
-                _eventProvider.UpdateEvent(eventObj);
-            }
-            else
-            {
-                _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.Date, date);
+            eventObj.Date = date.TrimSecondsAndMilliseconds();
 
-            }
+            _eventProvider.UpdateEvent(eventObj);
+
             return ContextState.InputWarnDateKeyboardState;
         }
 
@@ -63,9 +58,9 @@ namespace BotAlert.States
             botClient.SendTextMessageAsync(chatId, $"Введите дату и время события в\n(DD.MM.YYYY HH:MM):");
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.InputDateState;
         }

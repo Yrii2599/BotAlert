@@ -6,46 +6,49 @@ using BotAlert.Models;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 
-public class NotificationSenderService : IHostedService
+namespace BotAlert.Services
 {
-    const int OneMinuteInMilliseconds = 60000;
-
-    private readonly IEventProvider _eventProvider;
-    private readonly ITelegramBotClient _botClient;
-
-    public NotificationSenderService(ITelegramBotClient botClient, IEventProvider eventProvider)
+    public class NotificationSenderService : IHostedService
     {
-        _botClient = botClient;
-        _eventProvider = eventProvider;
-    }
+        private const int OneMinuteInMilliseconds = 60000;
 
-    public Task StartAsync(CancellationToken stoppingToken)
-    {
-        Task.Run(() => SendNotifications(stoppingToken));
+        private readonly IEventProvider _eventProvider;
+        private readonly ITelegramBotClient _botClient;
 
-        return Task.CompletedTask;
-    }
-
-    private async void SendNotifications(CancellationToken stoppingToken)
-    {
-        while (!stoppingToken.IsCancellationRequested) 
-        { 
-            SendMessages(_eventProvider.GetAllNotificationsToBeSentNow());
-            await Task.Delay(OneMinuteInMilliseconds);
-        }
-    }
-
-    private async Task SendMessages(List<Event> eventsList)
-    {
-        foreach (var eventObj in eventsList)
+        public NotificationSenderService(ITelegramBotClient botClient, IEventProvider eventProvider)
         {
-            _botClient.SendTextMessageAsync(eventObj.ChatId, eventObj.ToString());
-            _eventProvider.DeleteEvent(eventObj.Id);
+            _botClient = botClient;
+            _eventProvider = eventProvider;
         }
-    }
 
-    public Task StopAsync(CancellationToken stoppingToken)
-    {
-        return Task.CompletedTask;
+        public Task StartAsync(CancellationToken stoppingToken)
+        {
+            Task.Run(() => SendNotifications(stoppingToken));
+
+            return Task.CompletedTask;
+        }
+
+        private async void SendNotifications(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await SendMessages(_eventProvider.GetAllNotificationsToBeSentNow());
+                await Task.Delay(OneMinuteInMilliseconds);
+            }
+        }
+
+        private async Task SendMessages(List<Event> eventsList)
+        {
+            foreach (var eventObj in eventsList)
+            {
+                await _botClient.SendTextMessageAsync(eventObj.ChatId, eventObj.ToString());
+                _eventProvider.DeleteEvent(eventObj.Id);
+            }
+        }
+
+        public Task StopAsync(CancellationToken stoppingToken)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

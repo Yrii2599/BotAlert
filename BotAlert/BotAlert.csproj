@@ -4,6 +4,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>BotAlert</AssemblyName>
     <RootNamespace>BotAlert</RootNamespace>
+    <UserSecretsId>cce31adc-7fe3-478b-8a52-80cf90698f40</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -15,18 +15,18 @@ namespace BotAlert.Tests
     public class MainStateTests
     {
         private readonly ITelegramBotClient _botClientMock;
-        private readonly Message _messageMock;
-        private readonly CallbackQuery _callbackQueryMock;
+        private readonly Message _messageStub;
+        private readonly CallbackQuery _callbackQueryStub;
 
         private readonly IState _mainState;
 
         public MainStateTests()
         {
             _botClientMock = A.Fake<ITelegramBotClient>();
-            _messageMock = A.Fake<Message>();
-            _messageMock.Chat = A.Fake<Chat>();
-            _callbackQueryMock = A.Fake<CallbackQuery>();
-            _callbackQueryMock.Message = _messageMock;
+            _messageStub = new Message();
+            _messageStub.Chat = new Chat();
+            _callbackQueryStub = new CallbackQuery();
+            _callbackQueryStub.Message = _messageStub;
 
             _mainState = new MainState();
         }
@@ -35,17 +35,15 @@ namespace BotAlert.Tests
         public void BotOnMessageReceived_GreetsUserCorrectly()
         {
             var expected = ContextState.MainState;
+            _messageStub.Text = "/start";
 
-            _messageMock.Text = "/start";
+            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
-            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageStub.Chat.Id, A<string>.Ignored, A<ParseMode>.Ignored,
                                                            A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
                                                            A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                            A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
                                                            .MustHaveHappenedOnceExactly();
-
             Assert.Equal(expected, actual);
         }
 
@@ -53,23 +51,37 @@ namespace BotAlert.Tests
         public void BotOnMessageReceived_CreatesEventCorrectly()
         {
             var expected = ContextState.InputTitleState;
+            _messageStub.Text = "/create";
 
-            _messageMock.Text = "/create";
-
-            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnMessageReceived_HandlesNonIncorrectMessages()
+        public void BotOnMessageReceived_GetsEventsCorrectly()
+        {
+            var expected = ContextState.GetAllNotificationsState;
+            _messageStub.Text = "/get_notifications";
+
+            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
+
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void BotOnMessageReceived_HandlesIncorrectMessages()
         {
             var expected = ContextState.MainState;
+            _messageStub.Text = "test";
 
-            _messageMock.Text = "test";
+            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
-            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
-
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageStub.Chat.Id, A<string>.Ignored, A<ParseMode>.Ignored,
+                                                           A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
+                                                           A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
+                                                           A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
+                                                           .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 
@@ -78,7 +90,7 @@ namespace BotAlert.Tests
         {
             var expected = ContextState.MainState;
 
-            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
             Assert.Equal(expected, actual);
         }
@@ -88,7 +100,7 @@ namespace BotAlert.Tests
         {
             var expected = ContextState.MainState;
 
-            var actual = _mainState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _mainState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryStub).Result;
 
             Assert.Equal(expected, actual);
         }
@@ -96,9 +108,9 @@ namespace BotAlert.Tests
         [Fact]
         public void BotSendMessage_ShouldSendTextMessage()
         {
-            _mainState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
+            _mainState.BotSendMessage(_botClientMock, _messageStub.Chat.Id);
 
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageStub.Chat.Id, A<string>.Ignored, A<ParseMode>.Ignored,
                                                            A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
                                                            A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                            A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))

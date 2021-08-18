@@ -22,7 +22,7 @@ namespace BotAlert.States
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            return PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -34,7 +34,7 @@ namespace BotAlert.States
                 return ContextState.InputWarnDateState;
             }
 
-            return HandleWarnDateOptions(callbackQuery.Message.Chat.Id, callbackQuery.Data);
+            return await HandleWarnDateOptions(botClient, callbackQuery.Message.Chat.Id, callbackQuery.Data);
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
@@ -49,34 +49,42 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "Когда вас уведомить?", options);
         }
 
-        private ContextState HandleWarnDateOptions(long chatId, string warnInMinutes)
+        private async Task<ContextState> HandleWarnDateOptions(ITelegramBotClient botClient, long chatId, string warnInMinutes)
         {
             var minutes = int.Parse(warnInMinutes);
 
-            Event eventObj;
             var chat = _stateProvider.GetChatState(chatId);
+            var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
-            if (chat.ActiveNotificationId != Guid.Empty)
+            if (eventObj.Date < DateTime.Now)
             {
-                eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
-                eventObj.WarnDate = eventObj.Date.AddMinutes(-minutes);
-                _eventProvider.UpdateEvent(eventObj);
+                await botClient.SendTextMessageAsync(chatId, "Ваше событие уже прошло, введите новое значение");
+                return ContextState.InputDateState;
+            }
 
-                return ContextState.EditState;
+            if(eventObj.Date.AddMinutes(-minutes) < DateTime.Now)
+            {
+                return await PrintMessage(botClient, chatId, "Оповещение уже произошло");
+            }
+
+            eventObj.WarnDate = eventObj.Date.AddMinutes(-minutes);
+
+            _eventProvider.UpdateEvent(eventObj);
+
+            if (eventObj.Status == EventStatus.InProgress)
+            {
+                return ContextState.InputDescriptionKeyboardState;
             }
             else
             {
-                eventObj = _eventProvider.GetDraftEventByChatId(chatId);
-                eventObj.WarnDate = eventObj.Date.AddMinutes(-minutes);
-                _eventProvider.UpdateEvent(eventObj);
-
-                return ContextState.InputDescriptionKeyboardState;
+                return ContextState.EditState;
             }
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
+
             return ContextState.InputWarnDateKeyboardState;
         }
     }

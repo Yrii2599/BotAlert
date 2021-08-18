@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BotAlert.Models;
 using BotAlert.Helpers;
 using BotAlert.Interfaces;
@@ -11,10 +12,12 @@ namespace BotAlert.States
     public class SaveState : IState
     {
         private readonly IEventProvider _eventProvider;
+        private readonly IStateProvider _stateProvider;
 
-        public SaveState(IEventProvider eventProvider)
+        public SaveState(IEventProvider eventProvider, IStateProvider stateProvider)
         {
             _eventProvider = eventProvider;
+            _stateProvider = stateProvider;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
@@ -23,15 +26,15 @@ namespace BotAlert.States
             {
                 if (message.Text.ToLower() == "сохранить") 
                 {
-                    return HandleAcceptInput(botClient, message.Chat.Id);
+                    return await HandleAcceptInput(botClient, message.Chat.Id);
                 }
                 else if (message.Text.ToLower() == "отменить") 
                 {
-                    return HandleDeclineInput(botClient, message.Chat.Id);
+                    return await HandleDeclineInput(botClient, message.Chat.Id);
                 }
             }
 
-            return PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -40,10 +43,10 @@ namespace BotAlert.States
 
             if (callbackQuery.Data == "Save")
             {
-                return HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id);
+                return await HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id);
             }
 
-            return HandleDeclineInput(botClient, callbackQuery.Message.Chat.Id);
+            return await HandleDeclineInput(botClient, callbackQuery.Message.Chat.Id);
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
@@ -59,28 +62,38 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, message, options);
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.SaveState;
         }
 
-        private ContextState HandleAcceptInput(ITelegramBotClient botClient, long chatId)
+        private async Task<ContextState> HandleAcceptInput(ITelegramBotClient botClient, long chatId)
         {
-            _eventProvider.UpdateDraftEventByChatId(chatId, x => x.Status, EventStatus.Created);
+            var chat = _stateProvider.GetChatState(chatId);
+            var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
-            botClient.SendTextMessageAsync(chatId, "Запись успешно сохранена!");
+            eventObj.Status = EventStatus.Created;
+            _eventProvider.UpdateEvent(eventObj);
+
+            chat.ActiveNotificationId = Guid.Empty;
+            _stateProvider.SaveChatState(chat);
+
+            await botClient.SendTextMessageAsync(chatId, "Запись успешно сохранена!");
 
             return ContextState.MainState;
         }
 
-        private ContextState HandleDeclineInput(ITelegramBotClient botClient, long chatId)
+        private async Task<ContextState> HandleDeclineInput(ITelegramBotClient botClient, long chatId)
         {
-            var eventObj = _eventProvider.GetDraftEventByChatId(chatId);
-            _eventProvider.DeleteEvent(eventObj.Id);
+            var chat = _stateProvider.GetChatState(chatId);
+            _eventProvider.DeleteEvent(chat.ActiveNotificationId);
 
-            botClient.SendTextMessageAsync(chatId, "Запись успешно удалена!");
+            chat.ActiveNotificationId = Guid.Empty;
+            _stateProvider.SaveChatState(chat);
+
+            await botClient.SendTextMessageAsync(chatId, "Запись успешно удалена!");
 
             return ContextState.MainState;
         }

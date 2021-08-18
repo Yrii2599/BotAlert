@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using BotAlert.Models;
+using BotAlert.Helpers;
+using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using BotAlert.Helpers;
-using BotAlert.Interfaces;
-using BotAlert.Models;
 
 namespace BotAlert.States
 {
@@ -21,7 +20,7 @@ namespace BotAlert.States
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message) 
-            => PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            => await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
@@ -56,9 +55,9 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, eventObj.ToString(), options);
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.EditState;
         }

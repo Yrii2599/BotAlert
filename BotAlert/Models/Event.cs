@@ -34,8 +34,8 @@ namespace BotAlert.Models
         public override string ToString()
         {
             return $"\tTitle: {Title}\n" +
-                $"Date and time: {Date.ToLocalTime()}\n" +
-                $"Date and time of notification: {WarnDate.ToLocalTime()}\n" +
+                $"Date and time: {Date.ToLocalTime().ToString("dd.MM.yyyy HH:mm")}\n" +
+                $"Date and time of notification: {WarnDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")}\n" +
                 $"{Description}\n";
         }
     }

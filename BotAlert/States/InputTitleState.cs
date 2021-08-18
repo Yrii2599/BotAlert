@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BotAlert.Models;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using System;
 
 namespace BotAlert.States
 {
@@ -22,7 +22,7 @@ namespace BotAlert.States
         {
             if (message.Text == null) 
             { 
-                return PrintMessage(botClient, message.Chat.Id, "Неверный формат сообщения");
+                return await PrintMessage(botClient, message.Chat.Id, "Неверный формат сообщения");
             }
 
             var chat = _stateProvider.GetChatState(message.Chat.Id);
@@ -38,6 +38,8 @@ namespace BotAlert.States
             else
             {
                 _eventProvider.CreateEvent(new Event(message.Chat.Id, message.Text));
+                chat.ActiveNotificationId = _eventProvider.GetDraftEventByChatId(message.Chat.Id).Id;
+                _stateProvider.SaveChatState(chat);
 
                 return ContextState.InputDateState;
             }
@@ -55,9 +57,9 @@ namespace BotAlert.States
             botClient.SendTextMessageAsync(chatId, $"Введите название события:");
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.InputTitleState;
         }

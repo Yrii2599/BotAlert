@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Collections.Generic;
 using BotAlert.Models;
 
@@ -24,7 +23,5 @@ namespace BotAlert.Interfaces
         void DeleteEvent(Guid id);
 
         Event GetDraftEventByChatId(long chatId);
-
-        public void UpdateDraftEventByChatId<T>(long chatId, Expression<Func<Event, T>> updatingField, T newValue);
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Linq.Expressions;
 using System.Collections.Generic;
 using BotAlert.Models;
 using BotAlert.States;
@@ -53,25 +52,26 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnMessageReceived_WithTextAndNoActiveNotification__ShouldUpdateDraftEventByChatId()
+        public void BotOnMessageReceived_WithTextAndInProgressEvent__ShouldUpdateDraftEventByChatId()
         {
             _messageMock.Text = "Something";
             
             var actual = inputDescription.BotOnMessageReceived(_botClientMock, _messageMock);
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, 
-                                                                       A<Expression<Func<Event, string>>>.Ignored, 
-                                                                       A<string>.Ignored))
-                                              .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.Ignored)).MustHaveHappenedOnceExactly();
+
             Assert.Equal(ContextState.SaveState, actual.Result);
         }
 
         [Fact]
-        public void BotOnMessageReceived_WithTextAndActiveNotification__ShouldUpdateEvent()
+        public void BotOnMessageReceived_WithTextAndCreatedEvent__ShouldUpdateEvent()
         {
             var chatStateMock = A.Fake<ChatState>();
             chatStateMock.ActiveNotificationId = Guid.NewGuid();
+            var eventMock = A.Fake<Event>();
+            eventMock.Status = EventStatus.Created;
             A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
+            A.CallTo(() => _eventProviderMock.GetEventById(chatStateMock.ActiveNotificationId)).Returns(eventMock);
             _messageMock.Text = "Something";
             
             var actual = inputDescription.BotOnMessageReceived(_botClientMock, _messageMock);

@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.Extensions.Hosting;
 using BotAlert.Models;
+using BotAlert.Services;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -35,9 +35,7 @@ namespace BotAlert.Tests
         public void StartAsync_WorkCorrectlyWithZeroElements()
         {
             var funcRes = new List<Event>();
-
             var expected = Task.CompletedTask;
-
             A.CallTo(() => _eventProviderMock.GetAllNotificationsToBeSentNow()).Returns(funcRes);
 
             var actual = _notificationSender.StartAsync(_cancellationToken);
@@ -53,38 +51,11 @@ namespace BotAlert.Tests
                                                                A<IReplyMarkup>.Ignored,
                                                                A<CancellationToken>.Ignored))
                                                               .MustNotHaveHappened();
-
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void StartAsync_WorkCorrectlyWithOneElement()
-        {
-            var funcRes = new List<Event>() { new Event(1234, "title") };
-
-            var expected = Task.CompletedTask;
-
-            A.CallTo(() => _eventProviderMock.GetAllNotificationsToBeSentNow()).Returns(funcRes);
-
-            var actual = _notificationSender.StartAsync(_cancellationToken);
-
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(funcRes.First().ChatId,
-                                                               A<string>.Ignored,
-                                                               A<ParseMode>.Ignored,
-                                                               A<IEnumerable<MessageEntity>>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<int>.Ignored,
-                                                               A<bool>.Ignored,
-                                                               A<IReplyMarkup>.Ignored,
-                                                               A<CancellationToken>.Ignored))
-                                                              .MustHaveHappenedOnceExactly();
-
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void StopAsync_WorkCorrectly()
+        public void StopAsync_WorksCorrectly()
         {
             var expected = Task.CompletedTask;
 

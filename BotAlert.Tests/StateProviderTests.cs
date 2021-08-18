@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using BotAlert.Models;
 using BotAlert.Services;
-using BotAlert.Interfaces;
 using MongoDB.Driver;
 using FakeItEasy;
 using Xunit;
@@ -11,21 +10,19 @@ namespace BotAlert.Tests
     public class StateProviderTests
     {
         private readonly IMongoCollection<ChatState> _chatsCollectionMock;
-        private readonly IStateFactory _stateFactoryMock;
         private readonly IMongoDatabase _mongoDatabaseMock;
 
         private readonly StateProvider _stateDBService;
 
         public StateProviderTests()
         {
-            _stateFactoryMock = A.Fake<IStateFactory>();
             _mongoDatabaseMock = A.Fake<IMongoDatabase>();
             _chatsCollectionMock = A.Fake<IMongoCollection<ChatState>>();
 
             A.CallTo(() => _mongoDatabaseMock.GetCollection<ChatState>(A<string>.Ignored, A<MongoCollectionSettings>.Ignored))
                             .Returns(_chatsCollectionMock);
 
-            _stateDBService = new StateProvider(_stateFactoryMock, _mongoDatabaseMock);
+            _stateDBService = new StateProvider(_mongoDatabaseMock);
         }
 
         [Fact]
@@ -35,23 +32,9 @@ namespace BotAlert.Tests
 
             _stateDBService.GetChatState(chatId);
 
-            A.CallTo(() => _chatsCollectionMock.InsertOne(A<ChatState>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
+            A.CallTo(() => _chatsCollectionMock.InsertOne(A<ChatState>.That.Matches(x=>x.ChatId == chatId), A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
                             .MustHaveHappenedOnceExactly();
         }
-
-        /*[Fact]
-        public void GetChatState_ShouldGetStateFromCollection()
-        {
-            long chatId = 1234;
-            var temp = new ChatState(chatId);
-
-            _stateDBService.GetChatState(chatId);
-
-            A.CallTo(() => _chatsCollectionMock.Find(A<FilterDefinition<ChatState>>.Ignored, A<FindOptions>.Ignored));
-
-            A.CallTo(() => _chatsCollectionMock.InsertOne(A<ChatState>.Ignored, A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
-                            .MustNotHaveHappened();
-        }*/
 
         [Fact]
         public void SaveChatState_ShouldUpdateState()

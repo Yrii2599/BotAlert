@@ -3,7 +3,6 @@ using BotAlert.Models;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using System;
 
 namespace BotAlert.States
 {
@@ -22,24 +21,22 @@ namespace BotAlert.States
         {
             if (message.Text == null) 
             { 
-                return PrintMessage(botClient, message.Chat.Id, "Неверный формат сообщения");
+                return await PrintMessage(botClient, message.Chat.Id, "Неверный формат сообщения");
             }
 
             var chat = _stateProvider.GetChatState(message.Chat.Id);
+            var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
-            if (chat.ActiveNotificationId != Guid.Empty)
+            eventObj.Description = message.Text;
+            _eventProvider.UpdateEvent(eventObj);
+
+            if (eventObj.Status == EventStatus.InProgress)
             {
-                var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
-                eventObj.Description = message.Text;
-                _eventProvider.UpdateEvent(eventObj);
-
-                return ContextState.EditState;
+                return ContextState.SaveState;
             }
             else
             {
-                _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.Description, message.Text);
-
-                return ContextState.SaveState;
+                return ContextState.EditState;
             }
         }
 
@@ -55,9 +52,9 @@ namespace BotAlert.States
             botClient.SendTextMessageAsync(chatId, $"Введите описание оповещения:");
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.InputDescriptionState;
         }

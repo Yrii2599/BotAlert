@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,10 +11,10 @@ using BotAlert.Services;
 using BotAlert.Settings;
 using BotAlert.Factories;
 using BotAlert.Interfaces;
-using MongoDB.Driver;
-using SimpleInjector;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
+using MongoDB.Driver;
+using SimpleInjector;
 
 namespace BotAlert
 {
@@ -88,7 +87,6 @@ namespace BotAlert
             });
 
             //Register states
-            // Lifestyle.Scoped выдает ошибку
             _container.Register<MainState>();
             _container.Register<InputTitleState>();
             _container.Register<InputDateState>();
@@ -117,6 +115,7 @@ namespace BotAlert
             _container.RegisterInstance(Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>());
             _container.RegisterInstance(mongoDbSettings);
 
+            //Register ITelegramBotClient
             _container.RegisterInstance(CreateClient(telegramSettings.BotApiKey));
         }
 

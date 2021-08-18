@@ -16,15 +16,15 @@ namespace BotAlert.States
             {
                 if (message.Text.ToLower() == "да")
                 {
-                    return HandleAcceptInput();
+                    return await HandleAcceptInput();
                 }
                 else if (message.Text.ToLower() == "нет")
                 {
-                    return HandleDeclineInput();
+                    return await HandleDeclineInput();
                 }
             }
 
-            return PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -33,10 +33,10 @@ namespace BotAlert.States
 
             if (callbackQuery.Data == "да")
             {
-                return HandleAcceptInput();
+                return await HandleAcceptInput();
             }
 
-            return HandleDeclineInput();
+            return await HandleDeclineInput();
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
@@ -46,21 +46,15 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "Желаете добавить описание?", options);
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.InputDescriptionKeyboardState;
         }
 
-        private ContextState HandleAcceptInput()
-        {
-            return ContextState.InputDescriptionState;
-        }
+        private Task<ContextState> HandleAcceptInput() => Task.FromResult(ContextState.InputDescriptionState);
 
-        private ContextState HandleDeclineInput()
-        {
-            return ContextState.SaveState;
-        }
+        private Task<ContextState> HandleDeclineInput() => Task.FromResult(ContextState.SaveState);
     }
 }

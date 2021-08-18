@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Threading.Tasks;
 using BotAlert.Models;
+using BotAlert.Helpers;
 using BotAlert.Settings;
 using BotAlert.Interfaces;
 using Telegram.Bot;
@@ -27,38 +28,34 @@ namespace BotAlert.States
                                                           DateTimeStyles.None,
                                                           out var warnDate))
             {
-                return PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
+                return await PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
             }
 
 
             var chat = _stateProvider.GetChatState(message.Chat.Id);
+            var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
-            if (chat.ActiveNotificationId != Guid.Empty)
+            if (warnDate < DateTime.Now)
             {
-                var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
+                return await PrintMessage(botClient, message.Chat.Id, "Оповещение уже произошло");
+            }
 
-                if (warnDate > eventObj.Date.ToLocalTime() || warnDate < DateTime.Now)
-                {
-                    return PrintMessage(botClient, message.Chat.Id, "Оповещение уже произошло");
-                }
+            if (warnDate > eventObj.Date.ToLocalTime())
+            {
+                return await PrintMessage(botClient, message.Chat.Id, "Оповещение не может прийти после события");
+            }
 
-                eventObj.WarnDate = warnDate;
-                _eventProvider.UpdateEvent(eventObj);
+            eventObj.WarnDate = warnDate.TrimSecondsAndMilliseconds();
 
-                return ContextState.EditState;
+            _eventProvider.UpdateEvent(eventObj);
+
+            if (eventObj.Status == EventStatus.InProgress)
+            {
+                return ContextState.InputDescriptionKeyboardState;
             }
             else
             {
-                var eventObj = _eventProvider.GetDraftEventByChatId(message.Chat.Id);
-
-                if (warnDate > eventObj.Date.ToLocalTime() || warnDate < DateTime.Now)
-                {
-                    return PrintMessage(botClient, message.Chat.Id, "Оповещение уже произошло");
-                }
-
-                _eventProvider.UpdateDraftEventByChatId(message.Chat.Id, x => x.WarnDate, warnDate);
-
-                return ContextState.InputDescriptionKeyboardState;
+                return ContextState.EditState;
             }
         }
 
@@ -74,9 +71,9 @@ namespace BotAlert.States
             botClient.SendTextMessageAsync(chatId, $"Введите дату и время для оповещения\n(DD.MM.YYYY HH:MM):");
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.InputWarnDateState;
         }

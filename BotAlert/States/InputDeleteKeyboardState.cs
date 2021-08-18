@@ -26,15 +26,15 @@ namespace BotAlert.States
             {
                 if (message.Text.ToLower() == "да")
                 {
-                    return HandleAcceptInput(botClient, message.Chat.Id);
+                    return await HandleAcceptInput(botClient, message.Chat.Id);
                 }
                 else if (message.Text.ToLower() == "нет")
                 {
-                    return HandleDeclineInput();
+                    return await HandleDeclineInput();
                 }
             }
 
-            return PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -43,8 +43,8 @@ namespace BotAlert.States
 
             return callbackQuery.Data switch
             {
-                "да" => HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id),
-                _ => HandleDeclineInput()
+                "да" => await HandleAcceptInput(botClient, callbackQuery.Message.Chat.Id),
+                _ => await HandleDeclineInput()
             };
         }
 
@@ -59,14 +59,14 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, "Вы точно хотите удалить это событие?", options);
         }
 
-        private ContextState PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
         {
-            botClient.SendTextMessageAsync(chatId, message);
+            await botClient.SendTextMessageAsync(chatId, message);
 
             return ContextState.InputDeleteKeyboardState;
         }
 
-        private ContextState HandleAcceptInput(ITelegramBotClient botClient, long chatId)
+        private Task<ContextState> HandleAcceptInput(ITelegramBotClient botClient, long chatId)
         {
             var chatState = _stateProvider.GetChatState(chatId);
 
@@ -78,9 +78,9 @@ namespace BotAlert.States
 
             botClient.SendTextMessageAsync(chatId, "Событие успешно удалено!");
 
-            return ContextState.GetAllNotificationsState;
+            return Task.FromResult(ContextState.GetAllNotificationsState);
         }
 
-        private ContextState HandleDeclineInput() => ContextState.GetNotificationDetailsState;
+        private Task<ContextState> HandleDeclineInput() => Task.FromResult(ContextState.GetNotificationDetailsState);
     }
 }

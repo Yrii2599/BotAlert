@@ -20,6 +20,7 @@ namespace BotAlert.Tests
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
+        private readonly Event _eventMock;
 
         private readonly ContextState _currentState;
 
@@ -34,6 +35,9 @@ namespace BotAlert.Tests
             _messageMock.Chat = A.Fake<Chat>();
             _callbackQueryMock = A.Fake<CallbackQuery>();
             _callbackQueryMock.Message = _messageMock;
+            _eventMock = A.Fake<Event>();
+            _eventMock.ChatId = _messageMock.Chat.Id;
+            _eventMock.Date = DateTime.Now;
 
             _currentState = ContextState.InputWarnDateKeyboardState;
 
@@ -80,10 +84,10 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnCallbackQueryReceived_HardcodedDataAndNoActiveNotification_ReturnsInputDescriptionKeyboardState()
+        public void BotOnCallbackQueryReceived_HardcodedDataAndInProgressEvent_ReturnsInputDescriptionKeyboardState()
         {
-            A.CallTo(() => _eventProviderMock.GetDraftEventByChatId(A<long>.Ignored)).Returns(new Event(_messageMock.Chat.Id, "Title") 
-                                                                                     { Date = DateTime.Now});
+            _eventMock.Status = EventStatus.InProgress;
+            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(_eventMock);
             _callbackQueryMock.Data = "30";
             var expected = ContextState.InputDescriptionKeyboardState;
 
@@ -108,11 +112,11 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnCallbackQueryReceived_HardcodedDataAndActiveNotification_ReturnsEditState()
         {
+            _eventMock.Status = EventStatus.Created;
             var chatStateMock = A.Fake<ChatState>();
             chatStateMock.ActiveNotificationId = Guid.NewGuid();
             A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
-            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(new Event(_messageMock.Chat.Id, "Title") 
-                                                                                    { Date = DateTime.Now});
+            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(_eventMock);
             _callbackQueryMock.Data = "30";
             var expected = ContextState.EditState;
 

@@ -10,7 +10,7 @@ namespace BotAlert.Services
         
         private readonly FilterDefinitionBuilder<ChatState> _filterBuilder = Builders<ChatState>.Filter;
 
-        public StateProvider(IStateFactory stateFactory, IMongoDatabase database)
+        public StateProvider(IMongoDatabase database)
         {
             _chatsCollection = database.GetCollection<ChatState>("chats");
         }
@@ -18,7 +18,7 @@ namespace BotAlert.Services
         //Entry point
         public ChatState GetChatState(long chatId) 
         {
-            var chat = _chatsCollection.Find(getChatIdFilter(chatId)).SingleOrDefault();
+            var chat = _chatsCollection.Find(GetChatIdFilter(chatId)).SingleOrDefault();
 
             if (chat == null)
             {
@@ -35,10 +35,10 @@ namespace BotAlert.Services
                                                    .Set(x => x.NotificationsPage, chatObj.NotificationsPage)
                                                    .Set(x => x.ActiveNotificationId, chatObj.ActiveNotificationId);
 
-            _chatsCollection.UpdateOne(getChatIdFilter(chatObj.ChatId), update);
+            _chatsCollection.UpdateOne(GetChatIdFilter(chatObj.ChatId), update);
         }
 
-        private FilterDefinition<ChatState> getChatIdFilter(long chatId)
+        private FilterDefinition<ChatState> GetChatIdFilter(long chatId)
         {
             return _filterBuilder.Eq(x => x.ChatId, chatId);
         }

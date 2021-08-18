@@ -14,7 +14,6 @@ namespace BotAlert.Tests
         private readonly IMongoDatabase _mongoDatabaseMock;
         private readonly IStateProvider _stateProviderMock;
         private readonly IMongoCollection<Event> _eventsCollectionMock;
-        private readonly ChatState _chatState;
 
         private readonly EventProvider _eventProvider;
 
@@ -22,7 +21,6 @@ namespace BotAlert.Tests
         {
             _mongoDatabaseMock = A.Fake<IMongoDatabase>();
             _stateProviderMock = A.Fake<IStateProvider>();
-            _chatState = A.Fake<ChatState>();
             _eventsCollectionMock = A.Fake<IMongoCollection<Event>>();
 
             A.CallTo(() => _mongoDatabaseMock.GetCollection<Event>(A<string>.Ignored, A<MongoCollectionSettings>.Ignored))
@@ -38,7 +36,7 @@ namespace BotAlert.Tests
 
             _eventProvider.CreateEvent(eventObj);
 
-            A.CallTo(() => _eventsCollectionMock.InsertOne(A<Event>.That.Matches(x=>x.Id == eventObj.Id), A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
+            A.CallTo(() => _eventsCollectionMock.InsertOne(A<Event>.That.Matches(x => x.Id == eventObj.Id), A<InsertOneOptions>.Ignored, A<CancellationToken>.Ignored))
                             .MustHaveHappenedOnceExactly();
         }
 
@@ -59,25 +57,9 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void UpdateDraftEventByChatId_WorksCorrectly()
-        { 
-            var eventObj = new Event(123, "Title");
-            _eventsCollectionMock.InsertOne(eventObj);
-
-            _eventProvider.UpdateDraftEventByChatId(eventObj.ChatId, x => x.Date, DateTime.Now);
-
-            A.CallTo(() => _eventsCollectionMock.UpdateOne(A<FilterDefinition<Event>>.Ignored,
-                             A<UpdateDefinition<Event>>.Ignored,
-                             A<UpdateOptions>.Ignored,
-                             A<CancellationToken>.Ignored))
-                            .MustHaveHappenedOnceExactly();
-        }
-
-        [Fact]
         public void DeleteEvent_WorksCorrectly()
         {
             var eventObj = new Event(123, "Title");
-            _eventsCollectionMock.InsertOne(eventObj);
 
             _eventProvider.DeleteEvent(eventObj.Id);
 
@@ -89,6 +71,7 @@ namespace BotAlert.Tests
         public void UserEventsNextPageExists_CallGetChatState()
         {
             long chatid = 5;
+
             _eventProvider.UserEventsNextPageExists(chatid);
 
             A.CallTo(() => _stateProviderMock.GetChatState(chatid));
@@ -99,46 +82,9 @@ namespace BotAlert.Tests
         {
             long chatid = 5;
 
-          var actual= _eventProvider.UserEventsPreviousPageExists(chatid);
+            var actual = _eventProvider.UserEventsPreviousPageExists(chatid);
 
-           Assert.False(actual);
+            Assert.False(actual);
         }
-
-        //[Fact]
-        //public void GetEventById_WorksCorrectly()
-        //{
-        //    var eventObj = new Event(123, "Title");
-        //    _eventsCollectionMock.InsertOne(eventObj);
-
-        //    _eventProvider.GetEventById(eventObj.Id);
-
-        //    A.CallTo(() => _eventsCollectionMock.Find(A<FilterDefinition<Event>>.Ignored, A<FindOptions>.Ignored))
-        //                    .Returns(eventObj);
-        //}
-
-        //[Fact]
-        //public void GetDraftEventByChatId_WorksCorrectly()
-        //{
-        //    var eventObj = new Event(123, "Title");
-        //    _eventsCollectionMock.InsertOne(eventObj);
-
-        //    _eventProvider.GetDraftEventByChatId(eventObj.ChatId);
-
-        //    A.CallTo(() => _eventsCollectionMock.Find(A<FilterDefinition<Event>>.Ignored, A<FindOptions>.Ignored))
-        //                    .Returns(eventObj);
-        //}
-
-        //[Fact]
-        //public void GetAllEvents_WorksCorrectly()
-        //{
-
-        //}
-
-
-        //[Fact]
-        //public void GetAllEventsInDateRange_WorksCorrectly()
-        //{
-
-        //}
     }
 }

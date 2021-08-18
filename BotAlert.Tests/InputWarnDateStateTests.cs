@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Collections.Generic;
 using BotAlert.States;
 using BotAlert.Models;
@@ -9,8 +10,6 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using FakeItEasy;
 using Xunit;
-using System;
-using System.Linq.Expressions;
 
 namespace BotAlert.Tests
 {
@@ -86,27 +85,26 @@ namespace BotAlert.Tests
         }
 
         [Fact]
-        public void BotOnMessageReceived_MessageTextIsADateSmallerThanEventDateAndNoActiveNotification_ReturnsInputDescriptionKeyboardState()
+        public void BotOnMessageReceived_MessageTextIsADateSmallerThanEventDateAndInProgressEvent_ReturnsInputDescriptionKeyboardState()
         {
-            A.CallTo(() => _eventProviderMock.GetDraftEventByChatId(_messageMock.Chat.Id)).Returns(_eventMock);
+            _eventMock.Status = EventStatus.InProgress;
+            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(_eventMock);
             _messageMock.Text = "30.12.9999";
             var expected = ContextState.InputDescriptionKeyboardState;
 
             var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
-            A.CallTo(() => _eventProviderMock.UpdateDraftEventByChatId(A<long>.Ignored, 
-                                                                       A<Expression<Func<Event, DateTime>>>.Ignored, 
-                                                                       A<DateTime>.Ignored))
-                                             .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.Ignored)).MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
         }
         
         [Fact]
-        public void BotOnMessageReceived_MessageTextIsADateSmallerThanEventDateAndActiveNotification_ReturnsEditState()
+        public void BotOnMessageReceived_MessageTextIsADateSmallerThanEventDateAndCreatedEvent_ReturnsEditState()
         {
             var chatStateMock = A.Fake<ChatState>();
             chatStateMock.ActiveNotificationId = Guid.NewGuid();
+            _eventMock.Status = EventStatus.Created;
             A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
             A.CallTo(() => _eventProviderMock.GetEventById(chatStateMock.ActiveNotificationId)).Returns(_eventMock);
 

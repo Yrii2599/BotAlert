@@ -35,7 +35,6 @@ namespace BotAlert.Tests
             _callbackQueryMock = A.Fake<CallbackQuery>();
             _callbackQueryMock.Message = A.Fake<Message>();
             _callbackQueryMock.Message.Chat = A.Fake<Chat>();
-            _callbackQueryMock.Message.Chat.Id = 5;
 
             _getAllNotificationsState = new GetAllNotificationsState(_eventProviderMock,_stateProviderMock);
         }
@@ -62,11 +61,11 @@ namespace BotAlert.Tests
 
             _callbackQueryMock.Data = "Back";
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStateMock);
 
             var actual = _getAllNotificationsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 
@@ -80,11 +79,11 @@ namespace BotAlert.Tests
 
             _callbackQueryMock.Data = "Prev";
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStateMock);
 
             var actual = _getAllNotificationsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 
@@ -98,11 +97,11 @@ namespace BotAlert.Tests
 
             _callbackQueryMock.Data = "Next";
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStateMock);
 
             var actual = _getAllNotificationsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 
@@ -116,11 +115,11 @@ namespace BotAlert.Tests
 
             _callbackQueryMock.Data = Guid.Empty.ToString();
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStateMock);
 
             var actual = _getAllNotificationsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 
@@ -131,13 +130,13 @@ namespace BotAlert.Tests
         public void BotOnCallBackQueryReceived_WorksCorrectly_WhenNoSuchEventExists()
         {
             _callbackQueryMock.Data = Guid.Empty.ToString();
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStateMock);
             A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(null);
             var expected = ContextState.GetAllNotificationsState;
 
             var actual = _getAllNotificationsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
@@ -149,7 +148,7 @@ namespace BotAlert.Tests
 
            var actual = _getAllNotificationsState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
-           A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
+           A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id, A<string>.Ignored, A<ParseMode>.Ignored,
                                                               A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
                                                               A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                               A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
@@ -161,17 +160,21 @@ namespace BotAlert.Tests
         [Fact]
         public void BotSendMessage_EventListCount0AndPage0_WorksCorrectly()
         {
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStateMock);
 
             _getAllNotificationsState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
 
-            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
-                                                              A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
-                                                              A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
-                                                              A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
-                                                            .MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UserEventsPreviousPageExists(_messageMock.Chat.Id)).MustNotHaveHappened();
+
+            A.CallTo(() => _eventProviderMock.UserEventsNextPageExists(_messageMock.Chat.Id)).MustNotHaveHappened();
+
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id, A<string>.Ignored, A<ParseMode>.Ignored,
+                                                               A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
+                                                               A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
+                                                               A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
+                                                             .MustHaveHappenedOnceExactly();
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
         }
@@ -181,21 +184,21 @@ namespace BotAlert.Tests
         {
             _chatStateMock.NotificationsPage = 1;
 
-            A.CallTo(() => _stateProviderMock.GetChatState(A<long>.Ignored)).Returns(_chatStateMock);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStateMock);
 
 
             _getAllNotificationsState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
 
 
-            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(A<long>.Ignored)).MustHaveHappenedTwiceExactly();
+            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(_messageMock.Chat.Id)).MustHaveHappenedTwiceExactly();
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _eventProviderMock.UserEventsPreviousPageExists(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UserEventsPreviousPageExists(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _eventProviderMock.UserEventsNextPageExists(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UserEventsNextPageExists(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id, A<string>.Ignored, A<ParseMode>.Ignored,
                                                               A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
                                                               A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                               A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
@@ -208,17 +211,17 @@ namespace BotAlert.Tests
             var list = A.Fake<List<Event>>();
             list.Add(A.Fake<Event>());
 
-            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(A<long>.Ignored)).Returns(list);
+            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(_messageMock.Chat.Id)).Returns(list);
 
             _getAllNotificationsState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
 
-            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.GetUserEventsOnPage(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _eventProviderMock.UserEventsPreviousPageExists(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UserEventsPreviousPageExists(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _eventProviderMock.UserEventsNextPageExists(A<long>.Ignored)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.UserEventsNextPageExists(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored, A<string>.Ignored, A<ParseMode>.Ignored,
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id, A<string>.Ignored, A<ParseMode>.Ignored,
                                                               A<IEnumerable<MessageEntity>>.Ignored, A<bool>.Ignored,
                                                               A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                               A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))

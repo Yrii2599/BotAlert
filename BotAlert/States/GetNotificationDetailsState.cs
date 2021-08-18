@@ -20,8 +20,8 @@ namespace BotAlert.States
             _stateProvider = stateProvider;
         }
 
-        public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message) 
-            => ContextState.GetNotificationDetailsState;
+        public Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message) 
+            => Task.FromResult(ContextState.GetNotificationDetailsState);
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
@@ -31,7 +31,7 @@ namespace BotAlert.States
             {
                 "Edit" => ContextState.EditState,
                 "Delete" => ContextState.InputDeleteKeyboardState,
-                "Back" => moveBack(callbackQuery.Message.Chat.Id),
+                "Back" => MoveBack(callbackQuery.Message.Chat.Id),
 
                 _ => ContextState.GetNotificationDetailsState
             };
@@ -52,7 +52,7 @@ namespace BotAlert.States
             InteractionHelper.SendInlineKeyboard(botClient, chatId, eventObj.ToString(), options);
         }
 
-        private ContextState moveBack(long chatId)
+        private ContextState MoveBack(long chatId)
         {
             var chat = _stateProvider.GetChatState(chatId);
             chat.ActiveNotificationId = Guid.Empty;
