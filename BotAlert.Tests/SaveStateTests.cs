@@ -9,6 +9,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using FakeItEasy;
 using Xunit;
+using System;
 
 namespace BotAlert.Tests
 {
@@ -96,6 +97,35 @@ namespace BotAlert.Tests
         }
 
         [Fact]
+        public void BotOnMessageReceived_EventIsNull_ShouldReturnMainState()
+        {
+            var activeId = Guid.NewGuid();
+            _chatStateStub.ActiveNotificationId = activeId;
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).Returns(_chatStateStub);
+            A.CallTo(() => _eventProviderMock.GetEventById(_chatStateStub.ActiveNotificationId)).Returns(null);
+            _messageStub.Text = "сохранить";
+            var expected = ContextState.MainState;
+
+            var actual = _saveState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
+
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.GetEventById(activeId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateStub)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_chatStateStub.ChatId,
+                                                               A<string>.Ignored,
+                                                               A<ParseMode>.Ignored,
+                                                               A<IEnumerable<MessageEntity>>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<int>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<IReplyMarkup>.Ignored,
+                                                               A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
         public void BotOnCallBackQueryReceived_ShouldSaveEventSendMessageAndReturnNextState()
         {
             var expected = ContextState.MainState;
@@ -140,6 +170,35 @@ namespace BotAlert.Tests
                                                            A<bool>.Ignored, A<int>.Ignored, A<bool>.Ignored,
                                                            A<IReplyMarkup>.Ignored, A<CancellationToken>.Ignored))
                                                            .MustHaveHappenedOnceExactly();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void BotOnCallBackQueryReceived_EventIsNull_ShouldReturnMainState()
+        {
+            var activeId = Guid.NewGuid();
+            _chatStateStub.ActiveNotificationId = activeId;
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).Returns(_chatStateStub);
+            A.CallTo(() => _eventProviderMock.GetEventById(_chatStateStub.ActiveNotificationId)).Returns(null);
+            _callbackQueryStub.Data = "Save";
+            var expected = ContextState.MainState;
+
+            var actual = _saveState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryStub).Result;
+
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.GetEventById(activeId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateStub)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_chatStateStub.ChatId,
+                                                               A<string>.Ignored,
+                                                               A<ParseMode>.Ignored,
+                                                               A<IEnumerable<MessageEntity>>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<int>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<IReplyMarkup>.Ignored,
+                                                               A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 

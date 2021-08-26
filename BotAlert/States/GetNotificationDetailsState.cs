@@ -49,7 +49,9 @@ namespace BotAlert.States
                 new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Назад", "Back") } 
             });
 
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, eventObj.ToString(), options);
+            var message = eventObj?.ToString() ?? "Событие удалено";
+
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, message, options);
         }
 
         private ContextState MoveBack(long chatId)

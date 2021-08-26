@@ -18,8 +18,9 @@ namespace BotAlert.Tests
         private readonly IEventProvider _eventProviderMock;
         private readonly IStateProvider _stateProviderMock;
         private readonly ITelegramBotClient _botClientMock;
-        private readonly Message _messageMock;
-        private readonly Event _eventMock;
+        private readonly Message _messageStub;
+        private readonly Event _eventStub;
+        private readonly ChatState _chatStateStub;
 
         private readonly ContextState _currentState;
 
@@ -30,11 +31,11 @@ namespace BotAlert.Tests
             _eventProviderMock = A.Fake<IEventProvider>();
             _stateProviderMock = A.Fake<IStateProvider>();
             _botClientMock = A.Fake<ITelegramBotClient>();
-            _messageMock = A.Fake<Message>();
-            _messageMock.Chat = A.Fake<Chat>();
-            _eventMock = A.Fake<Event>();
-            _eventMock.ChatId = _messageMock.Chat.Id;
-            _eventMock.Date = new DateTime(9999, 12, 31);
+            _messageStub = new Message();
+            _messageStub.Chat = new Chat();
+            _eventStub = new Event(_messageStub.Chat.Id, "Title");
+            _eventStub.Date = new DateTime(9999, 12, 31);
+            _chatStateStub = new ChatState(_messageStub.Chat.Id);
 
             _currentState = ContextState.InputWarnDateState;
 
@@ -46,7 +47,7 @@ namespace BotAlert.Tests
         {
             var expected = _currentState;
 
-            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
@@ -66,9 +67,9 @@ namespace BotAlert.Tests
         public void BotOnMessageReceived_MessageTextIsNotADate_ReturnsCurrentState()
         {
             var expected = _currentState;
-            _messageMock.Text = "Text";
+            _messageStub.Text = "Text";
 
-            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.Ignored,
                                                                A<string>.Ignored,
@@ -87,12 +88,12 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_MessageTextIsADateSmallerThanEventDateAndInProgressEvent_ReturnsInputDescriptionKeyboardState()
         {
-            _eventMock.Status = EventStatus.InProgress;
-            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(_eventMock);
-            _messageMock.Text = "30.12.9999";
+            _eventStub.Status = EventStatus.InProgress;
+            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(_eventStub);
+            _messageStub.Text = "30.12.9999";
             var expected = ContextState.InputDescriptionKeyboardState;
 
-            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
             A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.Ignored)).MustHaveHappenedOnceExactly();
 
@@ -102,20 +103,19 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_MessageTextIsADateSmallerThanEventDateAndCreatedEvent_ReturnsEditState()
         {
-            var chatStateMock = A.Fake<ChatState>();
-            chatStateMock.ActiveNotificationId = Guid.NewGuid();
-            _eventMock.Status = EventStatus.Created;
-            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
-            A.CallTo(() => _eventProviderMock.GetEventById(chatStateMock.ActiveNotificationId)).Returns(_eventMock);
+            _chatStateStub.ActiveNotificationId = Guid.NewGuid();
+            _eventStub.Status = EventStatus.Created;
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).Returns(_chatStateStub);
+            A.CallTo(() => _eventProviderMock.GetEventById(_chatStateStub.ActiveNotificationId)).Returns(_eventStub);
 
-            _messageMock.Text = "30.12.9999";
+            _messageStub.Text = "30.12.9999";
             var expected = ContextState.EditState;
 
 
-            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
 
-            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.That.Matches(e => e.ChatId == _messageMock.Chat.Id)))
+            A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.That.Matches(e => e.ChatId == _messageStub.Chat.Id)))
                                              .MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
@@ -124,12 +124,12 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_MessageTextIsAnExpiredDateAndNoActiveNotification_ReturnsCurrentState()
         {
-            _messageMock.Text = "01.01.0001";
+            _messageStub.Text = "01.01.0001";
             var expected = _currentState;
 
-            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.That.Matches(id => id == _messageMock.Chat.Id),
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.That.Matches(id => id == _messageStub.Chat.Id),
                                                                A<string>.Ignored,
                                                                A<ParseMode>.Ignored,
                                                                A<IEnumerable<MessageEntity>>.Ignored,
@@ -146,18 +146,17 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_MessageTextIsAnExpiredDateAndActiveNotification_ReturnsCurrentState()
         {
-            var chatStateMock = A.Fake<ChatState>();
-            chatStateMock.ActiveNotificationId = Guid.NewGuid();
-            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
+            _chatStateStub.ActiveNotificationId = Guid.NewGuid();
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).Returns(_chatStateStub);
 
-            _messageMock.Text = "01.01.0001";
+            _messageStub.Text = "01.01.0001";
             var expected = _currentState;
 
 
-            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
 
 
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.That.Matches(id => id == _messageMock.Chat.Id),
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.That.Matches(id => id == _messageStub.Chat.Id),
                                                                A<string>.Ignored,
                                                                A<ParseMode>.Ignored,
                                                                A<IEnumerable<MessageEntity>>.Ignored,
@@ -172,10 +171,39 @@ namespace BotAlert.Tests
         }
 
         [Fact]
+        public void BotOnMessageReceived_EventIsNull_ShouldReturnMainState()
+        {
+            var activeId = Guid.NewGuid();
+            _chatStateStub.ActiveNotificationId = activeId;
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).Returns(_chatStateStub);
+            A.CallTo(() => _eventProviderMock.GetEventById(_chatStateStub.ActiveNotificationId)).Returns(null);
+            _messageStub.Text = "30.12.9999";
+            var expected = ContextState.MainState;
+
+            var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
+
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _eventProviderMock.GetEventById(activeId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateStub)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_chatStateStub.ChatId,
+                                                               A<string>.Ignored,
+                                                               A<ParseMode>.Ignored,
+                                                               A<IEnumerable<MessageEntity>>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<int>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<IReplyMarkup>.Ignored,
+                                                               A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+            Assert.Equal(expected, actual);
+        }
+
+        [Fact]
         public void BotOnCallBackQueryReceived_ReturnsCurrentState()
         {
             var callbackQueryMock = A.Fake<CallbackQuery>();
-            callbackQueryMock.Message = _messageMock;
+            callbackQueryMock.Message = _messageStub;
             var expected = _currentState;
 
             var actual = _inputWarnDateState.BotOnCallBackQueryReceived(_botClientMock, callbackQueryMock).Result;
@@ -193,9 +221,9 @@ namespace BotAlert.Tests
         [Fact]
         public void BotSendMessage_SendsTextMessage()
         {
-            _inputWarnDateState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
+            _inputWarnDateState.BotSendMessage(_botClientMock, _messageStub.Chat.Id);
 
-            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.That.Matches(id => id == _messageMock.Chat.Id),
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(A<ChatId>.That.Matches(id => id == _messageStub.Chat.Id),
                                                                A<string>.Ignored,
                                                                A<ParseMode>.Ignored,
                                                                A<IEnumerable<MessageEntity>>.Ignored,

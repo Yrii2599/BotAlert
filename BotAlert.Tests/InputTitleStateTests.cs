@@ -85,6 +85,34 @@ namespace BotAlert.Tests
         }
 
         [Fact]
+        public void BotOnMessageReceived_EventIsNull_ShouldReturnMainState()
+        {
+            var activeId = Guid.NewGuid();
+            _chatStateStub.ActiveNotificationId = activeId;
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).Returns(_chatStateStub);
+            A.CallTo(() => _eventProviderMock.GetEventById(_chatStateStub.ActiveNotificationId)).Returns(null);
+            _messageStub.Text = "";
+            var expected = ContextState.MainState;
+
+            var actual = _inputTitleState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
+
+            A.CallTo(() => _eventProviderMock.GetEventById(activeId)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateStub)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _botClientMock.SendTextMessageAsync(_chatStateStub.ChatId,
+                                                               A<string>.Ignored,
+                                                               A<ParseMode>.Ignored,
+                                                               A<IEnumerable<MessageEntity>>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<int>.Ignored,
+                                                               A<bool>.Ignored,
+                                                               A<IReplyMarkup>.Ignored,
+                                                               A<CancellationToken>.Ignored))
+                                                                  .MustHaveHappenedOnceExactly();
+            Assert.Equal(expected, actual);            
+        }
+
+        [Fact]
         public void BotOnCallBackQueryReceived_ShouldReturnSameState()
         {
             var expected = ContextState.InputTitleState;

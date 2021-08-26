@@ -87,6 +87,7 @@ namespace BotAlert.Tests
         public void BotOnCallbackQueryReceived_HardcodedDataAndInProgressEvent_ReturnsInputDescriptionKeyboardState()
         {
             _eventMock.Status = EventStatus.InProgress;
+            _eventMock.Date = DateTime.Now.AddDays(1);
             A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).Returns(_eventMock);
             _callbackQueryMock.Data = "30";
             var expected = ContextState.InputDescriptionKeyboardState;
@@ -113,6 +114,7 @@ namespace BotAlert.Tests
         public void BotOnCallbackQueryReceived_HardcodedDataAndActiveNotification_ReturnsEditState()
         {
             _eventMock.Status = EventStatus.Created;
+            _eventMock.Date = DateTime.Now.AddDays(1);
             var chatStateMock = A.Fake<ChatState>();
             chatStateMock.ActiveNotificationId = Guid.NewGuid();
             A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);

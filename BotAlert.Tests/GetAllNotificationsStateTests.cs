@@ -85,6 +85,8 @@ namespace BotAlert.Tests
 
             A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
 
+            A.CallTo(() => _eventProviderMock.UserEventsPreviousPageExists(_callbackQueryMock.Message.Chat.Id));
+
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 
             Assert.Equal(expected, actual);
@@ -102,6 +104,8 @@ namespace BotAlert.Tests
             var actual = _getAllNotificationsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
             A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).MustHaveHappenedOnceExactly();
+
+            A.CallTo(() => _eventProviderMock.UserEventsNextPageExists(_callbackQueryMock.Message.Chat.Id));
 
             A.CallTo(() => _stateProviderMock.SaveChatState(_chatStateMock)).MustHaveHappenedOnceExactly();
 

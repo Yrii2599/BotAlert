@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using BotAlert.Models;
 using BotAlert.Interfaces;
 using Telegram.Bot;
@@ -26,6 +27,15 @@ namespace BotAlert.States
 
             var chat = _stateProvider.GetChatState(message.Chat.Id);
             var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
+
+            if (eventObj == null)
+            {
+                chat.ActiveNotificationId = Guid.Empty;
+                _stateProvider.SaveChatState(chat);
+                await botClient.SendTextMessageAsync(chat.ChatId, "Данное событие уже произошло");
+
+                return ContextState.MainState;
+            }
 
             eventObj.Description = message.Text;
             _eventProvider.UpdateEvent(eventObj);

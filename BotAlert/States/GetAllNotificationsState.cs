@@ -38,12 +38,18 @@ namespace BotAlert.States
                     break;
 
                 case "Prev":
-                    chat.NotificationsPage--;
+                    if (_eventProvider.UserEventsPreviousPageExists(callbackQuery.Message.Chat.Id))
+                    {
+                        chat.NotificationsPage--;
+                    }
 
                     break;
 
                 case "Next":
-                    chat.NotificationsPage++;
+                    if (_eventProvider.UserEventsNextPageExists(callbackQuery.Message.Chat.Id))
+                    {
+                        chat.NotificationsPage++;
+                    }
 
                     break;
 

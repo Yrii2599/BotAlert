@@ -56,6 +56,15 @@ namespace BotAlert.States
             var chat = _stateProvider.GetChatState(chatId);
             var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
+            if (eventObj == null)
+            {
+                chat.ActiveNotificationId = Guid.Empty;
+                _stateProvider.SaveChatState(chat);
+                await botClient.SendTextMessageAsync(chat.ChatId, "Данное событие уже произошло");
+
+                return ContextState.MainState;
+            }
+
             if (eventObj.Date < DateTime.Now)
             {
                 await botClient.SendTextMessageAsync(chatId, "Ваше событие уже прошло, введите новое значение");
