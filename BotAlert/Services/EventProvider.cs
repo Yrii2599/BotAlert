@@ -5,6 +5,7 @@ using BotAlert.Models;
 using BotAlert.Helpers;
 using BotAlert.Settings;
 using BotAlert.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BotAlert.Services
@@ -25,8 +26,8 @@ namespace BotAlert.Services
         public void CreateEvent(Event eventObj)
         {
             _eventsCollection.InsertOne(eventObj);
-        } 
-        
+        }
+
         public List<Event> GetUserEventsOnPage(long chatId)
         {
             var page = _stateProvider.GetChatState(chatId).NotificationsPage;
@@ -42,7 +43,7 @@ namespace BotAlert.Services
                                     .ToList();
         }
 
-        public bool UserEventsPreviousPageExists(long chatId) 
+        public bool UserEventsPreviousPageExists(long chatId)
         {
             return _stateProvider.GetChatState(chatId).NotificationsPage != 0;
         }
@@ -58,7 +59,7 @@ namespace BotAlert.Services
 
         public Event GetEventById(Guid id)
         {
-            return _eventsCollection.Find(GetIdFilter(id)).SingleOrDefault(); 
+            return _eventsCollection.Find(GetIdFilter(id)).SingleOrDefault();
         }
 
         public void UpdateEvent(Event eventObj)
@@ -81,12 +82,16 @@ namespace BotAlert.Services
         {
             return _eventsCollection.Find(GetDraftEventFilter(chatId)).SingleOrDefault();
         }
-        
+
         private List<Event> GetAllUserEvents(long chatId)
         {
-            return _eventsCollection.Find<Event>(x => x.ChatId == chatId)
-                                    .SortBy(x => x.Date)
-                                    .ToList();
+            var events = _eventsCollection
+                .Find(x => x.ChatId == chatId)
+                .ToList()
+                .OrderBy(x => x.Date)
+                .ToList();
+
+            return events;
         }
 
         private FilterDefinition<Event> GetIdFilter(Guid id)

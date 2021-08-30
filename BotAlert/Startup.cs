@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,7 +44,7 @@ namespace BotAlert
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if(env.IsDevelopment())
+            if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
@@ -70,7 +71,7 @@ namespace BotAlert
             var telegramSettings = Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>();
 
             //Register factories
-            _container.RegisterInstance<IStateFactory>(new StateFactory 
+            _container.RegisterInstance<IStateFactory>(new StateFactory
             {
                 { ContextState.MainState, () => _container.GetInstance<MainState>() },
                 { ContextState.InputTitleState, () => _container.GetInstance<InputTitleState>() },
@@ -121,7 +122,12 @@ namespace BotAlert
 
         private IMongoDatabase InitializeMongoDatabase(DBSettings mongoDbSettings)
         {
-            var client = new MongoClient(mongoDbSettings.ConnectionString);
+            var settings = MongoClientSettings.FromUrl(
+             new MongoUrl(mongoDbSettings.ConnectionString)
+         );
+            settings.SslSettings =
+                new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
+            var client = new MongoClient(settings);
             var database = client.GetDatabase(mongoDbSettings.DatabaseName);
 
             return database;
