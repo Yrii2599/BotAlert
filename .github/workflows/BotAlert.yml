@@ -1,8 +1,8 @@
-name: Сборка и развертывание приложения .NET Core в веб-приложение BotAlert
+name: Deploy to Azure
 on:
   push:
     branches:
-    - feature-deployment
+    - develop
 env:
   AZURE_WEBAPP_NAME: BotAlert
   AZURE_WEBAPP_PACKAGE_PATH: BotAlert\published
