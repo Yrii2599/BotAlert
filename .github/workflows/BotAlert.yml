@@ -1,49 +1,49 @@
-name: Deploy to Azure
-on:
-  push:
-    branches:
-    - develop
-env:
-  AZURE_WEBAPP_NAME: BotAlert
-  AZURE_WEBAPP_PACKAGE_PATH: BotAlert\published
-  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.BOTALERT_FFFF }}
-  CONFIGURATION: Release
-  DOTNET_CORE_VERSION: 5.0.x
-  WORKING_DIRECTORY: BotAlert
-  TelegramSettings.BotApiKey: ${{ secrets.TELEGRAM_API_KEY }}
-  MongoDBSettings.ConnectionString: ${{ secrets.MONGODB_CONNECTIONSTRING }}
-  MongoDBSettings.DatabaseName: ${{ secrets.MONGODB_DATABASE_NAME }}
-
-
-jobs:
-  build:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
-    - name: App Settings Variable Substitution
-      uses: microsoft/variable-substitution@v1
-      with:
-        files: '${{env.WORKING_DIRECTORY}}/appsettings.json'    
-    - name: Build
-      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore
-    - name: Test
-      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build
-    - name: Publish
-      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
-    - name: Deploy to Azure WebApp
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ env.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-    - name: Publish Artifacts
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: webapp
+name: Deploy to Azure 
+on: 
+  push: 
+    branches: 
+    - develop 
+env: 
+  AZURE_WEBAPP_NAME: BotAlert 
+  AZURE_WEBAPP_PACKAGE_PATH: BotAlert\published 
+  AZURE_WEBAPP_PUBLISH_PROFILE: ${{ secrets.BOTALERT_FFFF }} 
+  CONFIGURATION: Release 
+  DOTNET_CORE_VERSION: 5.0.x 
+  WORKING_DIRECTORY: BotAlert 
+  TelegramSettings.BotApiKey: ${{ secrets.TELEGRAM_API_KEY }} 
+  MongoDBSettings.ConnectionString: ${{ secrets.MONGODB_CONNECTIONSTRING }} 
+  MongoDBSettings.DatabaseName: ${{ secrets.MONGODB_DATABASE_NAME }} 
+ 
+ 
+jobs: 
+  build: 
+    runs-on: windows-latest 
+    steps: 
+    - uses: actions/checkout@v2 
+    - name: Setup .NET Core 
+      uses: actions/setup-dotnet@v1 
+      with: 
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }} 
+    - name: Restore 
+      run: dotnet restore "${{ env.WORKING_DIRECTORY }}" 
+    - name: App Settings Variable Substitution 
+      uses: microsoft/variable-substitution@v1 
+      with: 
+        files: '${{env.WORKING_DIRECTORY}}/appsettings.json'     
+    - name: Build 
+      run: dotnet build "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-restore 
+    - name: Test 
+      run: dotnet test "${{ env.WORKING_DIRECTORY }}" --no-build 
+    - name: Publish 
+      run: dotnet publish "${{ env.WORKING_DIRECTORY }}" --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}" 
+    - name: Deploy to Azure WebApp 
+      uses: azure/webapps-deploy@v2 
+      with: 
+        app-name: ${{ env.AZURE_WEBAPP_NAME }} 
+        publish-profile: ${{ env.AZURE_WEBAPP_PUBLISH_PROFILE }} 
+        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }} 
+    - name: Publish Artifacts 
+      uses: actions/upload-artifact@v1.0.0 
+      with: 
+        name: webapp 
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
