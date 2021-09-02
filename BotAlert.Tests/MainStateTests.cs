@@ -34,7 +34,7 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_GreetsUserCorrectly()
         {
-            var expected = ContextState.MainState;
+            var expected = ContextState.InputTimeZoneState;
             _messageStub.Text = "/start";
 
             var actual = _mainState.BotOnMessageReceived(_botClientMock, _messageStub).Result;

@@ -31,7 +31,6 @@ namespace BotAlert.States
                 return await PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
             }
 
-
             var chat = _stateProvider.GetChatState(message.Chat.Id);
             var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
@@ -44,20 +43,21 @@ namespace BotAlert.States
                 return ContextState.MainState;
             }
 
-            if (warnDate < DateTime.Now)
+            if (warnDate < DateTime.UtcNow.AddHours(chat.TimeOffSet))
             {
                 return await PrintMessage(botClient, message.Chat.Id, "Оповещение уже произошло");
             }
 
-            if (eventObj.Date < DateTime.Now)
+            if (eventObj.Date < DateTime.UtcNow.AddHours(chat.TimeOffSet))
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id, "Ваше событие уже прошло, введите новое значение");
+
                 return ContextState.InputDateState;
             }
 
-            if (warnDate > eventObj.Date.ToLocalTime())
+            if (warnDate > eventObj.Date)
             {
-                return await PrintMessage(botClient, message.Chat.Id, "Оповещение не может прийти после события");
+                 return await PrintMessage(botClient, message.Chat.Id, "Оповещение не может прийти после события");
             }
 
             eventObj.WarnDate = warnDate.TrimSecondsAndMilliseconds();

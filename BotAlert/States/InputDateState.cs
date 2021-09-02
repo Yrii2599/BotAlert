@@ -31,12 +31,13 @@ namespace BotAlert.States
                 return await PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
             }
 
-            if (date < DateTime.Now) 
+            var chat = _stateProvider.GetChatState(message.Chat.Id);
+
+            if (date < DateTime.UtcNow.AddHours(chat.TimeOffSet)) 
             { 
                 return await PrintMessage(botClient, message.Chat.Id, "Событие уже прошло");
             }
 
-            var chat = _stateProvider.GetChatState(message.Chat.Id);
             var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
             if (eventObj == null)

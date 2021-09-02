@@ -13,6 +13,7 @@
         GetAllNotificationsState,
         GetNotificationDetailsState,
         InputDeleteKeyboardState,
-        EditState
+        EditState,
+        InputTimeZoneState
     }
 }

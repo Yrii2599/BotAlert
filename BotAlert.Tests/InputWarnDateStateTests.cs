@@ -111,9 +111,7 @@ namespace BotAlert.Tests
             _messageStub.Text = "30.12.9999";
             var expected = ContextState.EditState;
 
-
             var actual = _inputWarnDateState.BotOnMessageReceived(_botClientMock, _messageStub).Result;
-
 
             A.CallTo(() => _eventProviderMock.UpdateEvent(A<Event>.That.Matches(e => e.ChatId == _messageStub.Chat.Id)))
                                              .MustHaveHappenedOnceExactly();

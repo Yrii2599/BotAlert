@@ -18,11 +18,14 @@ namespace BotAlert.States
 
             return message.Text switch
             {
-                "/start" => await PrintMessage(botClient, message.Chat.Id, $"Рады вас приветствовать, {message.Chat.FirstName}!"),
+                "/start" => await PrintMessage(botClient, 
+                                               message.Chat.Id, $"Рады вас приветствовать, {message.Chat.FirstName}!", 
+                                               ContextState.InputTimeZoneState),
                 "/create" => ContextState.InputTitleState,
                 "/get_notifications" => ContextState.GetAllNotificationsState,
+                "/set_time_zone" => ContextState.InputTimeZoneState,
 
-                _ => await PrintMessage(botClient, message.Chat.Id, "Выберите пожалуйста одну из команд!")
+                _ => await PrintMessage(botClient, message.Chat.Id, "Выберите пожалуйста одну из команд!", ContextState.MainState)
             };
         }
 
@@ -36,11 +39,11 @@ namespace BotAlert.States
                                                    $"/get_notifications - Получить список событий");
         }
 
-        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
+        private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message, ContextState returnState)
         {
             await botClient.SendTextMessageAsync(chatId, message);
 
-            return ContextState.MainState;
+            return returnState;
         }
     }
 }

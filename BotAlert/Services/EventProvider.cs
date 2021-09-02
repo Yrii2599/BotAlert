@@ -39,7 +39,9 @@ namespace BotAlert.Services
 
         public List<Event> GetAllNotificationsToBeSentNow()
         {
-            return _eventsCollection.Find<Event>(x => x.WarnDate == DateTime.Now.TrimSecondsAndMilliseconds())
+            return _eventsCollection.Find(x => x.WarnDate == DateTime.UtcNow
+                                        .AddHours(_stateProvider.GetChatState(x.ChatId).TimeOffSet)
+                                        .TrimSecondsAndMilliseconds())
                                     .ToList();
         }
 

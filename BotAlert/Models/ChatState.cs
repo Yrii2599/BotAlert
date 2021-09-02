@@ -17,9 +17,12 @@ namespace BotAlert.Models
 
         [Required]
         public int NotificationsPage { get; set; }
-
+        
         [Required]
         public Guid ActiveNotificationId { get; set; }
+
+        [Required]
+        public int TimeOffSet { get; set; }
 
         public ChatState(long chatId, ContextState state = ContextState.MainState)
         {
@@ -27,6 +30,7 @@ namespace BotAlert.Models
             State = state;
             NotificationsPage = 0;
             ActiveNotificationId = Guid.Empty;
+            TimeOffSet = 0;
         }
     }
 }

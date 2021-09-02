@@ -85,6 +85,7 @@ namespace BotAlert
                 { ContextState.GetNotificationDetailsState, () => _container.GetInstance<GetNotificationDetailsState>() },
                 { ContextState.InputDeleteKeyboardState, () => _container.GetInstance<InputDeleteKeyboardState>() },
                 { ContextState.EditState, () => _container.GetInstance<EditState>() },
+                { ContextState.InputTimeZoneState, () => _container.GetInstance<InputTimeZoneState>() },
             });
 
             //Register states
@@ -100,6 +101,7 @@ namespace BotAlert
             _container.Register<GetNotificationDetailsState>();
             _container.Register<InputDeleteKeyboardState>();
             _container.Register<EditState>();
+            _container.Register<InputTimeZoneState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>(Lifestyle.Singleton);
