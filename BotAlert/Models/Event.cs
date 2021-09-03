@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using BotAlert.Helpers;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace BotAlert.Models
@@ -24,18 +25,22 @@ namespace BotAlert.Models
 
         public string Description { get; set; }
 
+        public int TimeOffSet { get; set; }
+
         public Event(long chatId, string title)
         {
             ChatId = chatId;
             Title = title;
             Status = EventStatus.InProgress;
+            TimeOffSet = 0;
         }
 
         public override string ToString()
         {
-            return $"\tTitle: {Title}\n" +
-                $"Date and time: {Date.ToLocalTime().ToString("dd.MM.yyyy HH:mm")}\n" +
-                $"Date and time of notification: {WarnDate.ToLocalTime().ToString("dd.MM.yyyy HH:mm")}\n" +
+            return $"\t Название: {Title}\n" +
+                $"Дата события: {Date.AddHours(TimeOffSet).ToString("dd.MM.yyyy HH:mm")}\n" +
+                $"Дата оповещения: {WarnDate.AddHours(TimeOffSet).ToString("dd.MM.yyyy HH:mm")}\n" +
+                TimeZoneHelper.PrintTimeZone(TimeOffSet) +
                 $"{Description}\n";
         }
     }

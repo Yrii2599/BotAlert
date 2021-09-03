@@ -51,7 +51,7 @@ namespace BotAlert.States
                 chat.ActiveNotificationId = _eventProvider.GetDraftEventByChatId(message.Chat.Id).Id;
                 _stateProvider.SaveChatState(chat);
 
-                return ContextState.InputDateState;
+                return ContextState.InputEventTimeZoneKeyboardState;
             }
         }
 

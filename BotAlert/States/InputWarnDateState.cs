@@ -43,24 +43,26 @@ namespace BotAlert.States
                 return ContextState.MainState;
             }
 
-            if (warnDate < DateTime.UtcNow.AddHours(chat.TimeOffSet))
+            if (warnDate < DateTime.UtcNow.AddHours(eventObj.TimeOffSet))
             {
                 return await PrintMessage(botClient, message.Chat.Id, "Оповещение уже произошло");
             }
 
-            if (eventObj.Date < DateTime.UtcNow.AddHours(chat.TimeOffSet))
+            if (eventObj.Date < DateTime.UtcNow)
+
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id, "Ваше событие уже прошло, введите новое значение");
 
                 return ContextState.InputDateState;
             }
 
-            if (warnDate > eventObj.Date)
+            if (warnDate > eventObj.Date.AddHours(eventObj.TimeOffSet))
+
             {
                  return await PrintMessage(botClient, message.Chat.Id, "Оповещение не может прийти после события");
             }
 
-            eventObj.WarnDate = warnDate.TrimSecondsAndMilliseconds();
+            eventObj.WarnDate = warnDate.AddHours(-eventObj.TimeOffSet).TrimSecondsAndMilliseconds();
 
             _eventProvider.UpdateEvent(eventObj);
 

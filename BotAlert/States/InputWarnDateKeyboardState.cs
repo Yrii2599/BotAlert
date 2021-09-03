@@ -65,14 +65,17 @@ namespace BotAlert.States
                 return ContextState.MainState;
             }
 
-            if (eventObj.Date < DateTime.UtcNow.AddHours(chat.TimeOffSet))
+
+            if (eventObj.Date < DateTime.UtcNow)
+
             {
                 await botClient.SendTextMessageAsync(chatId, "Ваше событие уже прошло, введите новое значение");
 
                 return ContextState.InputDateState;
             }
 
-            if(eventObj.Date.AddMinutes(-minutes) < DateTime.UtcNow.AddHours(chat.TimeOffSet))
+            if(eventObj.Date.AddMinutes(-minutes) < DateTime.UtcNow)
+
             {
                 return await PrintMessage(botClient, chatId, "Оповещение уже произошло");
             }

@@ -1,10 +1,17 @@
+using System;
+using System.Linq;
+using System.Net.Mime;
 using System.Security.Authentication;
+using System.Text.Json;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using BotAlert.Handlers;
 using BotAlert.Models;
 using BotAlert.States;
@@ -34,6 +41,9 @@ namespace BotAlert
         {
             services.AddControllers();
 
+            services.AddHealthChecks()
+                    .AddMongoDb(Configuration["MongoDBSettings:ConnectionString"]);
+
             services.AddSimpleInjector(_container, options =>
             {
                 options.AddHostedService<NotificationSenderService>();
@@ -58,6 +68,22 @@ namespace BotAlert
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                endpoints.MapHealthChecks("/Health", new HealthCheckOptions
+                {
+                    ResponseWriter = async (context, report) =>
+                    {
+                        var result = JsonSerializer.Serialize(
+                            new
+                            {
+                                status = report.Status.ToString(),
+                                monitors = report.Entries.Select(
+                                    e => new { key = e.Key, value = Enum.GetName(typeof(HealthStatus), e.Value.Status) })
+                            });
+                        context.Response.ContentType = MediaTypeNames.Application.Json;
+                        await context.Response.WriteAsync(result);
+                    }
+                });
             });
 
             _container.Verify();
@@ -86,6 +112,8 @@ namespace BotAlert
                 { ContextState.InputDeleteKeyboardState, () => _container.GetInstance<InputDeleteKeyboardState>() },
                 { ContextState.EditState, () => _container.GetInstance<EditState>() },
                 { ContextState.InputTimeZoneState, () => _container.GetInstance<InputTimeZoneState>() },
+                { ContextState.InputEventTimeZoneKeyboardState, () => _container.GetInstance<InputEventTimeZoneKeyboardState>() },
+
             });
 
             //Register states
@@ -102,6 +130,8 @@ namespace BotAlert
             _container.Register<InputDeleteKeyboardState>();
             _container.Register<EditState>();
             _container.Register<InputTimeZoneState>();
+            _container.Register<InputEventTimeZoneKeyboardState>();
+
 
             //Register services
             _container.Register<IStateProvider, StateProvider>(Lifestyle.Singleton);

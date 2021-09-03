@@ -40,7 +40,7 @@ namespace BotAlert.Tests
         [Fact]
         public void BotOnMessageReceived_WithTextAndNoActiveNotification_ShouldCreateEvent()
         {
-            var expected = ContextState.InputDateState;
+            var expected = ContextState.InputEventTimeZoneKeyboardState;
             _messageStub.Text = "";
             A.CallTo(() => _stateProviderMock.GetChatState(_messageStub.Chat.Id)).Returns(_chatStateStub);
 

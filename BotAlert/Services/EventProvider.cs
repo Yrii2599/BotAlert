@@ -40,7 +40,6 @@ namespace BotAlert.Services
         public List<Event> GetAllNotificationsToBeSentNow()
         {
             return _eventsCollection.Find(x => x.WarnDate == DateTime.UtcNow
-                                        .AddHours(_stateProvider.GetChatState(x.ChatId).TimeOffSet)
                                         .TrimSecondsAndMilliseconds())
                                     .ToList();
         }
@@ -70,7 +69,8 @@ namespace BotAlert.Services
                                                .Set(x => x.Title, eventObj.Title)
                                                .Set(x => x.Date, eventObj.Date)
                                                .Set(x => x.WarnDate, eventObj.WarnDate)
-                                               .Set(x => x.Description, eventObj.Description);
+                                               .Set(x => x.Description, eventObj.Description)
+                                               .Set(x => x.TimeOffSet, eventObj.TimeOffSet);
 
             _eventsCollection.UpdateOne(GetIdFilter(eventObj.Id), update);
         }
@@ -87,13 +87,10 @@ namespace BotAlert.Services
 
         private List<Event> GetAllUserEvents(long chatId)
         {
-            var events = _eventsCollection
-                .Find(x => x.ChatId == chatId)
-                .ToList()
-                .OrderBy(x => x.Date)
-                .ToList();
-
-            return events;
+            return _eventsCollection.Find(x => x.ChatId == chatId)
+                                    .ToList()
+                                    .OrderBy(x => x.Date)
+                                    .ToList();
         }
 
         private FilterDefinition<Event> GetIdFilter(Guid id)

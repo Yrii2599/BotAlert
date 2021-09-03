@@ -122,8 +122,6 @@ namespace BotAlert.Tests
         {
             var chatStateMock = A.Fake<ChatState>();
             chatStateMock.ActiveNotificationId = Guid.NewGuid();
-            var evenMock = A.Fake<Event>();
-            evenMock.Status = EventStatus.Created;
             A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(chatStateMock);
             A.CallTo(() => _eventProviderMock.GetEventById(chatStateMock.ActiveNotificationId)).Returns(null);
             _messageMock.Text = "31.12.9999";

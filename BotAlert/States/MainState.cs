@@ -36,7 +36,8 @@ namespace BotAlert.States
         {
             botClient.SendTextMessageAsync(chatId, $"Выберите одну из команд:\n" +
                                                    $"/create - Создать новое событие\n" +
-                                                   $"/get_notifications - Получить список событий");
+                                                   $"/get_notifications - Получить список событий\n" +
+                                                   $"/set_time_zone - Установить часовой пояс");
         }
 
         private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message, ContextState returnState)

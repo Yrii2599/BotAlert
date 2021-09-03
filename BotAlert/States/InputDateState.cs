@@ -32,24 +32,23 @@ namespace BotAlert.States
             }
 
             var chat = _stateProvider.GetChatState(message.Chat.Id);
-
-            if (date < DateTime.UtcNow.AddHours(chat.TimeOffSet)) 
-            { 
-                return await PrintMessage(botClient, message.Chat.Id, "Событие уже прошло");
-            }
-
             var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
             if (eventObj == null)
             {
                 chat.ActiveNotificationId = Guid.Empty;
                 _stateProvider.SaveChatState(chat);
-                await botClient.SendTextMessageAsync(chat.ChatId, "Данное событие уже произошло");
+                await botClient.SendTextMessageAsync(chat.ChatId, "Событие уже произошло");
 
                 return ContextState.MainState;
             }
 
-            eventObj.Date = date.TrimSecondsAndMilliseconds();
+            if (date < DateTime.UtcNow.AddHours(eventObj.TimeOffSet)) 
+            { 
+                return await PrintMessage(botClient, message.Chat.Id, "Событие уже произошло");
+            }
+
+            eventObj.Date = date.AddHours(-eventObj.TimeOffSet).TrimSecondsAndMilliseconds();
 
             _eventProvider.UpdateEvent(eventObj);
 
@@ -65,7 +64,7 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Введите дату и время события в\n(DD.MM.YYYY HH:MM):");
+            botClient.SendTextMessageAsync(chatId, $"Введите дату и время события\n(DD.MM.YYYY HH:MM):");
         }
 
         private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)

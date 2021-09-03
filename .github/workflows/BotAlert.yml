@@ -13,6 +13,8 @@ env:
   TelegramSettings.BotApiKey: ${{ secrets.TELEGRAM_API_KEY }} 
   MongoDBSettings.ConnectionString: ${{ secrets.MONGODB_CONNECTIONSTRING }} 
   MongoDBSettings.DatabaseName: ${{ secrets.MONGODB_DATABASE_NAME }} 
+  LoggerSettings.ConnectionString: ${{ secrets.BLOB_CONTAINER_CONN_STRING }}
+
  
  
 jobs: 
