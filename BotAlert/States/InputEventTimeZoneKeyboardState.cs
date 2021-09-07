@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using BotAlert.Helpers;
 using BotAlert.Interfaces;
 using BotAlert.Models;

@@ -9,5 +9,9 @@
         public static string ConfigKey { get; } = "TelegramSettings";
 
         public string BotApiKey { get; set; }
+
+        public string HostAddress { get; set; }
+
+        public bool UseWebHook { get; set; }
     }
 }

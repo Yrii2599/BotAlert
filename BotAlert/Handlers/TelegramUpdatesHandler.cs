@@ -23,7 +23,7 @@ namespace BotAlert.Handlers
 
         public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
-            if (update.Message == null && update.CallbackQuery == null)
+            if (update == null || (update.Message == null && update.CallbackQuery == null))
             {
                 return;
             }
@@ -39,7 +39,7 @@ namespace BotAlert.Handlers
 
                 _ => UnknownUpdateHandlerAsync(botClient, update)
             };
-
+            
             try
             {
                 var nextState = await handler;
