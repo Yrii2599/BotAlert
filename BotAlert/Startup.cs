@@ -4,6 +4,7 @@ using System.Net.Mime;
 using System.Security.Authentication;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,6 +22,7 @@ using BotAlert.Factories;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types.Enums;
 using MongoDB.Driver;
 using SimpleInjector;
 
@@ -29,6 +31,8 @@ namespace BotAlert
     public class Startup
     {
         private readonly Container _container = new Container();
+        private TelegramSettings _telegramSettings;
+        private DBSettings _dbSettings;
 
         public Startup(IConfiguration configuration)
         {
@@ -39,14 +43,20 @@ namespace BotAlert
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            _telegramSettings = Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>();
+            _dbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
 
-            services.AddHealthChecks()
-                    .AddMongoDb(Configuration["MongoDBSettings:ConnectionString"]);
+            services.AddControllers().AddNewtonsoftJson();
+            services.AddHttpClient("tgwebhook")
+                .AddTypedClient<ITelegramBotClient>(httpClient
+                                                        => new TelegramBotClient(_telegramSettings.BotApiKey, httpClient));
+
+            services.AddHealthChecks().AddMongoDb(_dbSettings.ConnectionString);
 
             services.AddSimpleInjector(_container, options =>
             {
                 options.AddHostedService<NotificationSenderService>();
+                options.AddAspNetCore().AddControllerActivation();
             });
 
             InitializeContainer();
@@ -84,18 +94,25 @@ namespace BotAlert
                         await context.Response.WriteAsync(result);
                     }
                 });
+                endpoints.MapControllerRoute(name: "tgwebhook",
+                                             pattern: $"bot/{_telegramSettings.BotApiKey}",
+                                             new { controller = "Webhook", action = "Post" });
             });
 
             _container.Verify();
 
-            InitializeTelegramListener();
+            if (_telegramSettings.UseWebHook)
+            {
+                InitializeWebHook();
+            }
+            else
+            {
+                InitializePolling();
+            }
         }
 
         private void InitializeContainer()
         {
-            var mongoDbSettings = Configuration.GetSection(DBSettings.ConfigKey).Get<DBSettings>();
-            var telegramSettings = Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>();
-
             //Register factories
             _container.RegisterInstance<IStateFactory>(new StateFactory
             {
@@ -113,7 +130,6 @@ namespace BotAlert
                 { ContextState.EditState, () => _container.GetInstance<EditState>() },
                 { ContextState.InputTimeZoneState, () => _container.GetInstance<InputTimeZoneState>() },
                 { ContextState.InputEventTimeZoneKeyboardState, () => _container.GetInstance<InputEventTimeZoneKeyboardState>() },
-
             });
 
             //Register states
@@ -132,7 +148,6 @@ namespace BotAlert
             _container.Register<InputTimeZoneState>();
             _container.Register<InputEventTimeZoneKeyboardState>();
 
-
             //Register services
             _container.Register<IStateProvider, StateProvider>(Lifestyle.Singleton);
             _container.Register<IEventProvider, EventProvider>(Lifestyle.Singleton);
@@ -141,15 +156,15 @@ namespace BotAlert
             _container.Register<ITelegramUpdatesHandler, TelegramUpdatesHandler>();
 
             //Register mongo
-            var mongoDatabase = InitializeMongoDatabase(mongoDbSettings);
+            var mongoDatabase = InitializeMongoDatabase(_dbSettings);
             _container.RegisterInstance(mongoDatabase);
 
             //Register config settings
-            _container.RegisterInstance(Configuration.GetSection(TelegramSettings.ConfigKey).Get<TelegramSettings>());
-            _container.RegisterInstance(mongoDbSettings);
+            _container.RegisterInstance(_telegramSettings);
+            _container.RegisterInstance(_dbSettings);
 
             //Register ITelegramBotClient
-            _container.RegisterInstance(CreateClient(telegramSettings.BotApiKey));
+            _container.RegisterInstance(CreateClient(_telegramSettings.BotApiKey));
         }
 
         private IMongoDatabase InitializeMongoDatabase(DBSettings mongoDbSettings)
@@ -167,13 +182,25 @@ namespace BotAlert
 
         private ITelegramBotClient CreateClient(string apiKey) => new TelegramBotClient(apiKey);
 
-        private void InitializeTelegramListener()
+        private void InitializePolling()
         {
             var handler = _container.GetInstance<ITelegramUpdatesHandler>();
 
             // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
             var source = new CancellationTokenSource();
-            _container.GetInstance<ITelegramBotClient>().StartReceiving(new DefaultUpdateHandler(handler.HandleUpdateAsync, handler.HandleErrorAsync), source.Token);
+            var botClient = _container.GetInstance<ITelegramBotClient>();
+            Task.FromResult(botClient.DeleteWebhookAsync(cancellationToken: source.Token));
+            botClient.StartReceiving(new DefaultUpdateHandler(handler.HandleUpdateAsync, handler.HandleErrorAsync), source.Token);
+        }
+
+        private void InitializeWebHook()
+        {
+            var botClient = _container.GetInstance<ITelegramBotClient>();
+            botClient.DeleteWebhookAsync();
+            var webhookAddress = @$"{_telegramSettings.HostAddress}/webhook";
+            botClient.SetWebhookAsync(
+                url: webhookAddress,
+                allowedUpdates: Array.Empty<UpdateType>()).GetAwaiter().GetResult();
         }
     }
 }

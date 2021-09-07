@@ -5,7 +5,6 @@ using BotAlert.Models;
 using BotAlert.Helpers;
 using BotAlert.Settings;
 using BotAlert.Interfaces;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace BotAlert.Services
@@ -54,7 +53,6 @@ namespace BotAlert.Services
             var totalUserPages = Math.Ceiling((double)GetAllUserEvents(chatId).Count / TelegramSettings.EventsPerPage);
             var userPage = _stateProvider.GetChatState(chatId).NotificationsPage;
 
-            // Тк. в БД подсчет начинается с 0
             return userPage < totalUserPages - 1;
         }
 
