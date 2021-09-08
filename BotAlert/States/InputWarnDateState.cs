@@ -14,44 +14,49 @@ namespace BotAlert.States
     {
         private readonly IEventProvider _eventProvider;
         private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public InputWarnDateState(IEventProvider eventProvider, IStateProvider stateProvider)
+        public InputWarnDateState(IEventProvider eventProvider, IStateProvider stateProvider, ILocalizerFactory localizerFactory)
         {
             _eventProvider = eventProvider;
             _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
+            var chat = _stateProvider.GetChatState(message.Chat.Id);
+
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
+
             if (message.Text == null || !DateTime.TryParse(message.Text,
                                                           new CultureInfo(TelegramSettings.DateTimeFormat),
                                                           DateTimeStyles.None,
                                                           out var warnDate))
             {
-                return await PrintMessage(botClient, message.Chat.Id, "Неверный формат даты и времени");
+                return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidDateInput));
             }
 
-            var chat = _stateProvider.GetChatState(message.Chat.Id);
             var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
             if (eventObj == null)
             {
                 chat.ActiveNotificationId = Guid.Empty;
                 _stateProvider.SaveChatState(chat);
-                await botClient.SendTextMessageAsync(chat.ChatId, "Данное событие уже произошло");
+                await botClient.SendTextMessageAsync(chat.ChatId, localizer.GetMessage(MessageKeyConstants.ExpiredDate));
 
                 return ContextState.MainState;
             }
 
             if (warnDate < DateTime.UtcNow.AddHours(eventObj.TimeOffSet))
             {
-                return await PrintMessage(botClient, message.Chat.Id, "Оповещение уже произошло");
+                return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.ExpiredWarnDate));
             }
 
             if (eventObj.Date < DateTime.UtcNow)
 
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id, "Ваше событие уже прошло, введите новое значение");
+                await botClient.SendTextMessageAsync(message.Chat.Id, localizer.GetMessage(MessageKeyConstants.ExpiredDate));
 
                 return ContextState.InputDateState;
             }
@@ -59,7 +64,7 @@ namespace BotAlert.States
             if (warnDate > eventObj.Date.AddHours(eventObj.TimeOffSet))
 
             {
-                 return await PrintMessage(botClient, message.Chat.Id, "Оповещение не может прийти после события");
+                 return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidWarnDateInput));
             }
 
             eventObj.WarnDate = warnDate.AddHours(-eventObj.TimeOffSet).TrimSecondsAndMilliseconds();
@@ -85,7 +90,9 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Введите дату и время для оповещения\n(DD.MM.YYYY HH:MM):");
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(chatId).Language);
+
+            botClient.SendTextMessageAsync(chatId, localizer.GetMessage(MessageKeyConstants.EnterWarnDate));
         }
 
         private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)

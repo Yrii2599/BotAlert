@@ -1,35 +1,33 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Collections.Generic;
-using BotAlert.States;
-using BotAlert.Models;
-using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using BotAlert.Interfaces;
+using BotAlert.Models;
+using BotAlert.States;
 using FakeItEasy;
 using Xunit;
 
 namespace BotAlert.Tests
 {
-    public class GetNotificationDetailsStateTests
+    public class InputLanguageKeyboardStateTests
     {
         private readonly ITelegramBotClient _botClientMock;
-        private readonly IEventProvider _eventProviderMock;
         private readonly IStateProvider _stateProviderMock;
         private readonly ILocalizerFactory _localizerFactory;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
+        private readonly ChatState _chatStub;
 
         private readonly ContextState _currentState;
 
-        private readonly GetNotificationDetailsState _getNotificationDetailsState;
+        private readonly InputLanguageKeyboardState _inputLanguageKeyboardState;
 
-        public GetNotificationDetailsStateTests()
+        public InputLanguageKeyboardStateTests()
         {
             _botClientMock = A.Fake<ITelegramBotClient>();
-            _eventProviderMock = A.Fake<IEventProvider>();
             _stateProviderMock = A.Fake<IStateProvider>();
             _localizerFactory = A.Fake<ILocalizerFactory>();
             _messageMock = A.Fake<Message>();
@@ -37,9 +35,11 @@ namespace BotAlert.Tests
             _callbackQueryMock = A.Fake<CallbackQuery>();
             _callbackQueryMock.Message = _messageMock;
 
-            _currentState = ContextState.GetNotificationDetailsState;
+            _currentState = ContextState.InputLanguageKeyboardState;
 
-            _getNotificationDetailsState = new GetNotificationDetailsState(_eventProviderMock, _stateProviderMock, _localizerFactory);
+            _chatStub = new ChatState(_messageMock.Chat.Id, _currentState);
+
+            _inputLanguageKeyboardState = new InputLanguageKeyboardState(_stateProviderMock, _localizerFactory);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace BotAlert.Tests
         {
             var expected = _currentState;
 
-            var actual = _getNotificationDetailsState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
+            var actual = _inputLanguageKeyboardState.BotOnMessageReceived(_botClientMock, _messageMock).Result;
 
             A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id,
                                                                A<string>.Ignored,
@@ -59,75 +59,62 @@ namespace BotAlert.Tests
                                                                A<bool>.Ignored,
                                                                A<IReplyMarkup>.Ignored,
                                                                A<CancellationToken>.Ignored))
-                                                              .MustNotHaveHappened();
+                                                              .MustHaveHappenedOnceExactly();
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_DataBack_GetAllNotificationsState()
+        public void BotOnCallBackQueryReceived_DataEnglish_ChangesLanguageAndReturnsMainState()
         {
-            _callbackQueryMock.Data = "Back";
-            var expected = ContextState.GetAllNotificationsState;
+            _callbackQueryMock.Data = "English";
+            A.CallTo(() => _stateProviderMock.GetChatState(_callbackQueryMock.Message.Chat.Id)).Returns(_chatStub);
+            var expected = ContextState.MainState;
 
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _inputLanguageKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStub)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(_callbackQueryMock.Id,
                                                                    A<string>.Ignored,
                                                                    A<bool>.Ignored,
                                                                    A<string>.Ignored,
                                                                    A<int>.Ignored,
                                                                    A<CancellationToken>.Ignored))
                                                                   .MustHaveHappenedOnceExactly();
-            A.CallTo(() => _stateProviderMock.SaveChatState(A<ChatState>.That.Matches(x => x.ChatId == _messageMock.Chat.Id)))
-                                             .MustHaveHappenedOnceExactly();
+            Assert.Equal(LanguageType.English, _chatStub.Language);
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void BotOnCallBackQueryReceived_DataEdit_ReturnsEditState()
+        public void BotOnCallBackQueryReceived_DataRussian_ChangesLanguageAndReturnsMainState()
         {
-            _callbackQueryMock.Data = "Edit";
-            var expected = ContextState.EditState;
+            _callbackQueryMock.Data = "Russian";
+            A.CallTo(() => _stateProviderMock.GetChatState(_callbackQueryMock.Message.Chat.Id)).Returns(_chatStub);
+            var expected = ContextState.MainState;
 
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _inputLanguageKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStub)).MustHaveHappenedOnceExactly();
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(_callbackQueryMock.Id,
                                                                    A<string>.Ignored,
                                                                    A<bool>.Ignored,
                                                                    A<string>.Ignored,
                                                                    A<int>.Ignored,
                                                                    A<CancellationToken>.Ignored))
                                                                   .MustHaveHappenedOnceExactly();
+            Assert.Equal(LanguageType.Russian, _chatStub.Language);
             Assert.Equal(expected, actual);
         }
-
+        
         [Fact]
-        public void BotOnCallBackQueryReceived_DataDelete_ReturnsDeleteKeyboardState()
+        public void BotOnCallBackQueryReceived_DataNull_ReturnsCurrentState()
         {
-            _callbackQueryMock.Data = "Delete";
-            var expected = ContextState.InputDeleteKeyboardState;
-
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
-
-
-            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
-                                                                   A<string>.Ignored,
-                                                                   A<bool>.Ignored,
-                                                                   A<string>.Ignored,
-                                                                   A<int>.Ignored,
-                                                                   A<CancellationToken>.Ignored))
-                                                                  .MustHaveHappenedOnceExactly();
-            Assert.Equal(expected, actual);
-        }
-
-        [Fact]
-        public void BotOnCallBackQueryReceived_DataDefault_ReturnsInputWarnDateState()
-        {
+            A.CallTo(() => _stateProviderMock.GetChatState(_callbackQueryMock.Message.Chat.Id)).Returns(_chatStub);
             var expected = _currentState;
 
-            var actual = _getNotificationDetailsState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
+            var actual = _inputLanguageKeyboardState.BotOnCallBackQueryReceived(_botClientMock, _callbackQueryMock).Result;
 
-            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(A<string>.Ignored,
+            A.CallTo(() => _stateProviderMock.SaveChatState(_chatStub)).MustNotHaveHappened();
+            A.CallTo(() => _botClientMock.AnswerCallbackQueryAsync(_callbackQueryMock.Id,
                                                                    A<string>.Ignored,
                                                                    A<bool>.Ignored,
                                                                    A<string>.Ignored,
@@ -140,9 +127,10 @@ namespace BotAlert.Tests
         [Fact]
         public void BotSendMessage_SendsTextMessage()
         {
-            _getNotificationDetailsState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
+            A.CallTo(() => _stateProviderMock.GetChatState(_messageMock.Chat.Id)).Returns(_chatStub);
 
-            A.CallTo(() => _eventProviderMock.GetEventById(A<Guid>.Ignored)).MustHaveHappenedOnceExactly();
+            _inputLanguageKeyboardState.BotSendMessage(_botClientMock, _messageMock.Chat.Id);
+
             A.CallTo(() => _botClientMock.SendTextMessageAsync(_messageMock.Chat.Id,
                                                                A<string>.Ignored,
                                                                A<ParseMode>.Ignored,

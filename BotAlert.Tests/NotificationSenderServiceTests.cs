@@ -18,6 +18,8 @@ namespace BotAlert.Tests
     {
         private readonly ITelegramBotClient _botClientMock;
         private readonly IEventProvider _eventProviderMock;
+        private readonly IStateProvider _stateProviderMock;
+        private readonly ILocalizerFactory _localizerFactory;
         private readonly CancellationToken _cancellationToken;
 
         private readonly IHostedService _notificationSender;
@@ -25,10 +27,12 @@ namespace BotAlert.Tests
         public NotificationSenderServiceTests()
         {
             _botClientMock = A.Fake<ITelegramBotClient>();
-            _eventProviderMock = A.Fake<IEventProvider>();
+            _eventProviderMock = A.Fake<IEventProvider>();;
+            _stateProviderMock = A.Fake<IStateProvider>();;
+            _localizerFactory = A.Fake<ILocalizerFactory>();
             _cancellationToken = new CancellationToken();
 
-            _notificationSender = new NotificationSenderService(_botClientMock, _eventProviderMock);
+            _notificationSender = new NotificationSenderService(_botClientMock, _eventProviderMock, _stateProviderMock, _localizerFactory);
         }
 
         [Fact]

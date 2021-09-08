@@ -4,7 +4,6 @@ using BotAlert.Helpers;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 using System;
 
 namespace BotAlert.States
@@ -13,16 +12,20 @@ namespace BotAlert.States
     {
         private readonly IEventProvider _eventProvider;
         private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public InputWarnDateKeyboardState(IEventProvider eventProvider, IStateProvider stateProvider)
+        public InputWarnDateKeyboardState(IEventProvider eventProvider, IStateProvider stateProvider, ILocalizerFactory localizerFactory)
         {
             _eventProvider = eventProvider;
             _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(message.Chat.Id).Language);
+
+            return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidChoiceInput));
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -39,14 +42,11 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            var options = new InlineKeyboardMarkup(new[] {
-                                                    new[] { InlineKeyboardButton.WithCallbackData("5 м.", "5"),
-                                                            InlineKeyboardButton.WithCallbackData("15 м.", "15") },
-                                                    new[] { InlineKeyboardButton.WithCallbackData("30 м.", "30"),
-                                                            InlineKeyboardButton.WithCallbackData("1 ч.", "60") },
-                                                    new[] { InlineKeyboardButton.WithCallbackData("Ввести свое значение", "own") } 
-                                                   });
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Когда вас уведомить?", options);
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(chatId).Language);
+
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, 
+                localizer.GetMessage(MessageKeyConstants.WhenToRemind), 
+                localizer.GetInlineKeyboardMarkUp(MessageKeyConstants.WarnDateMarkUp));
         }
 
         private async Task<ContextState> HandleWarnDateOptions(ITelegramBotClient botClient, long chatId, string warnInMinutes)
@@ -56,11 +56,13 @@ namespace BotAlert.States
             var chat = _stateProvider.GetChatState(chatId);
             var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
+
             if (eventObj == null)
             {
                 chat.ActiveNotificationId = Guid.Empty;
                 _stateProvider.SaveChatState(chat);
-                await botClient.SendTextMessageAsync(chat.ChatId, "Данное событие уже произошло");
+                await botClient.SendTextMessageAsync(chat.ChatId, localizer.GetMessage(MessageKeyConstants.ExpiredDate));
 
                 return ContextState.MainState;
             }
@@ -69,7 +71,7 @@ namespace BotAlert.States
             if (eventObj.Date < DateTime.UtcNow)
 
             {
-                await botClient.SendTextMessageAsync(chatId, "Ваше событие уже прошло, введите новое значение");
+                await botClient.SendTextMessageAsync(chatId, localizer.GetMessage(MessageKeyConstants.ExpiredDate));
 
                 return ContextState.InputDateState;
             }
@@ -77,7 +79,7 @@ namespace BotAlert.States
             if(eventObj.Date.AddMinutes(-minutes) < DateTime.UtcNow)
 
             {
-                return await PrintMessage(botClient, chatId, "Оповещение уже произошло");
+                return await PrintMessage(botClient, chatId, localizer.GetMessage(MessageKeyConstants.ExpiredWarnDate));
             }
 
             eventObj.WarnDate = eventObj.Date.AddMinutes(-minutes);

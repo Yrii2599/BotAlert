@@ -5,7 +5,6 @@ using BotAlert.Helpers;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotAlert.States
 {
@@ -13,28 +12,32 @@ namespace BotAlert.States
     {
         private readonly IEventProvider _eventProvider;
         private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public InputDeleteKeyboardState(IEventProvider eventProvider, IStateProvider stateProvider)
+        public InputDeleteKeyboardState(IEventProvider eventProvider, IStateProvider stateProvider, ILocalizerFactory localizerFactory)
         {
             _eventProvider = eventProvider;
             _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             if (message.Text != null)
             {
-                if (message.Text.ToLower() == "да")
+                if (message.Text.ToLower() == "да" || message.Text.ToLower() == "yes")
                 {
                     return await HandleAcceptInput(botClient, message.Chat.Id);
                 }
-                else if (message.Text.ToLower() == "нет")
+                else if (message.Text.ToLower() == "нет" || message.Text.ToLower() == "no")
                 {
                     return await HandleDeclineInput();
                 }
             }
 
-            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(message.Chat.Id).Language);
+
+            return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidChoiceInput));
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -50,13 +53,11 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            var options = new InlineKeyboardMarkup(new[]
-            {
-                InlineKeyboardButton.WithCallbackData("Да", "да"),
-                InlineKeyboardButton.WithCallbackData("Нет", "нет")
-            });
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(chatId).Language);
 
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, "Вы точно хотите удалить это событие?", options);
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, 
+                localizer.GetMessage(MessageKeyConstants.DeleteEventAssurance), 
+                localizer.GetInlineKeyboardMarkUp(MessageKeyConstants.YesOrNoMarkUp));
         }
 
         private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)
@@ -68,15 +69,17 @@ namespace BotAlert.States
 
         private Task<ContextState> HandleAcceptInput(ITelegramBotClient botClient, long chatId)
         {
-            var chatState = _stateProvider.GetChatState(chatId);
+            var chat = _stateProvider.GetChatState(chatId);
 
-            _eventProvider.DeleteEvent(chatState.ActiveNotificationId);
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
 
-            chatState.ActiveNotificationId = Guid.Empty;
+            _eventProvider.DeleteEvent(chat.ActiveNotificationId);
 
-            _stateProvider.SaveChatState(chatState);
+            chat.ActiveNotificationId = Guid.Empty;
 
-            botClient.SendTextMessageAsync(chatId, "Событие успешно удалено!");
+            _stateProvider.SaveChatState(chat);
+
+            botClient.SendTextMessageAsync(chatId, localizer.GetMessage(MessageKeyConstants.DeleteSuccess));
 
             return Task.FromResult(ContextState.GetAllNotificationsState);
         }

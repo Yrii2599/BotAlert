@@ -13,11 +13,11 @@ namespace BotAlert.Tests
 
         public StateFactoryTests()
         {
-            var mainStateStub = new MainState();
-            var inputTitleStateStub = new InputTitleState(null,null);
-            var inputDateStateStub =new InputDateState(null, null);
-            var inputWarnDateStateStub = new InputWarnDateState(null, null);
-            var inputDescriptionStateStub = new InputDescriptionState(null, null);
+            var mainStateStub = new MainState(null, null);
+            var inputTitleStateStub = new InputTitleState(null, null, null);
+            var inputDateStateStub =new InputDateState(null, null, null);
+            var inputWarnDateStateStub = new InputWarnDateState(null, null, null);
+            var inputDescriptionStateStub = new InputDescriptionState(null, null, null);
 
             _stateFactory = new StateFactory {
                 { ContextState.MainState, () => mainStateStub },

@@ -5,7 +5,6 @@ using BotAlert.Helpers;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotAlert.States
 {
@@ -13,11 +12,13 @@ namespace BotAlert.States
     {
         private readonly IEventProvider _eventProvider;
         private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public GetNotificationDetailsState(IEventProvider eventProvider, IStateProvider stateProvider)
+        public GetNotificationDetailsState(IEventProvider eventProvider, IStateProvider stateProvider, ILocalizerFactory localizerFactory)
         {
             _eventProvider = eventProvider;
             _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
         }
 
         public Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message) 
@@ -39,19 +40,14 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            var eventId = _stateProvider.GetChatState(chatId).ActiveNotificationId;
-            var eventObj = _eventProvider.GetEventById(eventId);
+            var chat = _stateProvider.GetChatState(chatId);
+            var eventObj = _eventProvider.GetEventById(chat.ActiveNotificationId);
 
-            var options = new InlineKeyboardMarkup(new[] 
-            { 
-                new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Изменить", "Edit") },
-                new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Удалить", "Delete") },
-                new InlineKeyboardButton[] { InlineKeyboardButton.WithCallbackData("Назад", "Back") } 
-            });
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
 
-            var message = eventObj?.ToString() ?? "Событие удалено";
+            var message = eventObj?.ToString(localizer) ?? localizer.GetMessage(MessageKeyConstants.ExpiredEventForDetails);
 
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, message, options);
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, message, localizer.GetInlineKeyboardMarkUp(MessageKeyConstants.DetailsMarkUp));
         }
 
         private ContextState MoveBack(long chatId)

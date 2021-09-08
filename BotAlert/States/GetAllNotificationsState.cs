@@ -15,11 +15,13 @@ namespace BotAlert.States
     {
         private readonly IEventProvider _eventProvider;
         private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public GetAllNotificationsState(IEventProvider eventProvider, IStateProvider stateProvider)
+        public GetAllNotificationsState(IEventProvider eventProvider, IStateProvider stateProvider, ILocalizerFactory localizerFactory)
         {
             _eventProvider = eventProvider;
             _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
         }
 
         public async Task<ContextState> BotOnCallBackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
@@ -72,7 +74,9 @@ namespace BotAlert.States
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            return await PrintMessage(botClient, message.Chat.Id, "Выберите один из вариантов");
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(message.Chat.Id).Language);
+
+            return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidChoiceInput));
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
@@ -82,11 +86,13 @@ namespace BotAlert.States
             var chat = _stateProvider.GetChatState(chatId);
             var events = _eventProvider.GetUserEventsOnPage(chatId);
 
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
+
             if(!events.Any())
             {
                 if (chat.NotificationsPage == 0)
                 {
-                    botClient.SendTextMessageAsync(chatId, "У вас нет предстоящих событий!");
+                    botClient.SendTextMessageAsync(chatId, localizer.GetMessage(MessageKeyConstants.NoEvents));
                     chat.State = ContextState.MainState;
                     _stateProvider.SaveChatState(chat);
 
@@ -118,9 +124,9 @@ namespace BotAlert.States
             }
 
             options.Add(prevNextBtns.ToArray());
-            options.Add(new[] { InlineKeyboardButton.WithCallbackData("Назад", "Back") });
+            options.Add(new[] { InlineKeyboardButton.WithCallbackData(localizer.GetMessage(MessageKeyConstants.Back), "Back") });
 
-            InteractionHelper.SendInlineKeyboard(botClient, chatId, "\nВыберите событие:", options.ToArray());
+            InteractionHelper.SendInlineKeyboard(botClient, chatId, localizer.GetMessage(MessageKeyConstants.ChooseEvent), options.ToArray());
         }
 
         private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)

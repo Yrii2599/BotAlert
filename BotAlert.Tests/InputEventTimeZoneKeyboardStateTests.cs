@@ -16,8 +16,9 @@ namespace BotAlert.Tests
     public class InputEventTimeZoneKeyboardStateTests
     {
         private readonly ITelegramBotClient _botClientMock;
-        private readonly IStateProvider _stateProviderMock;
         private readonly IEventProvider _eventProviderMock;
+        private readonly IStateProvider _stateProviderMock;
+        private readonly ILocalizerFactory _localizerFactory;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
         private readonly ChatState _chatStub;
@@ -30,8 +31,9 @@ namespace BotAlert.Tests
         public InputEventTimeZoneKeyboardStateTests()
         {
             _botClientMock = A.Fake<ITelegramBotClient>();
-            _stateProviderMock = A.Fake<IStateProvider>();
             _eventProviderMock = A.Fake<IEventProvider>();
+            _stateProviderMock = A.Fake<IStateProvider>();
+            _localizerFactory = A.Fake<ILocalizerFactory>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();
             _callbackQueryMock = A.Fake<CallbackQuery>();
@@ -42,7 +44,7 @@ namespace BotAlert.Tests
             _chatStub = new ChatState(_messageMock.Chat.Id, _currentState);
             _eventStub = new Event(_messageMock.Chat.Id, "Title");
 
-            _inputEventTimeZoneKeyboardState = new InputEventTimeZoneKeyboardState(_stateProviderMock, _eventProviderMock);
+            _inputEventTimeZoneKeyboardState = new InputEventTimeZoneKeyboardState(_stateProviderMock, _eventProviderMock, _localizerFactory);
         }
 
         [Fact]

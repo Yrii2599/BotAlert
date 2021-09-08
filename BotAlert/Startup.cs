@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Net.Mime;
-using System.Security.Authentication;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +20,7 @@ using BotAlert.Services;
 using BotAlert.Settings;
 using BotAlert.Factories;
 using BotAlert.Interfaces;
+using BotAlert.Helpers.Localizers;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types.Enums;
@@ -130,7 +131,18 @@ namespace BotAlert
                 { ContextState.EditState, () => _container.GetInstance<EditState>() },
                 { ContextState.InputTimeZoneState, () => _container.GetInstance<InputTimeZoneState>() },
                 { ContextState.InputEventTimeZoneKeyboardState, () => _container.GetInstance<InputEventTimeZoneKeyboardState>() },
+                { ContextState.InputLanguageKeyboardState, () => _container.GetInstance<InputLanguageKeyboardState>() },
             });
+
+            _container.RegisterInstance<ILocalizerFactory>(new LocalizerFactory
+            {
+                { LanguageType.English, () => _container.GetInstance<EngLocalizeHelper>() },
+                { LanguageType.Russian, () => _container.GetInstance<RusLocalizeHelper>() },
+            });
+            
+            //Register localization helpers
+            _container.Register<EngLocalizeHelper>();
+            _container.Register<RusLocalizeHelper>();
 
             //Register states
             _container.Register<MainState>();
@@ -147,6 +159,7 @@ namespace BotAlert
             _container.Register<EditState>();
             _container.Register<InputTimeZoneState>();
             _container.Register<InputEventTimeZoneKeyboardState>();
+            _container.Register<InputLanguageKeyboardState>();
 
             //Register services
             _container.Register<IStateProvider, StateProvider>(Lifestyle.Singleton);
@@ -170,8 +183,7 @@ namespace BotAlert
         private IMongoDatabase InitializeMongoDatabase(DBSettings mongoDbSettings)
         {
             var settings = MongoClientSettings.FromUrl(
-             new MongoUrl(mongoDbSettings.ConnectionString)
-         );
+                new MongoUrl(mongoDbSettings.ConnectionString));
             settings.SslSettings =
                 new SslSettings() { EnabledSslProtocols = SslProtocols.Tls12 };
             var client = new MongoClient(settings);

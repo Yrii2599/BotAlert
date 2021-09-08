@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using BotAlert.Interfaces;
 using BotAlert.Helpers;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -35,12 +36,12 @@ namespace BotAlert.Models
             TimeOffSet = 0;
         }
 
-        public override string ToString()
+        public string ToString(ILocalizeHelper localizer)
         {
-            return $"\t Название: {Title}\n" +
-                $"Дата события: {Date.AddHours(TimeOffSet).ToString("dd.MM.yyyy HH:mm")}\n" +
-                $"Дата оповещения: {WarnDate.AddHours(TimeOffSet).ToString("dd.MM.yyyy HH:mm")}\n" +
-                TimeZoneHelper.PrintTimeZone(TimeOffSet) +
+            return $"\t {localizer.GetMessage(MessageKeyConstants.Title)} {Title}\n" +
+                $"{localizer.GetMessage(MessageKeyConstants.Date)} {Date.AddHours(TimeOffSet).ToString("dd.MM.yyyy HH:mm")}\n" +
+                $"{localizer.GetMessage(MessageKeyConstants.WarnDate)} {WarnDate.AddHours(TimeOffSet).ToString("dd.MM.yyyy HH:mm")}\n" +
+                localizer.GetTimeZone(TimeOffSet) +
                 $"{Description}\n";
         }
     }

@@ -12,13 +12,18 @@ namespace BotAlert.Services
     {
         private const int OneMinuteInMilliseconds = 60000;
 
-        private readonly IEventProvider _eventProvider;
         private readonly ITelegramBotClient _botClient;
+        private readonly IEventProvider _eventProvider;
+        private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public NotificationSenderService(ITelegramBotClient botClient, IEventProvider eventProvider)
+        public NotificationSenderService
+            (ITelegramBotClient botClient, IEventProvider eventProvider, IStateProvider stateProvider, ILocalizerFactory localizerFactory)
         {
             _botClient = botClient;
             _eventProvider = eventProvider;
+            _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
@@ -41,7 +46,9 @@ namespace BotAlert.Services
         {
             foreach (var eventObj in eventsList)
             {
-                await _botClient.SendTextMessageAsync(eventObj.ChatId, eventObj.ToString());
+                await _botClient.SendTextMessageAsync(eventObj.ChatId, 
+                    eventObj.ToString(_localizerFactory.GetLocalizer(_stateProvider.GetChatState(eventObj.ChatId).Language)));
+
                 _eventProvider.DeleteEvent(eventObj.Id);
             }
         }

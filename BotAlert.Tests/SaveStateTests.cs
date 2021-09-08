@@ -17,6 +17,7 @@ namespace BotAlert.Tests
     {
         private readonly IEventProvider _eventProviderMock;
         private readonly IStateProvider _stateProviderMock;
+        private readonly ILocalizerFactory _localizerFactory;
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageStub;
         private readonly CallbackQuery _callbackQueryStub;
@@ -29,6 +30,7 @@ namespace BotAlert.Tests
         {
             _eventProviderMock = A.Fake<IEventProvider>();
             _stateProviderMock = A.Fake<IStateProvider>();
+            _localizerFactory = A.Fake<ILocalizerFactory>();
             _botClientMock = A.Fake<ITelegramBotClient>();
             _messageStub = new Message();
             _messageStub.Chat = new Chat();
@@ -37,7 +39,7 @@ namespace BotAlert.Tests
             _chatStateStub = new ChatState(1234);
             _eventStub = new Event(1234, "Title");
 
-            _saveState = new SaveState(_eventProviderMock, _stateProviderMock);
+            _saveState = new SaveState(_eventProviderMock, _stateProviderMock, _localizerFactory);
         }
 
         [Fact]

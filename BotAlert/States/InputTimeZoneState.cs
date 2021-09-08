@@ -12,23 +12,25 @@ namespace BotAlert.States
     {
         private readonly IStateProvider _stateProvider;
         private readonly IEventProvider _eventProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public InputTimeZoneState(IStateProvider stateProvider, IEventProvider eventProvider)
+        public InputTimeZoneState(IStateProvider stateProvider, IEventProvider eventProvider, ILocalizerFactory localizerFactory)
         {
             _stateProvider = stateProvider;
             _eventProvider = eventProvider;
-
+            _localizerFactory = localizerFactory;
         }
 
-        public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+    public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
-            if (message.Text == null || !int.TryParse(message.Text, out var timeOffSet) || timeOffSet < -12 || timeOffSet > 14)
-            {
-                return await PrintMessage(botClient, message.Chat.Id, "Неправильный формат ввода");
-            }
-
             var chat = _stateProvider.GetChatState(message.Chat.Id);
 
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
+
+            if (message.Text == null || !int.TryParse(message.Text, out var timeOffSet) || timeOffSet < -12 || timeOffSet > 14)
+            {
+                return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidTextInput));
+            }
 
             if (chat.ActiveNotificationId == Guid.Empty)
             {
@@ -44,7 +46,7 @@ namespace BotAlert.States
             {
                 chat.ActiveNotificationId = Guid.Empty;
                 _stateProvider.SaveChatState(chat);
-                await botClient.SendTextMessageAsync(chat.ChatId, "Данное событие уже произошло");
+                await botClient.SendTextMessageAsync(chat.ChatId, localizer.GetMessage(MessageKeyConstants.ExpiredDate));
 
                 return ContextState.MainState;
             }
@@ -60,30 +62,21 @@ namespace BotAlert.States
         {
             await botClient.AnswerCallbackQueryAsync(callbackQueryId: callbackQuery.Id);
 
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(callbackQuery.Message.Chat.Id).Language);
 
-            return await PrintMessage(botClient, callbackQuery.Message.Chat.Id, "Введите целое число");
+            return await PrintMessage(botClient, callbackQuery.Message.Chat.Id, localizer.GetMessage(MessageKeyConstants.EnterTimeZone));
 
         }
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
+            var chat = _stateProvider.GetChatState(chatId);
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
 
-            var timeOffSet = _stateProvider.GetChatState(chatId).TimeOffSet;
-
-            if (timeOffSet>0)
-            {
             Task.FromResult(botClient.SendTextMessageAsync(chatId, 
-                TimeZoneHelper.PrintTimeZone(timeOffSet)+
-                $"****************************\n" +
-                $"Введите новый часовой пояс (от -12 до +14):"));
-            }
-            else
-            {
-                Task.FromResult(botClient.SendTextMessageAsync(chatId,
-                    TimeZoneHelper.PrintTimeZone(timeOffSet) +
-                   $"****************************\n" +
-                   $"Введите новый часовой пояс (от -12 до +14):"));
-            }
+                localizer.GetTimeZone(chat.TimeOffSet)+
+                "****************************\n" +
+                localizer.GetMessage(MessageKeyConstants.EnterTimeZone)));
 
         }
 

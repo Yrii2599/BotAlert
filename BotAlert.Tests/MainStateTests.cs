@@ -17,18 +17,22 @@ namespace BotAlert.Tests
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageStub;
         private readonly CallbackQuery _callbackQueryStub;
+        private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
         private readonly IState _mainState;
 
         public MainStateTests()
         {
             _botClientMock = A.Fake<ITelegramBotClient>();
+            _stateProvider = A.Fake<IStateProvider>();
+            _localizerFactory = A.Fake<ILocalizerFactory>();
             _messageStub = new Message();
             _messageStub.Chat = new Chat();
             _callbackQueryStub = new CallbackQuery();
             _callbackQueryStub.Message = _messageStub;
 
-            _mainState = new MainState();
+            _mainState = new MainState(_stateProvider, _localizerFactory);
         }
 
         [Fact]

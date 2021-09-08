@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Collections.Generic;
+using BotAlert.Interfaces;
 using BotAlert.States;
 using BotAlert.Models;
 using Telegram.Bot;
@@ -13,6 +14,8 @@ namespace BotAlert.Tests
 {
     public class InputDescriptionKeyboardStateTests
     {
+        private readonly IStateProvider _stateProviderMock;
+        private readonly ILocalizerFactory _localizerFactory;
         private readonly ITelegramBotClient _botClientMock;
         private readonly Message _messageMock;
         private readonly CallbackQuery _callbackQueryMock;
@@ -21,8 +24,12 @@ namespace BotAlert.Tests
 
         private readonly InputDescriptionKeyboardState _inputDescriptionKeyboardState;
 
+        public ILocalizerFactory LocalizerFactory => _localizerFactory;
+
         public InputDescriptionKeyboardStateTests()
         {
+            _stateProviderMock = A.Fake<IStateProvider>();
+            _localizerFactory = A.Fake<ILocalizerFactory>();
             _botClientMock = A.Fake<ITelegramBotClient>();
             _messageMock = A.Fake<Message>();
             _messageMock.Chat = A.Fake<Chat>();
@@ -31,7 +38,7 @@ namespace BotAlert.Tests
 
             _currentState = ContextState.InputDescriptionKeyboardState;
 
-            _inputDescriptionKeyboardState = new InputDescriptionKeyboardState();
+            _inputDescriptionKeyboardState = new InputDescriptionKeyboardState(_stateProviderMock, _localizerFactory);
         }
 
         [Fact]

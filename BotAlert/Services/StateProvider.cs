@@ -34,7 +34,8 @@ namespace BotAlert.Services
             var update = Builders<ChatState>.Update.Set(x => x.State, chatObj.State)
                                                    .Set(x => x.NotificationsPage, chatObj.NotificationsPage)
                                                    .Set(x => x.ActiveNotificationId, chatObj.ActiveNotificationId)
-                                                   .Set(x => x.TimeOffSet, chatObj.TimeOffSet);
+                                                   .Set(x => x.TimeOffSet, chatObj.TimeOffSet)
+                                                   .Set(x => x.Language, chatObj.Language);
 
             _chatsCollection.UpdateOne(GetChatIdFilter(chatObj.ChatId), update);
         }

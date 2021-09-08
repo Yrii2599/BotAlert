@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using BotAlert.Models;
+using BotAlert.Helpers;
 using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -11,21 +12,25 @@ namespace BotAlert.States
     {
         private readonly IEventProvider _eventProvider;
         private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
 
-        public InputTitleState(IEventProvider eventProvider, IStateProvider stateProvider)
+        public InputTitleState(IEventProvider eventProvider, IStateProvider stateProvider, ILocalizerFactory localizerFactory)
         {
             _eventProvider = eventProvider;
             _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
         }
 
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
+            var chat = _stateProvider.GetChatState(message.Chat.Id);
+            var localizer = _localizerFactory.GetLocalizer(chat.Language);
+
             if (message.Text == null) 
             { 
-                return await PrintMessage(botClient, message.Chat.Id, "Неверный формат сообщения");
+                return await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidTextInput));
             }
 
-            var chat = _stateProvider.GetChatState(message.Chat.Id);
 
             if (chat.ActiveNotificationId != Guid.Empty)
             {
@@ -35,7 +40,7 @@ namespace BotAlert.States
                 {
                     chat.ActiveNotificationId = Guid.Empty;
                     _stateProvider.SaveChatState(chat);
-                    await botClient.SendTextMessageAsync(chat.ChatId, "Данное событие уже произошло");
+                    await botClient.SendTextMessageAsync(chat.ChatId, localizer.GetMessage(MessageKeyConstants.ExpiredDate));
 
                     return ContextState.MainState;
                 }
@@ -64,7 +69,9 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Введите название события:");
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(chatId).Language);
+
+            botClient.SendTextMessageAsync(chatId, localizer.GetMessage(MessageKeyConstants.EnterTitle));
         }
 
         private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message)

@@ -4,11 +4,21 @@ using BotAlert.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using BotAlert.Helpers;
 
 namespace BotAlert.States
 {
     public class MainState : IState
     {
+        private readonly IStateProvider _stateProvider;
+        private readonly ILocalizerFactory _localizerFactory;
+
+        public MainState(IStateProvider stateProvider, ILocalizerFactory localizerFactory)
+        {
+            _stateProvider = stateProvider;
+            _localizerFactory = localizerFactory;
+        }
+
         public async Task<ContextState> BotOnMessageReceived(ITelegramBotClient botClient, Message message)
         {
             if (message.Type != MessageType.Text)
@@ -16,16 +26,20 @@ namespace BotAlert.States
                 return ContextState.MainState;
             }
 
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(message.Chat.Id).Language);
+
             return message.Text switch
             {
                 "/start" => await PrintMessage(botClient, 
-                                               message.Chat.Id, $"Рады вас приветствовать, {message.Chat.FirstName}!", 
+                                               message.Chat.Id, 
+                                               $"{localizer.GetMessage(MessageKeyConstants.Start)}, {message.Chat.FirstName}!", 
                                                ContextState.InputTimeZoneState),
                 "/create" => ContextState.InputTitleState,
                 "/get_notifications" => ContextState.GetAllNotificationsState,
                 "/set_time_zone" => ContextState.InputTimeZoneState,
+                "/set_language" => ContextState.InputLanguageKeyboardState,
 
-                _ => await PrintMessage(botClient, message.Chat.Id, "Выберите пожалуйста одну из команд!", ContextState.MainState)
+                _ => await PrintMessage(botClient, message.Chat.Id, localizer.GetMessage(MessageKeyConstants.InvalidChoiceInput), ContextState.MainState)
             };
         }
 
@@ -34,10 +48,9 @@ namespace BotAlert.States
 
         public void BotSendMessage(ITelegramBotClient botClient, long chatId)
         {
-            botClient.SendTextMessageAsync(chatId, $"Выберите одну из команд:\n" +
-                                                   $"/create - Создать новое событие\n" +
-                                                   $"/get_notifications - Получить список событий\n" +
-                                                   $"/set_time_zone - Установить часовой пояс");
+            var localizer = _localizerFactory.GetLocalizer(_stateProvider.GetChatState(chatId).Language);
+
+            botClient.SendTextMessageAsync(chatId, localizer.GetMessage(MessageKeyConstants.CommandChoicePanel));
         }
 
         private async Task<ContextState> PrintMessage(ITelegramBotClient botClient, long chatId, string message, ContextState returnState)

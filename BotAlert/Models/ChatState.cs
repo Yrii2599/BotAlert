@@ -24,6 +24,9 @@ namespace BotAlert.Models
         [Required]
         public int TimeOffSet { get; set; }
 
+        [Required]
+        public LanguageType Language { get; set; }
+
         public ChatState(long chatId, ContextState state = ContextState.MainState)
         {
             ChatId = chatId;
@@ -31,6 +34,7 @@ namespace BotAlert.Models
             NotificationsPage = 0;
             ActiveNotificationId = Guid.Empty;
             TimeOffSet = 0;
+            Language = LanguageType.English;
         }
     }
 }
